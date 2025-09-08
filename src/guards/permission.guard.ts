@@ -1,8 +1,8 @@
-import { PrismaService } from '@app/config/services/prisma.service';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { User } from '@prisma/client';
-import { Permission } from 'libs/decorators/permission.decorator';
+import { User } from '@prisma/client/edge.js';
+import { PrismaService } from 'src/config/prisma.service';
+import { Permission } from 'src/decorators/permission.decorator';
 
 @Injectable()
 export class PermissionGuard implements CanActivate {

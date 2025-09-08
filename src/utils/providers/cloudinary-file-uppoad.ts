@@ -5,7 +5,7 @@ import {
 } from '../interfaces/file-upload.interface';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
-import * as FormData from 'form-data';
+import FormData from 'form-data';
 export class CooudinaryFileUploadProvider implements FileUploadProvider {
   private readonly logger = new Logger(CooudinaryFileUploadProvider.name);
   constructor(private configService: ConfigService) {

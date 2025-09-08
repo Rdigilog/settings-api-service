@@ -2,6 +2,7 @@
 
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/config/prisma.service';
+import { LoggedInUser } from 'src/models/types/user.types';
 
 @Injectable()
 export class UserService extends PrismaService {
@@ -18,7 +19,7 @@ export class UserService extends PrismaService {
     return result;
   }
 
-  async findById(id: string, includePassword = false) {
+  async findById(id: string, includePassword = false):Promise<any | null> {
     const result = await this.user.findUnique({
       where: { id },
       select: {

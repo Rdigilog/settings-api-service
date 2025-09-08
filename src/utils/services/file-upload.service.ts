@@ -1,12 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { FileUploadProvider } from '../interfaces/file-upload.interface';
+import * as fileUploadInterface from '../interfaces/file-upload.interface';
 // import { FileUploadProvider } from './file-upload.interface';
 
 @Injectable()
 export class FileUploadService {
   constructor(
     @Inject('FileUploadProvider')
-    private fileUploadProvider: FileUploadProvider,
+    private fileUploadProvider: fileUploadInterface.FileUploadProvider,
   ) {}
 
   async uploadPicture(file: Express.Multer.File) {

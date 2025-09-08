@@ -1,10 +1,10 @@
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 
-export const MailConfig = MailerModule.forRoot({
+export const MailConfig:any = MailerModule.forRoot({
   transport: {
     host: process.env.MAIL_HOST,
-    port: +process.env.MAIL_PORT,
+    port: +(process.env.MAIL_PORT || 465),
     secure: true, // upgrade later with STARTTLS
     auth: {
       user: process.env.MAIL_USER,

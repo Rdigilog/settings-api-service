@@ -1,12 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import * as speakeasy from 'speakeasy';
-import * as qrcode from 'qrcode';
 
 @Injectable()
 export class OtpService {
-  async generateQRCode(url: string) {
-    return await qrcode.toDataURL(url);
-  }
   isTokenValid(secret: string, token: string) {
     return speakeasy.totp.verify({
       secret: secret,

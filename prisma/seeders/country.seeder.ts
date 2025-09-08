@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client/edge.js';
 
 const prisma = new PrismaClient();
 
@@ -21629,9 +21629,12 @@ const seed = async () => {
   for (const country of data) {
     await prisma.country.upsert({
       where: {
-        code2: country.code2,
+        code: country.code2,
       },
-      create: country,
+      create: {
+        ...country,
+        code:country.code2
+      },
       update: country,
     });
   }

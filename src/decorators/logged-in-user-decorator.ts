@@ -1,7 +1,8 @@
-import { LoggedInUser } from '@app/model/types/user.types';
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
-export const AuthUser = createParamDecorator(
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { LoggedInUser } from 'src/models/types/user.types';
+
+export const AuthUser:any = createParamDecorator(
   (data: LoggedInUser, req: ExecutionContext) => {
     return req.switchToHttp().getRequest().user as LoggedInUser;
   },

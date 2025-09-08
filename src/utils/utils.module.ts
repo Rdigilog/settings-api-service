@@ -2,7 +2,6 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UtilsService } from './services/utils.service';
 import { OtpService } from './services/otp.service';
-import { TwilioService } from './services/twilio.service';
 import { RedisService } from './services/redis.service';
 import { GeneralService } from './services/general.service';
 import { ResponsesService } from './services/responses.service';
@@ -16,7 +15,6 @@ import { fileUploadProviderFactory } from './services/factory.provider';
   providers: [
     UtilsService,
     OtpService,
-    TwilioService,
     RedisService,
     GeneralService,
     ResponsesService,
@@ -25,7 +23,7 @@ import { fileUploadProviderFactory } from './services/factory.provider';
       provide: 'FileUploadProvider',
       useFactory: (configService: ConfigService) => {
         return fileUploadProviderFactory(
-          configService.get('FILE_UPLOAD_PROVIDER'),
+          configService.get('FILE_UPLOAD_PROVIDER') || '',
           configService,
         );
       },
@@ -35,7 +33,7 @@ import { fileUploadProviderFactory } from './services/factory.provider';
       provide: 'REDIS_CLIENT',
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        return new Redis(configService.get<string>('REDIS_URL'));
+        return new Redis(configService.get<string>('REDIS_URL') || '');
       },
     },
   ],
@@ -46,7 +44,6 @@ import { fileUploadProviderFactory } from './services/factory.provider';
     GeneralService,
     ResponsesService,
     FileUploadService,
-    TwilioService,
     'REDIS_CLIENT',
   ],
 })
