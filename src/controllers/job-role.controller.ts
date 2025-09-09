@@ -1,49 +1,56 @@
-import { AuthGuard } from '@app/guard/auth.guard';
-import { CreateTermLegalDto } from '@app/model/term.legal.dto';
-import { ResponsesService } from '@app/utils/services/responses.service';
 import {
-  Body,
   Controller,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Query,
   UseGuards,
+  Get,
+  Query,
+  Post,
+  Body,
+  Patch,
+  Put,
+  Param,
 } from '@nestjs/common';
-import { ApiQuery } from '@nestjs/swagger';
-import { TermLegalType } from '@prisma/client';
-import { TermLegalService } from 'packages/repository/services/term-legal.service';
+import { ApiTags, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { AuthUser } from 'src/decorators/logged-in-user-decorator';
+import { RouteName } from 'src/decorators/route-name.decorator';
+import { AuthGuard } from 'src/guards/auth.guard';
+import { CreateJobRoleDto } from 'src/models/company/job-role.dto';
+import type { LoggedInUser } from 'src/models/types/user.types';
+import { JobRoleService } from 'src/services/job-role.service';
+import { ResponsesService } from 'src/utils/services/responses.service';
 
-@Controller('term-legal')
-export class TermLegalController {
+@Controller('job-role')
+@ApiTags('Job Role')
+@ApiBearerAuth('access-token') // allow using access token with swagger()
+@UseGuards(AuthGuard)
+export class JobRoleController {
   constructor(
-    private readonly service: TermLegalService,
+    private readonly service: JobRoleService,
     private readonly responseService: ResponsesService,
   ) {}
+
+  @RouteName('job-role.list')
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'size', required: false, type: Number })
   @ApiQuery({ name: 'search', required: false, type: String })
   @ApiQuery({ name: 'sortDirection', required: false, type: String })
   @ApiQuery({ name: 'sortBy', required: false, type: String })
-  @ApiQuery({ name: 'type', required: false, enum: TermLegalType })
   @Get('')
   async list(
+    @AuthUser() user: LoggedInUser,
     @Query('page') page: number = 1,
     @Query('size') size: number = 50,
     @Query('search') search?: string,
     @Query('sortDirection') sortDirection?: 'asc' | 'desc',
     @Query('sortBy') sortBy?: string,
-    @Query('type') type?: TermLegalType,
   ) {
     try {
       const result = await this.service.list(
+        user.userRole[0].companyId as string,
         page,
         size,
         search,
         sortBy,
         sortDirection,
-        type,
       );
       if (result.error == 2) {
         return this.responseService.exception(result.body);
@@ -53,11 +60,18 @@ export class TermLegalController {
       return this.responseService.exception(e.message);
     }
   }
+
+  @RouteName('job-role.create')
   @Post()
-  @UseGuards(AuthGuard)
-  async create(@Body() payload: CreateTermLegalDto) {
+  async create(
+    @AuthUser() user: LoggedInUser,
+    @Body() payload: CreateJobRoleDto,
+  ) {
     try {
-      const result = await this.service.create(payload);
+      const result = await this.service.create(
+        payload,
+        user.userRole[0].companyId as string,
+      );
       if (result.error == 2) {
         return this.responseService.exception(result.body);
       }
@@ -69,27 +83,17 @@ export class TermLegalController {
       return this.responseService.exception(e.message);
     }
   }
-  @Patch('/:id')
-  @UseGuards(AuthGuard)
-  async update(@Body() payload: CreateTermLegalDto, @Param('id') id: string) {
+
+  @RouteName('job-role.update')
+  @Patch('/:jobRoleId')
+  @Put('/:jobRoleId')
+  async update(
+    @AuthUser() user: LoggedInUser,
+    @Body() payload: Partial<CreateJobRoleDto>,
+    @Param('jobRoleId') id: string,
+  ) {
     try {
       const result = await this.service.update(payload, id);
-      if (result.error == 2) {
-        return this.responseService.exception(result.body);
-      }
-      if (result.error == 1) {
-        return this.responseService.badRequest(result.body);
-      }
-      return this.responseService.success(result.body);
-    } catch (e) {
-      return this.responseService.exception(e.message);
-    }
-  }
-  @Get('/:id')
-  @UseGuards(AuthGuard)
-  async view(@Param('id') id: string) {
-    try {
-      const result = await this.service.view(id);
       if (result.error == 2) {
         return this.responseService.exception(result.body);
       }

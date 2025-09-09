@@ -9,30 +9,35 @@ datasource db {
 }
 
 model User {
-  id            String        @id @default(uuid())
-  email         String?       @unique(map: "index_users_on_email")
-  phoneNumber   String?       @unique(map: "index_users_on_phone_number") @map("phone_number")
-  googleId      String?       @map("google_id")
+  id            String         @id @default(uuid())
+  email         String?        @unique(map: "index_users_on_email")
+  phoneNumber   String?        @unique(map: "index_users_on_phone_number") @map("phone_number")
+  googleId      String?        @map("google_id")
   type          String?
   password      String?
-  active        Boolean       @default(false)
-  locked        Boolean       @default(false)
-  deleted       Boolean       @default(false)
-  verified      Boolean       @default(false)
-  phoneVerified Boolean       @default(false) @map("phone_verified")
-  deletedAt     DateTime?     @map("deleted_at")
-  createdAt     DateTime      @default(now()) @map("created_at")
-  updatedAt     DateTime      @updatedAt @map("updated_at")
-  profile       Profile?      @relation(name: "user_profile")
-  userRole      UserRole[]    @relation(name: "user_user_role")
+  active        Boolean        @default(false)
+  locked        Boolean        @default(false)
+  deleted       Boolean        @default(false)
+  verified      Boolean        @default(false)
+  phoneVerified Boolean        @default(false) @map("phone_verified")
+  deletedAt     DateTime?      @map("deleted_at")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  profile       Profile?       @relation(name: "user_profile")
+  userRole      UserRole[]     @relation(name: "user_user_role")
   task          Task[]
   leave         Leave[]
   attendance    Attendance[]
   note          Note[]
   celebration   Celebration[]
   rota          Rota[]
-  invitation    invitation[]  @relation(name: "invitation_user")
-  invitees      invitation[]  @relation(name: "invitation_invited_by_user")
+  invitation    invitation[]   @relation(name: "invitation_user")
+  invitees      invitation[]   @relation(name: "invitation_invited_by_user")
+  TaskAssignee  TaskAssignee[]
+  TaskStageLog  TaskStageLog[]
+  LeavePolicy   LeavePolicy[]  @relation("PolicyMembers")
+  LeavePolicy1   LeavePolicy[]  @relation("PolicyApprovalLevel1")
+  LeavePolicy2 LeavePolicy[] @relation("PolicyApprovalLevel2")
 
   @@map("users")
 }
@@ -193,6 +198,8 @@ model Company {
   holidayRequestRuleSetting HolidayRequestRuleSetting?
   digiTimeSetting           DigiTimeSetting?
   BreakComplianceSetting    BreakComplianceSetting[]
+  TaskStage                 TaskStage[]
+  LeavePolicy               LeavePolicy[]
 
   @@map("companies")
 }
@@ -235,7 +242,7 @@ model ShiftSetting {
 
   enableOpenShifts Boolean @default(false) @map("enable_open_shifts")
 
-  claimEligibility ClainEligibility? @map("claim_eligibility") @default(ALL_EMPLOYEE)
+  claimEligibility ClainEligibility? @default(ALL_EMPLOYEE) @map("claim_eligibility")
 
   minNoticeToClaim Int? @map("min_notice_to_claim") // in hours before shift starts
 
@@ -256,7 +263,7 @@ model HolidayRequestRuleSetting {
   id        String @id @default(uuid())
   companyId String @unique @map("company_id")
 
-  enableHolidayRequests Boolean  @default(false) @map("enable_holiday_requests")
+  enableHolidayRequests Boolean        @default(false) @map("enable_holiday_requests")
   holidayTypesAllowed   HolidayTypes[] @map("holiday_types_allowed")
 
   minNoticeBeforeLeave Int?    @map("min_notice_before_leave") // days
@@ -491,6 +498,7 @@ model Branch {
   country       Country         @relation(fields: [countryCode], references: [code])
   manager       Profile?        @relation(fields: [managerId], references: [userId])
   profileBranch ProfileBranch[]
+  LeavePolicy   LeavePolicy[]   @relation("PolicyBranches")
 
   @@index([companyId, countryCode])
   @@map("branches")
@@ -513,7 +521,7 @@ model Plan {
 
 model Feature {
   id          String        @id @default(uuid())
-  name        String?
+  name        String?       @unique
   active      Boolean       @default(true)
   createdAt   DateTime      @default(now()) @map("created_at")
   updatedAt   DateTime      @updatedAt @map("updated_at")
@@ -521,6 +529,20 @@ model Feature {
   planFeature PlanFeature[]
 
   @@map("features")
+}
+
+model PlanFeature {
+  planId    String @map("plan_id")
+  featureId String @map("feature_id")
+
+  maxLimit Int?    @default(1)
+  hasLimit Boolean @default(false)
+
+  plan    Plan    @relation(fields: [planId], references: [id])
+  feature Feature @relation(fields: [featureId], references: [id])
+
+  @@id([planId, featureId])
+  @@map("plan_features")
 }
 
 model Attendance {
@@ -550,16 +572,40 @@ model TermLegal {
   @@map("terms_legals")
 }
 
-model LeavePolicy{
-  id          String   @id @default(uuid())
-  name        String   @unique
-  description String?
-  daysPerYear Int      @default(0) @map("days_per_year")
-companyId String
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+model LeavePolicy {
+  id          String  @id @default(uuid())
+  name        String  @map("policy_name") // Policy Name
+  description String? // Optional description
 
-  leaves Leave[]
+  // Associations
+  companyId String  @map("company_id")
+  company   Company @relation(fields: [companyId], references: [id])
+
+  // Applied scope
+  branches Branch[] @relation("PolicyBranches") // Branches/Departments
+  members  User[]   @relation("PolicyMembers") // Selected Members
+
+  autoAddNewMembers Boolean @default(false) @map("auto_add_new_members") // Automatically add new members
+
+  // Schedule & Accrual
+  accrualSchedule  String  @map("schedule_of_accrual") // e.g. Monthly, Yearly, etc.
+  joinDatePolicy   Boolean @default(false) @map("policy_joined_date") // Starts on join date
+  maxAccrualHours  Int?    @map("maximum_accrual_hours") // Maximum accrual
+  allowNegative    Boolean @default(false) @map("allow_negative_balance")
+  requiresApproval Boolean @default(true) @map("requires_approval")
+  balanceRollover  Boolean @default(false) @map("balance_rollover")
+  paid             Boolean @default(true) @map("paid") // Paid or unpaid
+
+  // Approvals
+  approvalLevel1Id String? @map("approval_level_1_id")
+  approvalLevel2Id String? @map("approval_level_2_id")
+
+  approvalLevel1 User? @relation("PolicyApprovalLevel1", fields: [approvalLevel1Id], references: [id])
+  approvalLevel2 User? @relation("PolicyApprovalLevel2", fields: [approvalLevel2Id], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  leave Leave[]
 
   @@map("leave_policies")
 }
@@ -567,13 +613,13 @@ companyId String
 model Leave {
   id            String      @id @default(uuid())
   userId        String      @map("user_id")
-  leavePolicyId   String      @map("leave_type_id")
+  leavePolicyId String      @map("leave_type_id")
   startDate     DateTime    @map("start_date")
   endDate       DateTime    @map("end_date")
   daysRequested Int         @map("days_requested")
   reason        String?
   status        LeaveStatus
-  leavePolicy     LeavePolicy   @relation(fields: [leavePolicyId], references: [id])
+  leavePolicy   LeavePolicy @relation(fields: [leavePolicyId], references: [id])
   companyId     String?     @map("company_id")
   createdAt     DateTime    @default(now()) @map("created_at")
   updatedAt     DateTime    @updatedAt @map("updated_at")
@@ -584,40 +630,83 @@ model Leave {
   @@map("leaves")
 }
 
-model PlanFeature {
-  planId    String @map("plan_id")
-  featureId String @map("feature_id")
-
-  plan    Plan    @relation(fields: [planId], references: [id])
-  feature Feature @relation(fields: [featureId], references: [id])
-
-  @@id([planId, featureId])
-  @@map("plan_features")
-}
-
 model Task {
-  id           Int             @id @default(autoincrement())
-  title        String
-  description  String?
-  isRecurring  Boolean         @default(false) @map("is_recurring")
-  recurrence   RecurrenceType?
-  interval     Int?
-  startDate    DateTime        @map("start_date")
-  endDate      DateTime?       @map("end_date")
-  dueDate      DateTime?       @map("due_date")
-  status       TaskStatus      @default(DRAFT)
-  userId       String          @map("user_id")
-  companyId    String          @map("company_id")
-  parentTaskId Int?            @map("parent_task_id") // for subtask relationship
-  parentTask   Task?           @relation("Subtasks", fields: [parentTaskId], references: [id])
-  subtasks     Task[]          @relation("Subtasks")
-  createdAt    DateTime        @default(now()) @map("created_at")
-  updatedAt    DateTime        @updatedAt @map("updated_at")
+  id          String          @id @default(uuid())
+  title       String
+  description String?
+  isRecurring Boolean         @default(false) @map("is_recurring")
+  recurrence  RecurrenceType?
+  interval    Int?
+  startDate   DateTime        @map("start_date")
+  endDate     DateTime?       @map("end_date")
+  dueDate     DateTime?       @map("due_date")
+  status      TaskStatus      @default(DRAFT)
+  managerId   String          @map("manager_id")
+  companyId   String          @map("company_id")
+  tags        String[]
+  checklist   String[]
+  category    String[]
 
-  assignedTo User    @relation(fields: [userId], references: [id])
-  company    Company @relation(fields: [companyId], references: [id])
+  timeType   String   @map("time_type")
+  metrics    Int      @default(0)
+  startTime  String?
+  finishTime String?
+  priority   Priority @default(LOW)
+  stageId String?    @map("stage_id")
+  // parentTaskId Int?            @map("parent_task_id") // for subtask relationship
+  // parentTask   Task?           @relation("Subtasks", fields: [parentTaskId], references: [id])
+  // subtasks     Task[]          @relation("Subtasks")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  stage   TaskStage? @relation(fields: [stageId], references: [id])
+
+  manager      User           @relation(fields: [managerId], references: [id])
+  company      Company        @relation(fields: [companyId], references: [id])
+  taskAssignee TaskAssignee[]
+  TaskStageLog TaskStageLog[]
 
   @@map("tasks")
+}
+
+model TaskAssignee {
+  userId String @map("user_id")
+  taskId String @map("task_id")
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, userId])
+  @@map("task_assignees")
+}
+
+model TaskStage {
+  id        String @id @default(uuid())
+  name      String
+  companyId String
+
+  company          Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  Task             Task[]
+  fromTaskStageLog TaskStageLog[] @relation("FromStage")
+  toTaskStageLog   TaskStageLog[] @relation("ToStage")
+
+  @@map("task_stages")
+}
+
+model TaskStageLog {
+  id          String   @id @default(uuid())
+  taskId      String   @map("task_id")
+  fromStageId String?  @map("from_stage_id") // nullable because first stage has no "from"
+  toStageId   String   @map("to_stage_id")
+  movedById   String   @map("moved_by_id")
+  movedAt     DateTime @default(now()) @map("moved_at")
+
+  task      Task       @relation(fields: [taskId], references: [id])
+  fromStage TaskStage? @relation("FromStage", fields: [fromStageId], references: [id])
+  toStage   TaskStage  @relation("ToStage", fields: [toStageId], references: [id])
+  user      User       @relation(fields: [movedById], references: [id])
+
+  @@map("task_stage_logs")
 }
 
 model Demo {
@@ -871,11 +960,21 @@ enum ClainEligibility {
   BY_BRANCH
 }
 
-
 enum HolidayTypes {
   PAID_LEAVE
   UNPAID_LEAVE
   SICK_LEAVE
   SABATICAL
   MATERNITY
+}
+
+enum Priority {
+  HIGH
+  LOW
+  MEDIUM
+}
+
+enum AccrualSchedule {
+  MONTHLY
+  ANNUALLY
 }

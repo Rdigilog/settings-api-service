@@ -1,7 +1,7 @@
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 
-export const MailConfig:any = MailerModule.forRoot({
+export const MailConfig: any = MailerModule.forRoot({
   transport: {
     host: process.env.MAIL_HOST,
     port: +(process.env.MAIL_PORT || 465),

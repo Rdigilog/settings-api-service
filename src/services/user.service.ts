@@ -1,14 +1,22 @@
+import { Injectable } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
+import { Queue } from "bullmq";
+import { PrismaService } from "src/config/prisma.service";
+import { UpdateProfileDto, EmployeeDto } from "src/models/onboarding/profile.dto";
+import { InitiateRegistrationDto, PhoneNumberDTO, CompanyDetailsDTO, InviteUserDTO } from "src/models/onboarding/SignUp.dto";
+import { ResponsesService } from "src/utils/services/responses.service";
+import { UtilsService } from "src/utils/services/utils.service";
 
-
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/config/prisma.service';
-import { LoggedInUser } from 'src/models/types/user.types';
 
 @Injectable()
-export class UserService extends PrismaService {
+export class UserService {
+  constructor(
+    private readonly prismaService: PrismaService,
+  ) {
+  }
 
   async findByUsername(username: any) {
-    const result = await this.user.findFirstOrThrow({
+    const result = await this.prismaService.user.findFirstOrThrow({
       where: {
         OR: [
           { email: { equals: username, mode: 'insensitive' } },
@@ -19,8 +27,8 @@ export class UserService extends PrismaService {
     return result;
   }
 
-  async findById(id: string, includePassword = false):Promise<any | null> {
-    const result = await this.user.findUnique({
+  async findById(id: string, includePassword = false) {
+    return await this.prismaService.user.findUnique({
       where: { id },
       select: {
         id: true,
@@ -34,7 +42,6 @@ export class UserService extends PrismaService {
         },
       },
     });
-    return result
   }
 
 }

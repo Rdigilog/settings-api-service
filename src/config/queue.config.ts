@@ -1,5 +1,5 @@
 import { BullModule } from '@nestjs/bullmq';
-export const QueueConfig:any = BullModule.forRoot({
+export const QueueConfig: any = BullModule.forRoot({
   connection: {
     url: `${process.env.REDIS_URL}/1`,
   },

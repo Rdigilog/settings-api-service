@@ -5,7 +5,7 @@ import {
   MaritalStatus,
   Relationship,
   WorkType,
-} from '@prisma/client/edge.js';
+} from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
   IsOptional,

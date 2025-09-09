@@ -1,13 +1,13 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { 
-  AppType, 
-  ClainEligibility, 
-  HolidayTypes, 
-  ProductivityTrackingMethods, 
-  ProductivityVisibility, 
-  RecurrenceType, 
-  TrackingMethod, 
-  WEEKDAY 
+import {
+  AppType,
+  ClainEligibility,
+  HolidayTypes,
+  ProductivityTrackingMethods,
+  ProductivityVisibility,
+  RecurrenceType,
+  TrackingMethod,
+  WEEKDAY,
 } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
@@ -119,13 +119,45 @@ export class CompanyUpdateDto {
   @IsString()
   breakTime?: string;
 
-  @ApiProperty({ type: Boolean, default: false })
+  @ApiPropertyOptional({ default: false })
+  @IsOptional()
   @IsBoolean()
-  displayRate: boolean;
+  countryTimeZone?: boolean;
 
-  @ApiProperty({ type: Boolean, default: false })
+  @ApiPropertyOptional({ default: false })
+  @IsOptional()
   @IsBoolean()
-  profileVisibility: boolean;
+  aboutMe?: boolean;
+
+  @ApiPropertyOptional({ default: false })
+  @IsOptional()
+  @IsBoolean()
+  primaryInfo?: boolean;
+
+  @ApiPropertyOptional({ default: false })
+  @IsOptional()
+  @IsBoolean()
+  personalInfo?: boolean;
+
+  @ApiPropertyOptional({ default: false })
+  @IsOptional()
+  @IsBoolean()
+  emergencyContact?: boolean;
+
+  @ApiPropertyOptional({ default: false })
+  @IsOptional()
+  @IsBoolean()
+  jobDetails?: boolean;
+
+  @ApiPropertyOptional({ default: false })
+  @IsOptional()
+  @IsBoolean()
+  bankingInfo?: boolean;
+
+  @ApiPropertyOptional({ default: false })
+  @IsOptional()
+  @IsBoolean()
+  identityInfo?: boolean;
 }
 
 export class RotaRuleSettingDto {
@@ -177,13 +209,19 @@ export class ShiftSettingDto {
   @IsBoolean()
   allowTradesAcrossRoles: boolean;
 
-  @ApiProperty({ required: false, description: 'Minimum notice time (hours) for trade requests' })
+  @ApiProperty({
+    required: false,
+    description: 'Minimum notice time (hours) for trade requests',
+  })
   @IsOptional()
   @IsInt()
   @Min(0)
   minNoticeTimeForTradeRequest?: number;
 
-  @ApiProperty({ required: false, description: 'Latest approval time before shift (hours)' })
+  @ApiProperty({
+    required: false,
+    description: 'Latest approval time before shift (hours)',
+  })
   @IsOptional()
   @IsInt()
   @Min(0)
@@ -197,12 +235,18 @@ export class ShiftSettingDto {
   @IsBoolean()
   enableOpenShifts: boolean;
 
-  @ApiProperty({ required: false, description: 'Claim eligibility type (all, qualified, branch/department)' })
+  @ApiProperty({
+    required: false,
+    description: 'Claim eligibility type (all, qualified, branch/department)',
+  })
   @IsOptional()
   @IsString()
-  claimEligibility?:ClainEligibility;
+  claimEligibility?: ClainEligibility;
 
-  @ApiProperty({ required: false, description: 'Minimum notice to claim open shift (hours)' })
+  @ApiProperty({
+    required: false,
+    description: 'Minimum notice to claim open shift (hours)',
+  })
   @IsOptional()
   @IsInt()
   @Min(0)
@@ -250,7 +294,10 @@ export class HolidayRequestRuleSettingDto {
   @IsBoolean()
   excludeNewStarters: boolean;
 
-  @ApiProperty({ type: String, description: 'Approval required from (Line Manager, HR/Admin, etc.)' })
+  @ApiProperty({
+    type: String,
+    description: 'Approval required from (Line Manager, HR/Admin, etc.)',
+  })
   @IsString()
   approvalRequiredFrom: string;
 
@@ -402,19 +449,17 @@ export class BreakSettingDto {
 }
 
 export class BreakComplianceSettingDto {
-  @ApiProperty({ example: true, description: 'Enable or disable breaks globally' })
+  @ApiProperty({
+    example: true,
+    description: 'Enable or disable breaks globally',
+  })
   @IsBoolean()
   enabled: boolean;
 
-  @ApiProperty({ type: [BreakSettingDto], description: 'List of defined breaks' })
+  @ApiProperty({
+    type: [BreakSettingDto],
+    description: 'List of defined breaks',
+  })
   @IsOptional()
   breaks?: BreakSettingDto[];
 }
-
-
-
-
-
-
-
-

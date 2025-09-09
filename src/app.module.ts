@@ -8,10 +8,19 @@ import { ConfigModule } from '@nestjs/config';
 import { JwtConfig } from './config/jwt.config';
 import { MailConfig } from './config/mail.config';
 import { QueueConfig } from './config/queue.config';
-import { PlanController } from './controllers/plan.controller';
-import { RoleController } from './controllers/role.controller';
-import { TermLegalController } from './controllers/term-legal.controller';
 import { StatusInterceptor } from './interceptors/status.interceptor';
+import { BranchController } from './controllers/branch.controller';
+import { CompanyController } from './controllers/company.controller';
+import { EmployeeController } from './controllers/employee.controller';
+import { JobRoleController } from './controllers/job-role.controller';
+import { BranchService } from './services/branch.service';
+import { EmployeeService } from './services/employee.service';
+import { CompanyService } from './services/company.service';
+import { JobRoleService } from './services/job-role.service';
+import { LeaveService } from './services/leave.service';
+import { TaskService } from './services/task.service';
+import { UserService } from './services/user.service';
+import { PrismaService } from './config/prisma.service';
 
 @Module({
   imports: [
@@ -28,12 +37,25 @@ import { StatusInterceptor } from './interceptors/status.interceptor';
     UtilsModule,
     CacheModule.registerAsync(RedisCacheOptions),
   ],
-  controllers: [PlanController, RoleController, TermLegalController],
+  controllers: [
+    BranchController,
+    CompanyController,
+    JobRoleController,
+    EmployeeController,
+  ],
   providers: [
     {
       provide: APP_INTERCEPTOR,
       useClass: StatusInterceptor,
     },
+    BranchService,
+    EmployeeService,
+    CompanyService,
+    JobRoleService,
+    LeaveService,
+    TaskService,
+    UserService,
+    PrismaService
   ],
 })
 export class AppModule {}

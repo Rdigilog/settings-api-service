@@ -1,38 +1,47 @@
-import { AuthGuard } from '@app/guard/auth.guard';
-import { AssignPermissionsDto, CreateItemDto } from '@app/model/role.dto';
-import { ResponsesService } from '@app/utils/services/responses.service';
 import {
-  Body,
   Controller,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Put,
-  Query,
+  Request,
   UseGuards,
+  Get,
+  Query,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Put,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { RouteName } from 'libs/decorators/route-name.decorator';
-import { RoleService } from 'packages/repository/services/role.service';
+import { ApiTags, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { AuthUser } from 'src/decorators/logged-in-user-decorator';
+import { RouteName } from 'src/decorators/route-name.decorator';
+import { AuthGuard } from 'src/guards/auth.guard';
+import {
+  CreateBranchDto,
+  AssignBranchUserDto,
+} from 'src/models/branch/branch.dto';
+import type { LoggedInUser } from 'src/models/types/user.types';
+import { BranchService } from 'src/services/branch.service';
+import { ResponsesService } from 'src/utils/services/responses.service';
 
-@ApiTags('Role')
+@ApiTags('Branch')
+@Controller('branch')
 @ApiBearerAuth('access-token') // allow using access token with swagger()
-@Controller('role')
 @UseGuards(AuthGuard)
-export class RoleController {
+export class BranchController {
   constructor(
-    private readonly service: RoleService,
+    private readonly service: BranchService,
     private readonly responseService: ResponsesService,
   ) {}
+
+  @RouteName('branch.list')
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'size', required: false, type: Number })
   @ApiQuery({ name: 'search', required: false, type: String })
   @ApiQuery({ name: 'sortDirection', required: false, type: String })
   @ApiQuery({ name: 'sortBy', required: false, type: String })
   @Get('')
-  @RouteName('role.list')
   async list(
+    @AuthUser() user: LoggedInUser,
     @Query('page') page: number = 1,
     @Query('size') size: number = 50,
     @Query('search') search?: string,
@@ -40,7 +49,8 @@ export class RoleController {
     @Query('sortBy') sortBy?: string,
   ) {
     try {
-      const result = await this.service.all(
+      const result = await this.service.list(
+        user.userRole[0].companyId as string,
         page,
         size,
         search,
@@ -56,12 +66,11 @@ export class RoleController {
     }
   }
 
-  @UseGuards(AuthGuard)
+  @RouteName('branch.create')
   @Post()
-  @RouteName('role.create')
-  async create(@Body() payload: CreateItemDto) {
+  async create(@Request() req, @Body() payload: CreateBranchDto) {
     try {
-      const result = await this.service.create(payload);
+      const result = await this.service.create(payload, req.user.company.id);
       if (result.error == 2) {
         return this.responseService.exception(result.body);
       }
@@ -74,34 +83,14 @@ export class RoleController {
     }
   }
 
-  @UseGuards(AuthGuard)
-  @Post()
-  @RouteName('permission.create')
-  async createPermission(@Body() payload: CreateItemDto) {
-    try {
-      const result = await this.service.createPermission(payload);
-      if (result.error == 2) {
-        return this.responseService.exception(result.body);
-      }
-      if (result.error == 1) {
-        return this.responseService.badRequest(result.body);
-      }
-      return this.responseService.success(result.body);
-    } catch (e) {
-      return this.responseService.exception(e.message);
-    }
-  }
-
-  @UseGuards(AuthGuard)
-  @Patch('/:roleId')
-  @Put('/:roleId')
-  @RouteName('role.update')
-  async update(
-    @Body() payload: Partial<CreateItemDto>,
-    @Param('roleId') roleId: string,
+  @RouteName('branch.assign')
+  @Patch(':branchId/assign')
+  async assignToBranch(
+    @Body() payload: AssignBranchUserDto,
+    @Param('branchId') branchId: string,
   ) {
     try {
-      const result = await this.service.update(payload, roleId);
+      const result = await this.service.assingToBranch(payload, branchId);
       if (result.error == 2) {
         return this.responseService.exception(result.body);
       }
@@ -114,12 +103,14 @@ export class RoleController {
     }
   }
 
-  @UseGuards(AuthGuard)
-  @Post('/assign-permissions')
-  @RouteName('role.permission.assign')
-  async assingPermissions(@Body() payload: AssignPermissionsDto) {
+  @RouteName('branch.unassign')
+  @Delete(':branchId/unassign')
+  async removeFromBranch(
+    @Body() payload: AssignBranchUserDto,
+    @Param('branchId') branchId: string,
+  ) {
     try {
-      const result = await this.service.assignRolePermissions(payload);
+      const result = await this.service.removeFromBranch(payload, branchId);
       if (result.error == 2) {
         return this.responseService.exception(result.body);
       }
@@ -132,28 +123,15 @@ export class RoleController {
     }
   }
 
-  @Get('/permissions/:roleId')
-  @RouteName('role.permission.get')
-  async getRolePermissions(@Param('roleId') roleId: string) {
+  @RouteName('branch.update')
+  @Patch('/:branchId')
+  @Put('/:branchId')
+  async update(
+    @Body() payload: Partial<CreateBranchDto>,
+    @Param('branchId') id: string,
+  ) {
     try {
-      const result = await this.service.rolePermissions(roleId);
-      if (result.error == 2) {
-        return this.responseService.exception(result.body);
-      }
-      if (result.error == 1) {
-        return this.responseService.badRequest(result.body);
-      }
-      return this.responseService.success(result.body);
-    } catch (e) {
-      return this.responseService.exception(e.message);
-    }
-  }
-
-  @Get('/permissions')
-  @RouteName('permission.list')
-  async getAllPermissions() {
-    try {
-      const result = await this.service.permissions();
+      const result = await this.service.update(payload, id);
       if (result.error == 2) {
         return this.responseService.exception(result.body);
       }
