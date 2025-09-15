@@ -13,6 +13,7 @@ import { BranchController } from './controllers/branch.controller';
 import { CompanyController } from './controllers/company.controller';
 import { EmployeeController } from './controllers/employee.controller';
 import { JobRoleController } from './controllers/job-role.controller';
+import { HealthController } from './controllers/health.controller';
 import { BranchService } from './services/branch.service';
 import { EmployeeService } from './services/employee.service';
 import { CompanyService } from './services/company.service';
@@ -48,6 +49,7 @@ import { validationSchema } from './config/validation.schema';
     CompanyController,
     JobRoleController,
     EmployeeController,
+    HealthController,
   ],
   providers: [
     {

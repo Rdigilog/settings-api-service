@@ -1,0 +1,118 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: digilog-postgres-prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-digilog_db}
+      POSTGRES_USER: ${POSTGRES_USER:-digilog_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-digilog_password}
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - digilog-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-digilog_user} -d ${POSTGRES_DB:-digilog_db}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-replica:
+    image: postgres:15-alpine
+    container_name: digilog-postgres-replica-prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB_REPLICA:-digilog_db_replica}
+      POSTGRES_USER: ${POSTGRES_USER:-digilog_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-digilog_password}
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres_replica_data:/var/lib/postgresql/data
+    networks:
+      - digilog-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-digilog_user} -d ${POSTGRES_DB_REPLICA:-digilog_db_replica}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: digilog-redis-prod
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    networks:
+      - digilog-network
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: redis-server --appendonly yes
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: digilog-app-prod
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-digilog_user}:${POSTGRES_PASSWORD:-digilog_password}@postgres:5432/${POSTGRES_DB:-digilog_db}?schema=public
+      DATABASE_URL_REPLICA: postgresql://${POSTGRES_USER:-digilog_user}:${POSTGRES_PASSWORD:-digilog_password}@postgres-replica:5432/${POSTGRES_DB_REPLICA:-digilog_db_replica}?schema=public
+      REDIS_URL: redis://redis:6379
+      AUTO_MIGRATE: 'true'
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION_TIME: ${JWT_EXPIRATION_TIME:-1h}
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT:-465}
+      MAIL_USER: ${MAIL_USER}
+      MAIL_PASS: ${MAIL_PASS}
+      FILE_UPLOAD_PROVIDER: ${FILE_UPLOAD_PROVIDER:-local}
+      # AWS S3 (if using S3)
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_S3_REGION: ${AWS_S3_REGION}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+      AWS_S3_UPLOAD_FOLDER: ${AWS_S3_UPLOAD_FOLDER}
+      # Cloudinary (if using Cloudinary)
+      CLOUD_NAME: ${CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+      CLOUDINARY_BASEURL: ${CLOUDINARY_BASEURL}
+      CLOUD_UPLOAD_PRESET: ${CLOUD_UPLOAD_PRESET}
+    ports:
+      - '3000:3000'
+    networks:
+      - digilog-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'node', '-e', "require('http').get('http://localhost:3000/api/v1/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  postgres_data:
+    driver: local
+  postgres_replica_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  digilog-network:
+    driver: bridge

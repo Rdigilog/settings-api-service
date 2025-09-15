@@ -17,7 +17,14 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate deploy",
+    "db:migrate:dev": "prisma migrate dev",
+    "db:migrate:reset": "prisma migrate reset",
+    "db:push": "prisma db push",
+    "db:seed": "ts-node prisma/seeders/admin.seed.ts && ts-node prisma/seeders/country.seeder.ts && ts-node prisma/seeders/plan.seed.ts && ts-node prisma/seeders/role.seed.ts",
+    "db:studio": "prisma studio"
   },
   "dependencies": {
     "@bull-board/express": "^6.12.7",
@@ -36,7 +43,7 @@
     "@nestjs/platform-socket.io": "^11.0.11",
     "@nestjs/serve-static": "^5.0.3",
     "@nestjs/swagger": "^11.2.0",
-    "@prisma/client": "^6.15.0",
+    "@prisma/client": "6.15.0",
     "@prisma/extension-read-replicas": "^0.4.1",
     "@types/bcryptjs": "^3.0.0",
     "@types/joi": "^17.2.3",

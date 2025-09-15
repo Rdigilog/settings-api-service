@@ -2,6 +2,7 @@ import { registerAs } from '@nestjs/config';
 
 export interface Configuration {
   port: number;
+  nodeEnv: string;
   jwt: {
     secret: string;
     expirationTime: string;
@@ -9,6 +10,7 @@ export interface Configuration {
   database: {
     url: string;
     replicaUrl: string;
+    autoMigrate: string;
   };
   redis: {
     url: string;
@@ -26,6 +28,7 @@ export interface Configuration {
 
 export default (): Configuration => ({
   port: parseInt(process.env.PORT || '3000', 10),
+  nodeEnv: process.env.NODE_ENV || 'development',
   jwt: {
     secret: process.env.JWT_SECRET || '',
     expirationTime: process.env.JWT_EXPIRATION_TIME || '1h',
@@ -33,6 +36,7 @@ export default (): Configuration => ({
   database: {
     url: process.env.DATABASE_URL || '',
     replicaUrl: process.env.DATABASE_URL_REPLICA || '',
+    autoMigrate: process.env.AUTO_MIGRATE || 'false',
   },
   redis: {
     url: process.env.REDIS_URL || '',

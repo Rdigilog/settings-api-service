@@ -1,6 +1,7 @@
 export const CONFIG_KEYS = {
   // Server
   PORT: 'port',
+  NODE_ENV: 'nodeEnv',
   
   // JWT
   JWT_SECRET: 'jwt.secret',
@@ -9,6 +10,7 @@ export const CONFIG_KEYS = {
   // Database
   DATABASE_URL: 'database.url',
   DATABASE_REPLICA_URL: 'database.replicaUrl',
+  AUTO_MIGRATE: 'database.autoMigrate',
   
   // Redis
   REDIS_URL: 'redis.url',
