@@ -9,7 +9,7 @@ import {
   Put,
   Param,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiQuery, ApiOperation } from '@nestjs/swagger';
 import { AuthUser } from 'src/decorators/logged-in-user-decorator';
 import { RouteName } from 'src/decorators/route-name.decorator';
 import { AuthGuard } from 'src/guards/auth.guard';
@@ -29,12 +29,13 @@ export class JobRoleController {
   ) {}
 
   @RouteName('job-role.list')
+  @ApiOperation({ summary: 'List all job roles with pagination and search' })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'size', required: false, type: Number })
   @ApiQuery({ name: 'search', required: false, type: String })
   @ApiQuery({ name: 'sortDirection', required: false, type: String })
   @ApiQuery({ name: 'sortBy', required: false, type: String })
-  @Get('')
+  @Get()
   async list(
     @AuthUser() user: LoggedInUser,
     @Query('page') page: number = 1,
@@ -62,6 +63,7 @@ export class JobRoleController {
   }
 
   @RouteName('job-role.create')
+  @ApiOperation({ summary: 'Create a new job role' })
   @Post()
   async create(
     @AuthUser() user: LoggedInUser,
@@ -85,8 +87,9 @@ export class JobRoleController {
   }
 
   @RouteName('job-role.update')
-  @Patch('/:jobRoleId')
-  @Put('/:jobRoleId')
+  @ApiOperation({ summary: 'Update job role information' })
+  @Patch(':jobRoleId')
+  @Put(':jobRoleId')
   async update(
     @AuthUser() user: LoggedInUser,
     @Body() payload: Partial<CreateJobRoleDto>,

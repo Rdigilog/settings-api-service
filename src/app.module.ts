@@ -21,6 +21,8 @@ import { LeaveService } from './services/leave.service';
 import { TaskService } from './services/task.service';
 import { UserService } from './services/user.service';
 import { PrismaService } from './config/prisma.service';
+import configuration from './config/configuration';
+import { validationSchema } from './config/validation.schema';
 
 @Module({
   imports: [
@@ -32,7 +34,11 @@ import { PrismaService } from './config/prisma.service';
     QueueConfig,
     JwtConfig,
     MailConfig,
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      load: [configuration],
+      validationSchema,
+      isGlobal: true,
+    }),
     HttpModule,
     UtilsModule,
     CacheModule.registerAsync(RedisCacheOptions),

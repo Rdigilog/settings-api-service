@@ -1,20 +1,25 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Prisma, PrismaClient } from '@prisma/client/index';
 import { readReplicas } from '@prisma/extension-read-replicas';
+import { ConfigService } from '@nestjs/config';
+import { CONFIG_KEYS } from './config.keys';
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
-  // constructor() {
-  // super({
-  //   log: ['query', 'info', 'warn', 'error'], // Logs various levels, including SQL queries
-  // });
-  // }
+  constructor(private configService?: ConfigService) {
+    super({
+      // log: ['query', 'info', 'warn', 'error'], // Logs various levels, including SQL queries
+    });
+  }
+  
   async onModuleInit() {
     await this.$connect();
-    await this.$extends(
-      readReplicas({
-        url: [process.env.DATABASE_URL_REPLICA as string],
-      }),
-    );
+    if (this.configService) {
+      await this.$extends(
+        readReplicas({
+          url: [this.configService.get<string>(CONFIG_KEYS.DATABASE_REPLICA_URL) || ''],
+        }),
+      );
+    }
     // console.log(Prisma.ModelName);
     // this.$on(Prisma., (e) => {
     //   console.log(e);
