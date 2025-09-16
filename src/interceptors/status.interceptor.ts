@@ -37,7 +37,9 @@ export class StatusInterceptor implements NestInterceptor {
         //   description: routeDescription, // Add the route description to the log entry
         // };
         // this.activityService.save(payload);
-        context.switchToHttp().getResponse().status(responseBody.statusCode);
+        if (responseBody.statusCode) {
+          context.switchToHttp().getResponse().status(responseBody.statusCode);
+        }
         if (responseBody.message && Array.isArray(responseBody.message))
           responseBody.message = responseBody.message.join(', ');
         return responseBody;

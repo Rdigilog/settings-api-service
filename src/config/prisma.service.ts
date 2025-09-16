@@ -63,7 +63,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
 
     try {
       // Use prisma migrate deploy for production-safe migrations
-      const { stdout, stderr } = await this.execAsync('npx prisma migrate deploy');
+      const { stdout, stderr } = await this.execAsync('prisma migrate deploy');
       
       // Check for actual errors (warnings are okay)
       if (stderr && !stderr.toLowerCase().includes('warn')) {

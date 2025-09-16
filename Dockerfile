@@ -7,8 +7,8 @@ WORKDIR /app
 # Install security updates
 RUN apk update && apk upgrade
 
-ENV NODE_ENV=production
-RUN corepack enable pnpm
+ENV NODE_ENV=development
+RUN npm install -g pnpm@latest
 
 # Copy dependency files
 COPY package.json pnpm-lock.yaml* ./
@@ -22,7 +22,7 @@ RUN pnpm install --frozen-lockfile --shamefully-hoist=false
 FROM node:20-alpine3.19 AS builder
 WORKDIR /app
 
-RUN corepack enable pnpm
+RUN npm install -g pnpm@latest
 
 # Copy dependencies and source
 COPY --from=deps /app/node_modules ./node_modules
@@ -47,6 +47,9 @@ RUN apk update && apk upgrade && \
     wget && \
     rm -rf /var/cache/apk/*
 
+# Install Prisma CLI globally for migrations
+RUN npm install -g prisma@6.15.0
+
 # Create non-root user with specific IDs for better container orchestration
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 --ingroup nodejs nestjs
@@ -56,8 +59,6 @@ COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
 COPY --from=builder --chown=nestjs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nestjs:nodejs /app/package.json ./package.json
 COPY --from=builder --chown=nestjs:nodejs /app/prisma ./prisma
-
-# No custom entrypoint needed - migrations handled by application
 
 # Set production environment with resource optimization
 ENV NODE_ENV=production \
@@ -73,7 +74,7 @@ EXPOSE 3000
 
 # Use dumb-init as PID 1 for proper signal handling
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["node", "dist/main"]
+CMD ["node", "dist/src/main"]
 
 # Enhanced healthcheck with proper timeout and endpoint
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \

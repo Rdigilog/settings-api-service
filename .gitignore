@@ -4,6 +4,7 @@
 /build
 
 .env
+.env.backup
 # Logs
 logs
 *.log

@@ -12,7 +12,7 @@ pnpm run build
 
 # 2. Force regenerate Prisma client (useful for deployment verification)
 echo "🔧 Regenerating Prisma client for deployment..."
-FORCE_REGENERATE_CLIENT=true pnpm run db:generate
+pnpm run db:generate
 
 # 3. Start the application with auto migration enabled
 echo "🎯 Starting application..."

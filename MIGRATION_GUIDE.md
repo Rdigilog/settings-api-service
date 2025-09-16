@@ -57,7 +57,6 @@ pnpm run db:studio
 
 Auto migration runs when:
 
-- `NODE_ENV=production` **OR**
 - `AUTO_MIGRATE=true`
 
 ```bash
