@@ -1,24 +1,30 @@
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CONFIG_KEYS } from './config.keys';
 
-export const MailConfig: any = MailerModule.forRoot({
-  transport: {
-    host: process.env.MAIL_HOST,
-    port: +(process.env.MAIL_PORT || 465),
-    secure: true, // upgrade later with STARTTLS
-    auth: {
-      user: process.env.MAIL_USER,
-      pass: process.env.MAIL_PASS,
+export const MailConfig: any = MailerModule.forRootAsync({
+  imports: [ConfigModule],
+  inject: [ConfigService],
+  useFactory: (configService: ConfigService) => ({
+    transport: {
+      host: configService.get<string>(CONFIG_KEYS.MAIL_HOST),
+      port: configService.get<number>(CONFIG_KEYS.MAIL_PORT),
+      secure: true, // upgrade later with STARTTLS
+      auth: {
+        user: configService.get<string>(CONFIG_KEYS.MAIL_USER),
+        pass: configService.get<string>(CONFIG_KEYS.MAIL_PASS),
+      },
     },
-  },
-  defaults: {
-    from: '"DigiLog" <inof@digiLog.com>',
-  },
-  template: {
-    dir: process.cwd() + '/mails/',
-    adapter: new HandlebarsAdapter(), // or new PugAdapter()
-    options: {
-      strict: true,
+    defaults: {
+      from: '"DigiLog" <inof@digiLog.com>',
     },
-  },
+    template: {
+      dir: process.cwd() + '/mails/',
+      adapter: new HandlebarsAdapter(), // or new PugAdapter()
+      options: {
+        strict: true,
+      },
+    },
+  }),
 });

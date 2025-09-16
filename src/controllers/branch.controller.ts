@@ -11,7 +11,7 @@ import {
   Delete,
   Put,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiQuery, ApiOperation } from '@nestjs/swagger';
 import { AuthUser } from 'src/decorators/logged-in-user-decorator';
 import { RouteName } from 'src/decorators/route-name.decorator';
 import { AuthGuard } from 'src/guards/auth.guard';
@@ -34,12 +34,13 @@ export class BranchController {
   ) {}
 
   @RouteName('branch.list')
+  @ApiOperation({ summary: 'List all branches with pagination and search' })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'size', required: false, type: Number })
   @ApiQuery({ name: 'search', required: false, type: String })
   @ApiQuery({ name: 'sortDirection', required: false, type: String })
   @ApiQuery({ name: 'sortBy', required: false, type: String })
-  @Get('')
+  @Get()
   async list(
     @AuthUser() user: LoggedInUser,
     @Query('page') page: number = 1,
@@ -67,6 +68,7 @@ export class BranchController {
   }
 
   @RouteName('branch.create')
+  @ApiOperation({ summary: 'Create a new branch' })
   @Post()
   async create(@Request() req, @Body() payload: CreateBranchDto) {
     try {
@@ -84,6 +86,7 @@ export class BranchController {
   }
 
   @RouteName('branch.assign')
+  @ApiOperation({ summary: 'Assign users to a branch' })
   @Patch(':branchId/assign')
   async assignToBranch(
     @Body() payload: AssignBranchUserDto,
@@ -104,6 +107,7 @@ export class BranchController {
   }
 
   @RouteName('branch.unassign')
+  @ApiOperation({ summary: 'Unassign users from a branch' })
   @Delete(':branchId/unassign')
   async removeFromBranch(
     @Body() payload: AssignBranchUserDto,
@@ -124,8 +128,9 @@ export class BranchController {
   }
 
   @RouteName('branch.update')
-  @Patch('/:branchId')
-  @Put('/:branchId')
+  @ApiOperation({ summary: 'Update branch information' })
+  @Patch(':branchId')
+  @Put(':branchId')
   async update(
     @Body() payload: Partial<CreateBranchDto>,
     @Param('branchId') id: string,

@@ -1,6 +1,7 @@
 import { BadRequestException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { S3, config } from 'aws-sdk';
+import { CONFIG_KEYS } from '../../config/config.keys';
 // import { UploadedFileDto } from '../dto/uploaded-file.dto';
 import {
   FileUploadProvider,
@@ -13,13 +14,13 @@ export class S3FileUploadProvider implements FileUploadProvider {
   private readonly logger = new Logger(S3FileUploadProvider.name);
   constructor(private configService: ConfigService) {
     config.update({
-      accessKeyId: configService.get('AWS_ACCESS_KEY'),
-      secretAccessKey: configService.get('AWS_SECRET_ACCESS_KEY'),
-      region: configService.get('AWS_S3_REGION'),
+      accessKeyId: configService.get(CONFIG_KEYS.AWS_ACCESS_KEY),
+      secretAccessKey: configService.get(CONFIG_KEYS.AWS_SECRET_ACCESS_KEY),
+      region: configService.get(CONFIG_KEYS.AWS_S3_REGION),
     });
     this.s3 = new S3({
-      accessKeyId: configService.get('AWS_ACCESS_KEY'),
-      secretAccessKey: configService.get('AWS_SECRET_ACCESS_KEY'),
+      accessKeyId: configService.get(CONFIG_KEYS.AWS_ACCESS_KEY),
+      secretAccessKey: configService.get(CONFIG_KEYS.AWS_SECRET_ACCESS_KEY),
     });
     this.logger.debug('S3 Initialized');
   }
@@ -35,11 +36,11 @@ export class S3FileUploadProvider implements FileUploadProvider {
       file = this.restoreBuffer(file);
       const fileName = S3FileUploadProvider.uniqueFilename();
       const newFileName = `${this.configService.get(
-        'AWS_S3_UPLOAD_FOLDER',
+        CONFIG_KEYS.AWS_S3_UPLOAD_FOLDER,
       )}/${fileName}`;
       const uploadResult = await this.s3
         .upload({
-          Bucket: this.configService.get('AWS_S3_BUCKET') || 'DigiLog',
+          Bucket: this.configService.get(CONFIG_KEYS.AWS_S3_BUCKET) || 'DigiLog',
           Body: file.buffer,
           Key: `${newFileName}${file.fieldname}${file.fieldname}`,
           ContentType: file.mimetype,

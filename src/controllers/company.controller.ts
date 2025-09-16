@@ -92,6 +92,8 @@ export class CompanyController {
     }
   }
 
+  @RouteName('company.get')
+  @ApiOperation({ summary: 'Get company information' })
   @Get()
   async company(@AuthUser() user: LoggedInUser) {
     try {
@@ -107,6 +109,8 @@ export class CompanyController {
     }
   }
 
+  @RouteName('company.shift.update')
+  @ApiOperation({ summary: 'Update company shift settings' })
   @Patch('shift')
   async updateCompanyShiftSetting(
     @Body() payload: ShiftSettingDto,
@@ -128,6 +132,8 @@ export class CompanyController {
     }
   }
 
+  @RouteName('company.shift.get')
+  @ApiOperation({ summary: 'Get company shift settings' })
   @Get('shift')
   async companyShiftSetting(@AuthUser() user: LoggedInUser) {
     try {
@@ -145,6 +151,8 @@ export class CompanyController {
     }
   }
 
+  @RouteName('company.rota-rule.update')
+  @ApiOperation({ summary: 'Update company rota rule settings' })
   @Patch('rota-rule')
   async updateCompanyRotaRule(
     @Body() payload: CreateRotaRuleSettingDto,
@@ -166,6 +174,8 @@ export class CompanyController {
     }
   }
 
+  @RouteName('company.rota-rule.get')
+  @ApiOperation({ summary: 'Get company rota rule settings' })
   @Get('rota-rule')
   async companyRotaRule(@AuthUser() user: LoggedInUser) {
     try {
@@ -181,6 +191,8 @@ export class CompanyController {
     }
   }
 
+  @RouteName('company.digi-time.update')
+  @ApiOperation({ summary: 'Update company digital time settings' })
   @Patch('digi-time')
   async updateDigiTimeSetting(
     @Body() payload: DigiTimeSettingDto,
@@ -202,6 +214,8 @@ export class CompanyController {
     }
   }
 
+  @RouteName('company.digi-time.get')
+  @ApiOperation({ summary: 'Get company digital time settings' })
   @Get('digi-time')
   async companyDigiTimeSetting(@AuthUser() user: LoggedInUser) {
     try {
@@ -219,6 +233,8 @@ export class CompanyController {
     }
   }
 
+  @RouteName('company.holiday-request.update')
+  @ApiOperation({ summary: 'Update company holiday request settings' })
   @Patch('holiday-request')
   async updateHolidayRequest(
     @Body() payload: HolidayRequestRuleSettingDto,
@@ -240,6 +256,8 @@ export class CompanyController {
     }
   }
 
+  @RouteName('company.holiday-request.get')
+  @ApiOperation({ summary: 'Get company holiday request settings' })
   @Get('holiday-request')
   async companyHolidayRequest(@AuthUser() user: LoggedInUser) {
     try {
@@ -257,6 +275,8 @@ export class CompanyController {
     }
   }
 
+  @RouteName('company.breaks.update')
+  @ApiOperation({ summary: 'Update company break compliance settings' })
   @Patch('breaks')
   async updateBreaks(
     @Body() payload: BreakComplianceSettingDto,
@@ -278,6 +298,8 @@ export class CompanyController {
     }
   }
 
+  @RouteName('company.breaks.get')
+  @ApiOperation({ summary: 'Get company break compliance settings' })
   @Get('breaks')
   async companyBreaks(@AuthUser() user: LoggedInUser) {
     try {
@@ -406,6 +428,7 @@ export class CompanyController {
     }
   }
 
+  @RouteName('company.task-stage.create')
   @Post()
   @ApiOperation({ summary: 'Create a new task stage' })
   async createStage(
@@ -428,6 +451,7 @@ export class CompanyController {
     }
   }
 
+  @RouteName('company.task-stage.list')
   @Get()
   @ApiOperation({ summary: 'List all task stages for the company' })
   async listStages(@AuthUser() user: LoggedInUser) {
@@ -446,6 +470,7 @@ export class CompanyController {
     }
   }
 
+  @RouteName('company.task-stage.update')
   @Patch(':id')
   @ApiOperation({ summary: 'Update a task stage' })
   async updateStage(

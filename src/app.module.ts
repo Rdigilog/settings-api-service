@@ -13,6 +13,7 @@ import { BranchController } from './controllers/branch.controller';
 import { CompanyController } from './controllers/company.controller';
 import { EmployeeController } from './controllers/employee.controller';
 import { JobRoleController } from './controllers/job-role.controller';
+import { HealthController } from './controllers/health.controller';
 import { BranchService } from './services/branch.service';
 import { EmployeeService } from './services/employee.service';
 import { CompanyService } from './services/company.service';
@@ -21,6 +22,8 @@ import { LeaveService } from './services/leave.service';
 import { TaskService } from './services/task.service';
 import { UserService } from './services/user.service';
 import { PrismaService } from './config/prisma.service';
+import configuration from './config/configuration';
+import { validationSchema } from './config/validation.schema';
 
 @Module({
   imports: [
@@ -32,7 +35,11 @@ import { PrismaService } from './config/prisma.service';
     QueueConfig,
     JwtConfig,
     MailConfig,
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      load: [configuration],
+      validationSchema,
+      isGlobal: true,
+    }),
     HttpModule,
     UtilsModule,
     CacheModule.registerAsync(RedisCacheOptions),
@@ -42,6 +49,7 @@ import { PrismaService } from './config/prisma.service';
     CompanyController,
     JobRoleController,
     EmployeeController,
+    HealthController,
   ],
   providers: [
     {

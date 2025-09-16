@@ -1,0 +1,46 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: digilog-app-prod
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: ${PORT:-3000}
+      # Database - Remote URLs
+      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_URL_REPLICA: ${DATABASE_URL_REPLICA}
+      AUTO_MIGRATE: ${AUTO_MIGRATE:-true}
+      # Redis - Remote URL
+      REDIS_URL: ${REDIS_URL}
+      # JWT
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION_TIME: ${JWT_EXPIRATION_TIME:-1d}
+      # Mail
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT:-465}
+      MAIL_USER: ${MAIL_USER}
+      MAIL_PASS: ${MAIL_PASS}
+      # File Upload
+      FILE_UPLOAD_PROVIDER: ${FILE_UPLOAD_PROVIDER:-local}
+      # AWS S3 (if using S3)
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_S3_REGION: ${AWS_S3_REGION}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+      AWS_S3_UPLOAD_FOLDER: ${AWS_S3_UPLOAD_FOLDER}
+      # Cloudinary (if using Cloudinary)
+      CLOUD_NAME: ${CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+      CLOUDINARY_BASEURL: ${CLOUDINARY_BASEURL}
+      CLOUD_UPLOAD_PRESET: ${CLOUD_UPLOAD_PRESET}
+    ports:
+      - '${PORT:-3000}:3000'
+    healthcheck:
+      test: ['CMD', 'node', '-e', "require('http').get('http://localhost:3000/api/v1/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s

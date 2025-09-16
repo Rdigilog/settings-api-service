@@ -8,6 +8,7 @@ import { ResponsesService } from './services/responses.service';
 import Redis from 'ioredis';
 import { FileUploadService } from './services/file-upload.service';
 import { fileUploadProviderFactory } from './services/factory.provider';
+import { CONFIG_KEYS } from '../config/config.keys';
 
 @Global()
 @Module({
@@ -23,7 +24,7 @@ import { fileUploadProviderFactory } from './services/factory.provider';
       provide: 'FileUploadProvider',
       useFactory: (configService: ConfigService) => {
         return fileUploadProviderFactory(
-          configService.get('FILE_UPLOAD_PROVIDER') || '',
+          configService.get(CONFIG_KEYS.FILE_UPLOAD_PROVIDER) || '',
           configService,
         );
       },
@@ -33,7 +34,7 @@ import { fileUploadProviderFactory } from './services/factory.provider';
       provide: 'REDIS_CLIENT',
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        return new Redis(configService.get<string>('REDIS_URL') || '');
+        return new Redis(configService.get<string>(CONFIG_KEYS.REDIS_URL) || '');
       },
     },
   ],
