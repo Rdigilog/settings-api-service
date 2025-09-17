@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Deployment script that demonstrates the usefulness of generateClient()
-
 set -e
 
 echo "🚀 Starting deployment process..."
