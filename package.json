@@ -27,6 +27,7 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.901.0",
     "@bull-board/express": "^6.12.7",
     "@bull-board/nestjs": "^6.12.7",
     "@nestjs-modules/mailer": "^2.0.2",

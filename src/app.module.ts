@@ -39,6 +39,7 @@ import { validationSchema } from './config/validation.schema';
       load: [configuration],
       validationSchema,
       isGlobal: true,
+      cache: true, // Cache the configuration to avoid repeated AWS calls
     }),
     HttpModule,
     UtilsModule,
