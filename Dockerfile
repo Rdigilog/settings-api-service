@@ -48,7 +48,7 @@ RUN apk update && apk upgrade && \
     rm -rf /var/cache/apk/*
 
 # Install Prisma CLI globally for migrations
-RUN npm install -g prisma@6.15.0
+# RUN npm install -g prisma@6.15.0
 
 # Create non-root user with specific IDs for better container orchestration
 RUN addgroup --system --gid 1001 nodejs && \

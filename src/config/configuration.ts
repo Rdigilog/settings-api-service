@@ -33,7 +33,7 @@ export interface Configuration {
 async function getConfigValues(): Promise<Partial<Configuration>> {
   // When working locally, use local environment in .env file
   const nodeEnv = process.env.NODE_ENV || 'development';
-  
+
   // For local development, use environment variables
   if (nodeEnv === 'local') {
     return {
@@ -68,6 +68,9 @@ async function getConfigValues(): Promise<Partial<Configuration>> {
     const awsSecretsService = new AwsSecretsService();
     const secretId = process.env.AWS_SECRET_ID || 'dev-secret-manager-01';
     const secrets = await awsSecretsService.getSecrets(secretId);
+    for (const [key, value] of Object.entries(secrets)) {
+      process.env[key] = String(value);
+    }
 
     return {
       port: parseInt(process.env.PORT || '3001', 10), // Keep PORT as env var for flexibility
@@ -102,7 +105,7 @@ async function getConfigValues(): Promise<Partial<Configuration>> {
 
 export default async (): Promise<Configuration> => {
   const config = await getConfigValues();
-  
+
   return {
     port: config.port || 3001,
     nodeEnv: config.nodeEnv || 'local',

@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { CONFIG_KEYS } from './config/config.keys';
 
 async function bootstrap() {
+  const response = await getConfigValues()
   const app = await NestFactory.create(AppModule, {
     cors: {
       origin: '*',
@@ -17,7 +18,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const port = configService.get<number>(CONFIG_KEYS.PORT) || 3000;
 
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix('setting/api/v1');
   app.useGlobalPipes(new ValidationPipe());
   app.enableCors();
   const config = new DocumentBuilder()
@@ -37,7 +38,11 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+  SwaggerModule.setup('seeting/api/docs', app, document);
   await app.listen(port);
 }
 bootstrap();
+function getConfigValues() {
+  throw new Error('Function not implemented.');
+}
+

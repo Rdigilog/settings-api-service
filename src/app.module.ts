@@ -37,7 +37,7 @@ import { validationSchema } from './config/validation.schema';
     MailConfig,
     ConfigModule.forRoot({
       load: [configuration],
-      validationSchema,
+      // validationSchema,
       isGlobal: true,
       cache: true, // Cache the configuration to avoid repeated AWS calls
     }),
