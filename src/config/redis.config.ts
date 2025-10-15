@@ -2,15 +2,15 @@
 import { CacheModuleAsyncOptions } from '@nestjs/cache-manager';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { redisStore } from 'cache-manager-redis-store';
-import { CONFIG_KEYS } from './config.keys';
 
 export const RedisCacheOptions: CacheModuleAsyncOptions = {
   isGlobal: true,
   imports: [ConfigModule],
   inject: [ConfigService],
   useFactory: async (configService: ConfigService) => {
+    // console.log('Setting up Redis Cache with URL:', configService.get<string>('REDIS_URL'));
     const store = await redisStore({
-      url: `${configService.get<string>(CONFIG_KEYS.REDIS_URL)}/0`, // cache in db 0
+      url: `${configService.get<string>('REDIS_URL')}`, // cache in db 0
     });
 
     return {
