@@ -30,7 +30,7 @@ export interface Configuration {
 /**
  * Gets configuration values from either .env files (local) or AWS Secrets Manager (cloud)
  */
-async function getConfigValues(): Promise<Partial<Configuration>> {
+export async function getConfigValues(): Promise<Partial<Configuration>> {
   // When working locally, use local environment in .env file
   const nodeEnv = process.env.NODE_ENV || 'development';
 

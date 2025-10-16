@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { CONFIG_KEYS } from './config/config.keys';
+import { getConfigValues } from './config/configuration';
 
 async function bootstrap() {
   const response = await getConfigValues()
@@ -38,11 +39,7 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('seeting/api/docs', app, document);
+  SwaggerModule.setup('setting/api/docs', app, document);
   await app.listen(port);
 }
 bootstrap();
-function getConfigValues() {
-  throw new Error('Function not implemented.');
-}
-
