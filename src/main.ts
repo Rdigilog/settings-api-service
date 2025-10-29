@@ -8,6 +8,8 @@ import { getConfigValues } from './config/configuration';
 
 async function bootstrap() {
   const response = await getConfigValues()
+
+  console.log('secrets pulled', response)
   const app = await NestFactory.create(AppModule, {
     cors: {
       origin: '*',

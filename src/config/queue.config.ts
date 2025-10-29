@@ -2,12 +2,12 @@ import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CONFIG_KEYS } from './config.keys';
 
-export const QueueConfig: any = BullModule.forRootAsync({
+export const QueueConfig = BullModule.forRootAsync({
   imports: [ConfigModule],
   inject: [ConfigService],
-  useFactory: (configService: ConfigService) => ({
+  useFactory: async (configService: ConfigService) => ({
     connection: {
-      url: `${configService.get<string>(CONFIG_KEYS.REDIS_URL)}/1`,
+      url: `${configService.get<string>('REDIS_URL')}`,
     },
     defaultJobOptions: {
       removeOnComplete: 1000,

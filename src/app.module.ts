@@ -32,15 +32,15 @@ import { validationSchema } from './config/validation.schema';
     //   rootPath: './public',
     //   serveRoot: '/public',
     // }),
-    QueueConfig,
-    JwtConfig,
-    MailConfig,
     ConfigModule.forRoot({
       load: [configuration],
       // validationSchema,
       isGlobal: true,
       cache: true, // Cache the configuration to avoid repeated AWS calls
     }),
+    QueueConfig,
+    JwtConfig,
+    MailConfig,
     HttpModule,
     UtilsModule,
     CacheModule.registerAsync(RedisCacheOptions),

@@ -30,11 +30,11 @@ import { CONFIG_KEYS } from '../config/config.keys';
       },
       inject: [ConfigService],
     },
-    {
+     {
       provide: 'REDIS_CLIENT',
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        return new Redis(configService.get<string>(CONFIG_KEYS.REDIS_URL) || '');
+        return new Redis(configService.get<string>('REDIS_URL') || '');
       },
     },
   ],
