@@ -48,46 +48,46 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
    * Only runs when explicitly enabled via AUTO_MIGRATE config
    */
   private async runMigrations(): Promise<void> {
-    const environment = this.configService?.get<string>(CONFIG_KEYS.NODE_ENV) || 'development';
-    const autoMigrate = this.configService?.get<string>(CONFIG_KEYS.AUTO_MIGRATE) || 'false';
+    // const environment = this.configService?.get<string>(CONFIG_KEYS.NODE_ENV) || 'development';
+    // const autoMigrate = this.configService?.get<string>(CONFIG_KEYS.AUTO_MIGRATE) || 'false';
     
-    // Only run migrations when explicitly enabled
-    const shouldRunMigrations = autoMigrate === 'true';
+    // // Only run migrations when explicitly enabled
+    // const shouldRunMigrations = autoMigrate === 'true';
     
-    if (!shouldRunMigrations) {
-      this.logger.log(`Skipping auto migration - AUTO_MIGRATE is set to '${autoMigrate}'`);
-      return;
-    }
+    // if (!shouldRunMigrations) {
+    //   this.logger.log(`Skipping auto migration - AUTO_MIGRATE is set to '${autoMigrate}'`);
+    //   return;
+    // }
 
-    this.logger.log(`Starting database migration in ${environment} environment...`);
+    // this.logger.log(`Starting database migration in ${environment} environment...`);
 
-    try {
-      // Use prisma migrate deploy for production-safe migrations
-      const { stdout, stderr } = await this.execAsync('prisma migrate deploy');
+    // try {
+    //   // Use prisma migrate deploy for production-safe migrations
+    //   const { stdout, stderr } = await this.execAsync('prisma migrate deploy');
       
-      // Check for actual errors (warnings are okay)
-      if (stderr && !stderr.toLowerCase().includes('warn')) {
-        this.logger.error('Migration stderr:', stderr);
-        throw new Error(`Migration failed: ${stderr}`);
-      }
+    //   // Check for actual errors (warnings are okay)
+    //   if (stderr && !stderr.toLowerCase().includes('warn')) {
+    //     this.logger.error('Migration stderr:', stderr);
+    //     throw new Error(`Migration failed: ${stderr}`);
+    //   }
       
-      this.logger.log('✅ Database migration completed successfully');
-      if (stdout && stdout.trim()) {
-        this.logger.log('Migration output:', stdout.trim());
-      }
+    //   this.logger.log('✅ Database migration completed successfully');
+    //   if (stdout && stdout.trim()) {
+    //     this.logger.log('Migration output:', stdout.trim());
+    //   }
       
-    } catch (error) {
-      this.logger.error('❌ Migration failed:', error.message);
+    // } catch (error) {
+    //   this.logger.error('❌ Migration failed:', error.message);
       
-      // In production, we want to fail fast if migrations fail
-      if (environment === 'production') {
-        this.logger.error('🚨 Critical: Database migration failed in production - application will not start');
-        throw new Error(`Critical: Database migration failed in production: ${error.message}`);
-      }
+    //   // In production, we want to fail fast if migrations fail
+    //   if (environment === 'production') {
+    //     this.logger.error('🚨 Critical: Database migration failed in production - application will not start');
+    //     throw new Error(`Critical: Database migration failed in production: ${error.message}`);
+    //   }
       
-      // In development, log the error but don't crash the app
-      this.logger.warn('⚠️ Migration failed in development environment, continuing with existing schema...');
-    }
+    //   // In development, log the error but don't crash the app
+    //   this.logger.warn('⚠️ Migration failed in development environment, continuing with existing schema...');
+    // }
   }
 
   /**
