@@ -1,8 +1,16 @@
-
 import { Injectable } from '@nestjs/common';
 import { format } from 'date-fns';
 import { PrismaService } from 'src/config/prisma.service';
-import { CompanyUpdateDto, RotaRuleSettingDto, ShiftSettingDto, HolidayRequestRuleSettingDto, DigiTimeSettingDto, BreakComplianceSettingDto } from 'src/models/company/company.dto';
+import {
+  CompanyUpdateDto,
+  RotaRuleSettingDto,
+  ShiftSettingDto,
+  HolidayRequestRuleSettingDto,
+  DigiTimeSettingDto,
+  BreakComplianceSettingDto,
+  PayRateDto,
+} from 'src/models/company/company.dto';
+import { EmployeeSettingDto } from 'src/models/company/employee.dto';
 import { GeneralService } from 'src/utils/services/general.service';
 import { ResponsesService } from 'src/utils/services/responses.service';
 
@@ -108,9 +116,37 @@ export class CompanyService extends PrismaService {
     }
   }
 
+  async updatePayRate(payload: EmployeeSettingDto[], companyId: string) {
+    try {
+      // if(payload?.length){
+      await Promise.all(
+        payload.map(async (staff) => {
+          const { employeeId, payRate, period, ...rest } = staff;
+          await this.employee.update({
+            where: { id: employeeId },
+            data: {
+              ...rest,
+              jobInformation:payRate ? {
+                update:{
+                  payRatePerHour:payRate,
+                }
+              }:undefined
+            },
+          });
+        }),
+      );
+      // }
+      return { error: 0, body: 'Employee settings updated' };
+    } catch (e) {
+      return this.responseService.errorHandler(e);
+    }
+  }
+
   async update(payload: CompanyUpdateDto, id: string) {
     try {
-      const { planId, ...rest } = payload;
+      // const planId = payload?.planId;
+      payload = { ...payload, planId: payload?.planId || '' };
+      const { planId, workingDays, ...rest } = payload;
       delete payload.planId;
       const result = await this.company.update({
         where: { id },
@@ -124,6 +160,7 @@ export class CompanyService extends PrismaService {
 
       return { error: 0, body: result };
     } catch (e) {
+      console.log(e);
       return this.responseService.errorHandler(e);
     }
   }
@@ -251,9 +288,10 @@ export class CompanyService extends PrismaService {
           apps: {
             deleteMany: {},
             createMany: {
-              data: apps?.map((app) => {
-                return { ...app, companyId };
-              }) || [],
+              data:
+                apps?.map((app) => {
+                  return { ...app, companyId };
+                }) || [],
             },
           },
         },
@@ -266,9 +304,10 @@ export class CompanyService extends PrismaService {
           },
           apps: {
             createMany: {
-              data: apps?.map((app) => {
-                return { ...app, companyId };
-              }) || [],
+              data:
+                apps?.map((app) => {
+                  return { ...app, companyId };
+                }) || [],
             },
           },
         },
@@ -301,9 +340,10 @@ export class CompanyService extends PrismaService {
           breaks: {
             deleteMany: {},
             createMany: {
-              data: breaks?.map((app) => {
-                return { ...app, companyId };
-              }) || [],
+              data:
+                breaks?.map((app) => {
+                  return { ...app, companyId };
+                }) || [],
             },
           },
         },
@@ -316,9 +356,10 @@ export class CompanyService extends PrismaService {
           },
           breaks: {
             createMany: {
-              data: breaks?.map((app) => {
-                return { ...app, companyId };
-              }) || [],
+              data:
+                breaks?.map((app) => {
+                  return { ...app, companyId };
+                }) || [],
             },
           },
         },

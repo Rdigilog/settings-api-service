@@ -70,9 +70,9 @@ export class BranchController {
   @RouteName('branch.create')
   @ApiOperation({ summary: 'Create a new branch' })
   @Post()
-  async create(@Request() req, @Body() payload: CreateBranchDto) {
+  async create(@AuthUser() user:LoggedInUser, @Body() payload: CreateBranchDto) {
     try {
-      const result = await this.service.create(payload, req.user.company.id);
+      const result = await this.service.create(payload, user.userRole[0].companyId as string);
       if (result.error == 2) {
         return this.responseService.exception(result.body);
       }

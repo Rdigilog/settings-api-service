@@ -3,11 +3,14 @@ import {
   Controller,
   Delete,
   Get,
+  Logger,
   Param,
   ParseUUIDPipe,
   Patch,
   Post,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -18,6 +21,8 @@ import {
   ApiTags,
   getSchemaPath,
 } from '@nestjs/swagger';
+import { Prisma } from '@prisma/client';
+import { Queue } from 'bullmq';
 import { AuthUser } from 'src/decorators/logged-in-user-decorator';
 import { RouteName } from 'src/decorators/route-name.decorator';
 import { AuthGuard } from 'src/guards/auth.guard';
@@ -27,8 +32,10 @@ import {
   DigiTimeSettingDto,
   HolidayRequestRuleSettingDto,
   BreakComplianceSettingDto,
+  PayRateDto,
 } from 'src/models/company/company.dto';
 import { CreateRotaRuleSettingDto } from 'src/models/company/rota-rule.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   CreateLeavePolicyDto,
   UpdateLeavePolicyDto,
@@ -41,7 +48,9 @@ import type { LoggedInUser } from 'src/models/types/user.types';
 import { CompanyService } from 'src/services/company.service';
 import { LeaveService } from 'src/services/leave.service';
 import { TaskService } from 'src/services/task.service';
+import { FileUploadService } from 'src/utils/services/file-upload.service';
 import { ResponsesService } from 'src/utils/services/responses.service';
+import { EmployeeSettingDto } from 'src/models/company/employee.dto';
 
 @ApiTags('Company')
 @ApiBearerAuth('access-token') // allow using access token with swagger()
@@ -53,10 +62,12 @@ export class CompanyController {
     private readonly responseService: ResponsesService,
     private readonly leaveService: LeaveService,
     private readonly taskService: TaskService,
+    private readonly fileUploadService: FileUploadService,
   ) {}
 
   @ApiExtraModels(CompanyUpdateDto)
   @RouteName('settings.company.update')
+  @UseInterceptors(FileInterceptor('banner'))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -74,9 +85,17 @@ export class CompanyController {
   @Patch('')
   async updateCompany(
     @Body() payload: CompanyUpdateDto,
+    @UploadedFile() banner: Express.Multer.File,
     @AuthUser() user: LoggedInUser,
   ) {
     try {
+      if (banner) {
+        // this.fileRemovalQueue.add('REMOVE_PROFILE_PIC', profile?.imageUrl);
+        const fileUploadResult =
+          await this.fileUploadService.uploadPicture(banner);
+        // console.log(fileUploadResult)
+        payload.bannerUrl = fileUploadResult.url;
+      }
       const result = await this.service.update(
         payload,
         user.userRole[0].companyId as string,
@@ -97,7 +116,9 @@ export class CompanyController {
   @Get()
   async company(@AuthUser() user: LoggedInUser) {
     try {
-      const result = await this.service.getcompany(user.userRole[0].companyId as string);
+      const result = await this.service.getcompany(
+        user.userRole[0].companyId as string,
+      );
       if (result.error == 2) return this.responseService.exception(result.body);
 
       if (result.error == 1)
@@ -179,7 +200,9 @@ export class CompanyController {
   @Get('rota-rule')
   async companyRotaRule(@AuthUser() user: LoggedInUser) {
     try {
-      const result = await this.service.getRotaRule(user.userRole[0].companyId as string);
+      const result = await this.service.getRotaRule(
+        user.userRole[0].companyId as string,
+      );
       if (result.error == 2) return this.responseService.exception(result.body);
 
       if (result.error == 1)
@@ -303,7 +326,9 @@ export class CompanyController {
   @Get('breaks')
   async companyBreaks(@AuthUser() user: LoggedInUser) {
     try {
-      const result = await this.service.getBreaks(user.userRole[0].companyId as string);
+      const result = await this.service.getBreaks(
+        user.userRole[0].companyId as string,
+      );
       if (result.error == 2) return this.responseService.exception(result.body);
 
       if (result.error == 1)
@@ -429,7 +454,7 @@ export class CompanyController {
   }
 
   @RouteName('company.task-stage.create')
-  @Post()
+  @Post('task-stage')
   @ApiOperation({ summary: 'Create a new task stage' })
   async createStage(
     @AuthUser() user: LoggedInUser,
@@ -454,9 +479,32 @@ export class CompanyController {
   @RouteName('company.task-stage.list')
   @Get()
   @ApiOperation({ summary: 'List all task stages for the company' })
-  async listStages(@AuthUser() user: LoggedInUser) {
+  async listStages(
+    @AuthUser() user: LoggedInUser) {
     try {
       const result = await this.taskService.listStages(
+        user.userRole[0].companyId as string,
+      );
+
+      if (result.error == 2) return this.responseService.exception(result.body);
+      if (result.error == 1)
+        return this.responseService.badRequest(result.body);
+
+      return this.responseService.success(result.body);
+    } catch (e) {
+      return this.responseService.exception(e.message);
+    }
+  }
+
+  @RouteName('company.payrate.update')
+  @Patch('/employess')
+  @ApiOperation({ summary: 'Update a Pay rate' })
+  async updatePayRate(
+    @AuthUser() user: LoggedInUser, 
+    @Body() dto: EmployeeSettingDto[]) {
+    try {
+      const result = await this.service.updatePayRate(
+        dto,
         user.userRole[0].companyId as string,
       );
 

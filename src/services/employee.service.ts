@@ -14,7 +14,7 @@ export class EmployeeService extends PrismaService {
     page: number,
     size: number,
     search: string = '',
-    sortBy: string = 'updatedAt',
+    sortBy: string = 'id',
     sortDirection: 'asc' | 'desc' = 'desc',
   ) {
     try {
@@ -27,6 +27,11 @@ export class EmployeeService extends PrismaService {
       const result = await this.employee.findMany({
         where: filter,
         select: {
+          id:true,
+          payRate:true,
+          countryCode:true,
+          timezone:true,
+          period:true,
           phoneNumber: true,
           profile: {
             select: {

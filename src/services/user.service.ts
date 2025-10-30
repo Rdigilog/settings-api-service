@@ -38,7 +38,7 @@ export class UserService {
         profile: true,
         password: includePassword,
         userRole: {
-          select: { role: true, company: true },
+          select: { companyId:true, role: true, company: true },
         },
       },
     });

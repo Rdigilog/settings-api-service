@@ -21,7 +21,7 @@ export class JobRoleService extends PrismaService {
   ) {
     try {
       const { offset, limit } = this.responseService.pagination(page, size);
-      const filter: Prisma.jobRoleWhereInput = { companyId };
+      const filter: Prisma.JobRoleWhereInput = { companyId };
       if (search) {
         filter.OR = [];
       }
@@ -29,7 +29,12 @@ export class JobRoleService extends PrismaService {
       const result = await this.jobRole.findMany({
         where: filter,
         include: {
-          company: true,
+          company: {
+            select:{
+              id:true,
+              name:true
+            }
+          },
         },
         orderBy: {
           [sortBy]: sortDirection,

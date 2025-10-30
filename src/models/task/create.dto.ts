@@ -132,9 +132,9 @@ export class CreateTaskStageDto {
   @IsString()
   name: string;
 
-  @ApiProperty()
-  @IsString()
-  companyId: string;
+  // @ApiProperty()
+  // @IsString()
+  // companyId: string;
 }
 
 export class UpdateTaskStageDto {

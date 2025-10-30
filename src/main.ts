@@ -7,9 +7,9 @@ import { CONFIG_KEYS } from './config/config.keys';
 import { getConfigValues } from './config/configuration';
 
 async function bootstrap() {
-  const response = await getConfigValues()
+  const response = await getConfigValues();
 
-  console.log('secrets pulled', response)
+  console.log('secrets pulled', response);
   const app = await NestFactory.create(AppModule, {
     cors: {
       origin: '*',
@@ -22,7 +22,12 @@ async function bootstrap() {
   const port = configService.get<number>(CONFIG_KEYS.PORT) || 3000;
 
   app.setGlobalPrefix('settings/api/v1');
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      transformOptions: { enableImplicitConversion: true },
+    }),
+  );
   app.enableCors();
   const config = new DocumentBuilder()
     .setTitle('DigiLog Admin API Documentation')

@@ -28,8 +28,18 @@ export class BranchService extends PrismaService {
       const result = await this.branch.findMany({
         where: filter,
         include: {
-          company: true,
-          country: true,
+          company: {
+            select:{
+              id:true,
+              name:true
+            }
+          },
+          country: {
+            select:{
+              code:true,
+              name:true
+            }
+          },
           manager: true,
         },
         orderBy: {
@@ -57,6 +67,12 @@ export class BranchService extends PrismaService {
 
   async create(payload: CreateBranchDto, companyId: string) {
     try {
+
+      const {countryCode, managerId, ...rest} = payload
+
+      // if(countryCode){
+      //   data.country = {connect:{code:countryCode}}
+      // }
       const result = await this.branch.create({
         data: {
           name: payload.name,
@@ -72,15 +88,16 @@ export class BranchService extends PrismaService {
               id: companyId,
             },
           },
-          manager: {
+          manager: payload.managerId ? {
             connect: {
               userId: payload.managerId,
             },
-          },
+          }: undefined,
         },
       });
       return { error: 0, body: result };
     } catch (e) {
+      console.log(e)
       return this.responseService.errorHandler(e);
     }
   }
@@ -103,23 +120,23 @@ export class BranchService extends PrismaService {
 
   async assingToBranch(payload: AssignBranchUserDto, branchId: string) {
     try {
-      const result = await this.profileBranch.createMany({
-        data: payload.userIds.map((userId) => {
-          return { userId, branchId: branchId };
+      const result = await this.employeeBranch.createMany({
+        data: payload.emaployeeId.map((userId) => {
+          return { employeeId:userId, branchId: branchId };
         }),
       });
       if (result.count) {
         const branch = await this.branch.findUnique({
           where: { id: branchId },
           include: {
-            profileBranch: {
+            employees: {
               select: {
-                profile: true,
+                employee:true,
               },
             },
           },
         });
-        return { error: 0, body: branch };
+        return { error: 0, body: result };
       }
       return { error: 1, body: "failed to assign user('s) to branch" };
     } catch (e) {
@@ -129,16 +146,16 @@ export class BranchService extends PrismaService {
 
   async removeFromBranch(payload: AssignBranchUserDto, branchId: string) {
     try {
-      const result = await this.profileBranch.deleteMany({
-        where: { userId: { in: payload.userIds }, branchId: branchId },
+      const result = await this.employeeBranch.deleteMany({
+        where: { employeeId: { in: payload.emaployeeId }, branchId: branchId },
       });
       if (result.count) {
         const branch = await this.branch.findUnique({
           where: { id: branchId },
           include: {
-            profileBranch: {
+            employees: {
               select: {
-                profile: true,
+                employee: true,
               },
             },
           },

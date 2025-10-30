@@ -39,7 +39,7 @@ export class CreateBranchDto {
     example: 'US',
   })
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   managerId: string;
 
   @ApiProperty({
@@ -71,5 +71,5 @@ export class AssignBranchUserDto {
   @ArrayNotEmpty()
   @ArrayUnique()
   @IsUUID('all', { each: true })
-  userIds: string[];
+  emaployeeId: string[];
 }

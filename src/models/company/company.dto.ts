@@ -23,6 +23,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
+import { EmployeeSettingDto } from './employee.dto';
 
 export class CompanyUpdateDto {
   @ApiPropertyOptional({ type: String })
@@ -41,7 +42,8 @@ export class CompanyUpdateDto {
   phoneNumber?: string;
 
   @ApiProperty({ type: String })
-  @IsEmail()
+  @IsOptional()
+  // @IsEmail()
   email: string;
 
   @ApiPropertyOptional({ type: String })
@@ -81,7 +83,7 @@ export class CompanyUpdateDto {
 
   @ApiPropertyOptional({ type: [String], enum: WEEKDAY })
   @IsOptional()
-  @IsEnum(WEEKDAY, { each: true })
+  // @IsEnum(WEEKDAY, { each: true })
   workingDays?: WEEKDAY[];
 
   @ApiPropertyOptional({ type: String })
@@ -158,6 +160,12 @@ export class CompanyUpdateDto {
   @IsOptional()
   @IsBoolean()
   identityInfo?: boolean;
+
+  @ApiPropertyOptional({ type: Boolean, default: false })
+  @IsOptional()
+  @Type(() => Boolean) // ✅ converts "true"/"false" strings to boolean
+  @IsBoolean()
+  displayRate: boolean = false;
 }
 
 export class RotaRuleSettingDto {
@@ -462,4 +470,18 @@ export class BreakComplianceSettingDto {
   })
   @IsOptional()
   breaks?: BreakSettingDto[];
+}
+
+export class PayRateDto {
+  @ApiPropertyOptional({ type: Boolean, default: false })
+  @IsOptional()
+  @Type(() => Boolean) // ✅ converts "true"/"false" strings to boolean
+  @IsBoolean()
+  displayRate: boolean = false;
+
+  @ApiPropertyOptional({ type: [EmployeeSettingDto] })
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => EmployeeSettingDto)
+  staffs?: EmployeeSettingDto[];
 }
