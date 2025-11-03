@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   AppType,
+  BreakType,
   ClainEligibility,
   HolidayTypes,
   ProductivityTrackingMethods,
