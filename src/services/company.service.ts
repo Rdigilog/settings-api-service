@@ -121,16 +121,17 @@ export class CompanyService extends PrismaService {
       // if(payload?.length){
       await Promise.all(
         payload.map(async (staff) => {
-          const { employeeId, payRate, period, ...rest } = staff;
+          const { employeeId, ...rest } = staff;
           await this.employee.update({
             where: { id: employeeId },
             data: {
               ...rest,
-              jobInformation:payRate ? {
-                update:{
-                  payRatePerHour:payRate,
-                }
-              }:undefined
+              // jobInformation:payRate ? {
+              //   update:{
+              //     payRatePerHour:payRate,
+                  
+              //   }
+              // }:undefined
             },
           });
         }),
@@ -202,6 +203,9 @@ export class CompanyService extends PrismaService {
     try {
       const result = await this.rotaRuleSetting.findFirst({
         where: { companyId },
+        include:{
+          
+        }
       });
       return { error: 0, body: result };
     } catch (e) {
@@ -342,7 +346,7 @@ export class CompanyService extends PrismaService {
             createMany: {
               data:
                 breaks?.map((app) => {
-                  return { ...app, companyId };
+                  return { ...app };
                 }) || [],
             },
           },
@@ -358,11 +362,14 @@ export class CompanyService extends PrismaService {
             createMany: {
               data:
                 breaks?.map((app) => {
-                  return { ...app, companyId };
+                  return { ...app };
                 }) || [],
             },
           },
         },
+        include:{
+          breaks:true
+        }
       });
       return { error: 0, body: result };
     } catch (e) {

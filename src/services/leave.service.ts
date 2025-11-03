@@ -37,7 +37,7 @@ export class LeaveService extends PrismaService {
         take: limit,
       });
 
-      if (result.length) {
+      // if (result.length) {
         const totalItems = await this.leave.count({ where: filter });
         const paginatedProduct = this.responseService.pagingData(
           { result, totalItems },
@@ -45,8 +45,8 @@ export class LeaveService extends PrismaService {
           limit,
         );
         return { error: 0, body: paginatedProduct };
-      }
-      return { error: 1, body: 'No Leave found' };
+      // }
+      // return { error: 1, body: 'No Leave found' };
     } catch (e) {
       console.error(e);
       return this.responseService.errorHandler(e);
@@ -98,10 +98,10 @@ export class LeaveService extends PrismaService {
         },
       });
 
-      if (leavePolicies.length) {
+      // if (leavePolicies.length) {
         return { error: 0, body: leavePolicies };
-      }
-      return { error: 1, body: 'No Leave policy found' };
+      // }
+      // return { error: 1, body: 'No Leave policy found' };
     } catch (e) {
       return { error: 2, body: e.message };
     }

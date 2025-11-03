@@ -477,7 +477,7 @@ export class CompanyController {
   }
 
   @RouteName('company.task-stage.list')
-  @Get()
+  @Get('task-stage')
   @ApiOperation({ summary: 'List all task stages for the company' })
   async listStages(
     @AuthUser() user: LoggedInUser) {
@@ -499,6 +499,7 @@ export class CompanyController {
   @RouteName('company.payrate.update')
   @Patch('/employess')
   @ApiOperation({ summary: 'Update a Pay rate' })
+  @ApiBody({ type: [EmployeeSettingDto] })
   async updatePayRate(
     @AuthUser() user: LoggedInUser, 
     @Body() dto: EmployeeSettingDto[]) {
@@ -519,7 +520,7 @@ export class CompanyController {
   }
 
   @RouteName('company.task-stage.update')
-  @Patch(':id')
+  @Patch('task-stage/:id')
   @ApiOperation({ summary: 'Update a task stage' })
   async updateStage(
     @AuthUser() user: LoggedInUser,

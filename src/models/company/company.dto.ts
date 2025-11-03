@@ -51,6 +51,12 @@ export class CompanyUpdateDto {
   @IsString()
   heardAboutUs?: string;
 
+  @ApiProperty({ description: 'Minimum tenure before requesting leave (days)' })
+  @IsInt()
+  @Min(0)
+  @IsOptional()
+  totalHoliday: number;
+
   @ApiPropertyOptional({ type: String })
   @IsOptional()
   @IsString()
@@ -165,7 +171,13 @@ export class CompanyUpdateDto {
   @IsOptional()
   @Type(() => Boolean) // ✅ converts "true"/"false" strings to boolean
   @IsBoolean()
-  displayRate: boolean = false;
+  paymentRateDisplay: boolean = false;
+
+  @ApiPropertyOptional({ type: Boolean, default: false })
+  @IsOptional()
+  @Type(() => Boolean) // ✅ converts "true"/"false" strings to boolean
+  @IsBoolean()
+  permissionByRole: boolean = false;
 }
 
 export class RotaRuleSettingDto {
@@ -246,9 +258,13 @@ export class ShiftSettingDto {
   @ApiProperty({
     required: false,
     description: 'Claim eligibility type (all, qualified, branch/department)',
+    enum: ClainEligibility, // <-- add this for Swagger UI to show dropdown
+    example: ClainEligibility.ALL_EMPLOYEE,
   })
   @IsOptional()
-  @IsString()
+  @IsEnum(ClainEligibility, {
+    message: `claimEligibility must be one of: ${Object.values(ClainEligibility).join(', ')}`,
+  })
   claimEligibility?: ClainEligibility;
 
   @ApiProperty({
@@ -259,6 +275,24 @@ export class ShiftSettingDto {
   @IsInt()
   @Min(0)
   minNoticeToClaim?: number;
+
+  @ApiProperty({
+    required: false,
+    description: 'Minimum notice to claim open shift (hours)',
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  hours?: number;
+
+  @ApiProperty({
+    required: false,
+    description: 'Minimum notice to claim open shift (hours)',
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  days?: number;
 
   @ApiProperty()
   @IsBoolean()
@@ -274,9 +308,17 @@ export class HolidayRequestRuleSettingDto {
   @IsBoolean()
   enableHolidayRequests: boolean;
 
-  @ApiProperty({ type: [String], description: 'Types of leave allowed' })
+  @ApiProperty({
+    type: [String],
+    description: 'Types of leave allowed',
+    enum: HolidayTypes,
+    example: [HolidayTypes.MATERNITY, HolidayTypes.SICK_LEAVE], // example
+  })
   @IsArray()
-  @IsString({ each: true })
+  @IsEnum(HolidayTypes, {
+    each: true,
+    message: `Each holiday type must be one of: ${Object.values(HolidayTypes).join(', ')}`,
+  })
   holidayTypesAllowed: HolidayTypes[];
 
   @ApiProperty({ description: 'Minimum notice before requesting leave (days)' })
@@ -465,6 +507,27 @@ export class BreakComplianceSettingDto {
   enabled: boolean;
 
   @ApiProperty({
+    enum: BreakType,
+    description: 'Defines how breaks are grouped (ALL, SHIFT, CUSTOM)',
+    example: BreakType.ALL,
+  })
+  @IsEnum(BreakType, {
+    message: `breakTimeGrouping must be one of: ${Object.values(BreakType).join(', ')}`,
+  })
+  @IsOptional()
+  breakTimeGrouping?: BreakType = BreakType.ALL;
+
+  @ApiProperty({
+    description: 'Break duration in minutes',
+    example: 0,
+    minimum: 0,
+  })
+  @IsInt({ message: 'breakTime must be an integer' })
+  @Min(0, { message: 'breakTime cannot be negative' })
+  @IsOptional()
+  breakTime?: number = 0;
+
+  @ApiProperty({
     type: [BreakSettingDto],
     description: 'List of defined breaks',
   })
@@ -477,7 +540,7 @@ export class PayRateDto {
   @IsOptional()
   @Type(() => Boolean) // ✅ converts "true"/"false" strings to boolean
   @IsBoolean()
-  displayRate: boolean = false;
+  paymentRateDisplay: boolean = false;
 
   @ApiPropertyOptional({ type: [EmployeeSettingDto] })
   @IsOptional()

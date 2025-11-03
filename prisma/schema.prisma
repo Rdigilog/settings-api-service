@@ -18,6 +18,7 @@ model User {
   active           Boolean            @default(false)
   locked           Boolean            @default(false)
   deleted          Boolean            @default(false)
+  suspended        Boolean            @default(false)
   verified         Boolean            @default(false)
   phoneVerified    Boolean            @default(false) @map("phone_verified")
   deletedAt        DateTime?          @map("deleted_at")
@@ -122,6 +123,9 @@ model Employee {
   currencyCode   String?        @map("currency_code")
   payRate        Float          @default(0) @map("pay_rate")
   period         BillingCycle   @default(PER_HOUR)
+   annualLeave Int @default(15)
+   bankHoliday Int @default(0)
+  hours Int @default(0)
 
   emergencyContact EmergencyContact?
   jobInformation   JobInformation?
@@ -201,7 +205,7 @@ model Company {
   resumptionTime           String?   @map("resumption_time")
   closingTime              String?   @map("closing_time")
   breakTime                String?   @map("break_time")
-  displayRate              Boolean   @default(false) @map("display_rate")
+  paymentRateDisplay       Boolean   @default(false) @map("payment_rate_display")
   profileVisibility        Boolean   @default(false) @map("profile_visibility")
   countryTimeZone          Boolean   @default(false) @map("country_timezone")
   aboutMe                  Boolean   @default(false) @map("about_me")
@@ -211,8 +215,11 @@ model Company {
   jobDetails               Boolean   @default(false) @map("job_details")
   bankingInfo              Boolean   @default(false) @map("banking_info")
   identityInfo             Boolean   @default(false) @map("identity_info")
+  permissionByRole         Boolean   @default(false) @map("permission_by_role")
   createdAt                DateTime  @default(now()) @map("created_at")
   updatedAt                DateTime  @updatedAt @map("updated_at")
+  totalHolidays Int @default(15)
+
   archived                 Boolean   @default(false)
   status                   Boolean   @default(true)
 
@@ -284,6 +291,8 @@ model ShiftSetting {
   limitOpenShiftsPerWeekPerEmployee Boolean @default(false) @map("limit_open_shifts_per_week_per_employee")
 
   allowAdminOverride Boolean @default(false) @map("allow_admin_override")
+  hours Int @default(0)
+  days Int @default(0)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -386,6 +395,9 @@ model BreakComplianceSetting {
   companyId String @unique @map("company_id")
 
   enabled Boolean @default(false) @map("enabled")
+
+  breakTimeGrouping  BreakType @default(ALL)
+  breakTime Int @default(0)
 
   // Relation to breaks (Tea break, Lunch break, etc.)
   breaks BreakSetting[]
@@ -1050,6 +1062,10 @@ enum LeaveStatus {
   ONGOING
   COMPLETED
 }
+enum BreakType {
+  ALL
+  INDIVIDUAL
+}
 
 enum AttendanceStatus {
   ABSENT
@@ -1201,7 +1217,6 @@ enum UserStatus {
   ONLINE
   OFFLINE
 }
-
 
 // Chat-related models
 model Chat {
