@@ -60,7 +60,7 @@ model Profile {
   user        User     @relation(fields: [userId], references: [id], name: "user_profile")
 
   // profileBranch ProfileBranch[]
-  status   LeaveStatus @default(APPROVED)
+  status   UserStatus @default(OFFLINE)
   employee Employee?
   branch   Branch[]
 
@@ -580,7 +580,7 @@ model Plan {
   colorTheme         String?
   buttonText         String?
   badge              String?
-  discount Float?
+  discount           Float?
   active             Boolean          @default(true)
   createdAt          DateTime         @default(now()) @map("created_at")
   updatedAt          DateTime         @updatedAt @map("updated_at")
@@ -1197,6 +1197,12 @@ enum BillingHistoryStatus {
   PENDING
 }
 
+enum UserStatus {
+  ONLINE
+  OFFLINE
+}
+
+
 // Chat-related models
 model Chat {
   id        String   @id @default(uuid())
@@ -1213,23 +1219,29 @@ model Chat {
 }
 
 model Message {
-  id        String   @id @default(uuid())
-  chatId    String   @map("chat_id")
-  senderId  String   @map("sender_id")
-  content   String
-  mediaType String   @default("text") @map("media_type")
-  extra     Json? // For additional metadata like file URLs, thumbnails, etc.
-  deleted   Boolean  @default(false)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id              String   @id @default(uuid())
+  chatId          String   @map("chat_id")
+  senderId        String   @map("sender_id")
+  parentMessageId String?  @map("parent_message_id")
+  batchId         String?  @map("batch_id")
+  content         String
+  mediaType       String   @default("text") @map("media_type")
+  extra           Json? // For additional metadata like file URLs, thumbnails, etc.
+  deleted         Boolean  @default(false)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
 
   // Relations
   chat            Chat            @relation(fields: [chatId], references: [id], onDelete: Cascade)
   sender          User            @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  parentMessage   Message?        @relation("MessageThreads", fields: [parentMessageId], references: [id], onDelete: Cascade)
+  threadMessages  Message[]       @relation("MessageThreads")
   messageStatuses MessageStatus[]
 
   @@index([chatId])
   @@index([senderId])
+  @@index([parentMessageId])
+  @@index([batchId])
   @@map("messages")
 }
 

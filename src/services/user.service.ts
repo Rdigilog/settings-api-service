@@ -1,11 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { Prisma } from "@prisma/client";
-import { Queue } from "bullmq";
 import { PrismaService } from "src/config/prisma.service";
-import { UpdateProfileDto, EmployeeDto } from "src/models/onboarding/profile.dto";
-import { InitiateRegistrationDto, PhoneNumberDTO, CompanyDetailsDTO, InviteUserDTO } from "src/models/onboarding/SignUp.dto";
-import { ResponsesService } from "src/utils/services/responses.service";
-import { UtilsService } from "src/utils/services/utils.service";
 
 
 @Injectable()
