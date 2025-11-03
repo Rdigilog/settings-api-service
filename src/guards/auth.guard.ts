@@ -2,6 +2,7 @@ import {
   CanActivate,
   ExecutionContext,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -9,6 +10,7 @@ import { Request } from 'express';
 import { UserService } from 'src/services/user.service';
 import { ConfigService } from '@nestjs/config';
 import { CONFIG_KEYS } from '../config/config.keys';
+import { logger } from 'handlebars';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -35,8 +37,9 @@ export class AuthGuard implements CanActivate {
       // 💡 We're assigning the payload to the request object here
       // so that we can access it in our route handlers
       request['user'] = result;
-      console.log(request.user);
-    } catch {
+      // console.log(request.user);
+    } catch(e){
+      Logger.debug(e)
       throw new UnauthorizedException();
     }
     return true;

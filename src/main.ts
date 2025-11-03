@@ -30,7 +30,7 @@ async function bootstrap() {
   );
   app.enableCors();
   const config = new DocumentBuilder()
-    .setTitle('DigiLog Admin API Documentation')
+    .setTitle('DigiLog Settings API Documentation')
     .setDescription('The DigiLog API description')
     .setVersion('1.0')
     .addBearerAuth(
