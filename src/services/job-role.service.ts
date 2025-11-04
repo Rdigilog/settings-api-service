@@ -43,7 +43,7 @@ export class JobRoleService extends PrismaService {
         take: limit,
       });
 
-      if (result.length) {
+      // if (result.length) {
         const totalItems = await this.jobRole.count({ where: filter });
         const paginatedProduct = this.responseService.pagingData(
           { result, totalItems },
@@ -51,8 +51,8 @@ export class JobRoleService extends PrismaService {
           limit,
         );
         return { error: 0, body: paginatedProduct };
-      }
-      return { error: 1, body: 'No Record found' };
+      // }
+      // return { error: 1, body: 'No Record found' };
     } catch (e) {
       console.error(e);
       return this.responseService.errorHandler(e);
