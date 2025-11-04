@@ -9,11 +9,11 @@ import {
   Put,
   Param,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiQuery, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiQuery, ApiOperation, ApiParam, ApiBody } from '@nestjs/swagger';
 import { AuthUser } from 'src/decorators/logged-in-user-decorator';
 import { RouteName } from 'src/decorators/route-name.decorator';
 import { AuthGuard } from 'src/guards/auth.guard';
-import { CreateJobRoleDto } from 'src/models/company/job-role.dto';
+import { AssignJobRoleDto, CreateJobRoleDto } from 'src/models/company/job-role.dto';
 import type { LoggedInUser } from 'src/models/types/user.types';
 import { JobRoleService } from 'src/services/job-role.service';
 import { ResponsesService } from 'src/utils/services/responses.service';
@@ -106,6 +106,36 @@ export class JobRoleController {
       return this.responseService.success(result.body);
     } catch (e) {
       return this.responseService.exception(e.message);
+    }
+  }
+
+  @Post(':jobRoleId/assign')
+  @ApiOperation({ summary: 'Assign job role to multiple users' })
+  @ApiParam({
+    name: 'jobRoleId',
+    description: 'The ID of the job role to assign',
+    type: String,
+    example: 'c3b84f6b-543e-48b0-9a6c-49c875d3a3ef',
+  })
+  @ApiBody({
+    type: AssignJobRoleDto,
+    description: 'List of user IDs to assign this job role to',
+  })
+  async assignJobRole(
+    @Param('jobRoleId') jobRoleId: string,
+    @Body() dto: AssignJobRoleDto,
+  ) {
+    try{
+      const result = await this.service.assignJobRole(jobRoleId, dto.userIds);
+       if (result.error == 2) {
+          return this.responseService.exception(result.body);
+        }
+        if (result.error == 1) {
+          return this.responseService.badRequest(result.body);
+        }
+        return this.responseService.success(result.body);
+    }catch(e){
+        return this.responseService.exception(e.message);
     }
   }
 }

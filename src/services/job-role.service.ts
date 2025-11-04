@@ -1,4 +1,3 @@
-
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/config/prisma.service';
@@ -30,10 +29,10 @@ export class JobRoleService extends PrismaService {
         where: filter,
         include: {
           company: {
-            select:{
-              id:true,
-              name:true
-            }
+            select: {
+              id: true,
+              name: true,
+            },
           },
         },
         orderBy: {
@@ -44,13 +43,13 @@ export class JobRoleService extends PrismaService {
       });
 
       // if (result.length) {
-        const totalItems = await this.jobRole.count({ where: filter });
-        const paginatedProduct = this.responseService.pagingData(
-          { result, totalItems },
-          page,
-          limit,
-        );
-        return { error: 0, body: paginatedProduct };
+      const totalItems = await this.jobRole.count({ where: filter });
+      const paginatedProduct = this.responseService.pagingData(
+        { result, totalItems },
+        page,
+        limit,
+      );
+      return { error: 0, body: paginatedProduct };
       // }
       // return { error: 1, body: 'No Record found' };
     } catch (e) {
@@ -90,6 +89,41 @@ export class JobRoleService extends PrismaService {
       return { error: 0, body: result };
     } catch (e) {
       return this.responseService.errorHandler(e);
+    }
+  }
+
+  async assignJobRole(jobRoleId: string, userId: string[]) {
+    try {
+      const result = await Promise.all(
+        userId.map(async (id) => {
+          const employee = await this.employee.findFirst({where:{userId:id}})
+          return await this.jobInformation.upsert({
+            where:{employeeId:employee?.id},
+            update:{
+              jobRole:{
+                connect:{
+                  id:jobRoleId
+                }
+              }
+            },
+            create:{
+              jobRole:{
+                connect:{
+                  id:jobRoleId
+                }
+              },
+              employee:{
+                connect:{
+                  id:employee?.id
+                }
+              }
+            }
+          });
+        }),
+      );
+      return {error:0, body:result}
+    } catch (e) {
+      return this.responseService.errorHandler(e)
     }
   }
 }
