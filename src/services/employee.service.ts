@@ -1,4 +1,3 @@
-
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/config/prisma.service';
@@ -27,12 +26,19 @@ export class EmployeeService extends PrismaService {
       const result = await this.employee.findMany({
         where: filter,
         select: {
-          id:true,
-          payRate:true,
-          countryCode:true,
-          timezone:true,
-          period:true,
+          id: true,
+          payRate: true,
+          countryCode: true,
+          timezone: true,
+          period: true,
           phoneNumber: true,
+          screenshotFrequency: true,
+          annualLeave: true,
+          bankHoliday: true,
+          hours: true,
+          screenshotIntervalMinutes: true,
+          appTrackingType: true,
+          appScrennshotNotification: true,
           profile: {
             select: {
               firstName: true,
