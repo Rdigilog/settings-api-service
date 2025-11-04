@@ -49,7 +49,7 @@ export class BranchService extends PrismaService {
         take: limit,
       });
 
-      if (result.length) {
+      // if (result.length) {
         const totalItems = await this.branch.count({ where: filter });
         const paginatedProduct = this.responseService.pagingData(
           { result, totalItems },
@@ -57,8 +57,8 @@ export class BranchService extends PrismaService {
           limit,
         );
         return { error: 0, body: paginatedProduct };
-      }
-      return { error: 1, body: 'No Order found' };
+      // }
+      // return { error: 1, body: 'No Order found' };
     } catch (e) {
       console.error(e);
       return this.responseService.errorHandler(e);
