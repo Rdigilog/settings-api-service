@@ -580,7 +580,7 @@ export class CompanyController {
   }
 
   @RouteName('company.payrate.update')
-  @Patch('/employess')
+  @Patch('/employees')
   @ApiOperation({ summary: 'Update a Pay rate' })
   @ApiBody({ type: [EmployeeSettingDto] })
   async updatePayRate(
