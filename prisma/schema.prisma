@@ -104,28 +104,32 @@ model EmployeeBranch {
 }
 
 model Employee {
-  id             String         @id @default(uuid())
-  userId         String         @unique @map("user_id")
-  companyId      String         @map("company_id")
-  address        String?
-  phoneNumber    String?        @map("phone_number")
-  maritalStatus  MaritalStatus? @map("marital_status")
-  bio            String?        @db.Text
-  interest       String?        @db.Text
-  Gender         Gender?
-  religion       String?
-  altPhoneNumber String?        @map("alt_phone_number")
-  dateOfBirth    String?        @map("date_of_birth")
-  bloodGroup     BloodGroup?    @map("blood_group")
-  allergy        String?        @db.Text
-  countryCode    String?        @map("country_code")
-  timezone       String?
-  currencyCode   String?        @map("currency_code")
-  payRate        Float          @default(0) @map("pay_rate")
-  period         BillingCycle   @default(PER_HOUR)
-   annualLeave Int @default(15)
-   bankHoliday Int @default(0)
-  hours Int @default(0)
+  id                        String              @id @default(uuid())
+  userId                    String              @unique @map("user_id")
+  companyId                 String              @map("company_id")
+  address                   String?
+  phoneNumber               String?             @map("phone_number")
+  maritalStatus             MaritalStatus?      @map("marital_status")
+  bio                       String?             @db.Text
+  interest                  String?             @db.Text
+  Gender                    Gender?
+  religion                  String?
+  altPhoneNumber            String?             @map("alt_phone_number")
+  dateOfBirth               String?             @map("date_of_birth")
+  bloodGroup                BloodGroup?         @map("blood_group")
+  allergy                   String?             @db.Text
+  countryCode               String?             @map("country_code")
+  timezone                  String?
+  currencyCode              String?             @map("currency_code")
+  payRate                   Float               @default(0) @map("pay_rate")
+  period                    BillingCycle        @default(PER_HOUR)
+  annualLeave               Int                 @default(15)
+  bankHoliday               Int                 @default(0)
+  hours                     Int                 @default(0)
+  screenshotFrequency       ScreenshotFrequency @default(NONE) // NONE, 1X, 2X, 3X
+  screenshotIntervalMinutes Int                 @default(30) // Time interval in minutes
+  appTrackingType           TrackingType        @default(OFF) // OFF, APPS_ONLY, URLS_ONLY, BOTH
+  appScrennshotNotification Boolean             @default(false)
 
   emergencyContact EmergencyContact?
   jobInformation   JobInformation?
@@ -216,12 +220,14 @@ model Company {
   bankingInfo              Boolean   @default(false) @map("banking_info")
   identityInfo             Boolean   @default(false) @map("identity_info")
   permissionByRole         Boolean   @default(false) @map("permission_by_role")
-  createdAt                DateTime  @default(now()) @map("created_at")
-  updatedAt                DateTime  @updatedAt @map("updated_at")
-  totalHolidays Int @default(15)
+  receiveAllNotification   Boolean   @default(false)
 
-  archived                 Boolean   @default(false)
-  status                   Boolean   @default(true)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  totalHolidays Int      @default(15)
+
+  archived Boolean @default(false)
+  status   Boolean @default(true)
 
   plan                      Plan?                      @relation(fields: [planId], references: [id], onDelete: Cascade)
   branch                    Branch[]
@@ -242,6 +248,8 @@ model Company {
   form                      Form[]
   BillingHistory            BillingHistory[]           @relation(name: "billing_history_company")
   subscription              Subscription[]             @relation(name: "company_subscription")
+  activityTrackingSetting   ActivityTrackingSetting?
+  notificationSetting       notificationSetting?
 
   @@map("companies")
 }
@@ -291,8 +299,8 @@ model ShiftSetting {
   limitOpenShiftsPerWeekPerEmployee Boolean @default(false) @map("limit_open_shifts_per_week_per_employee")
 
   allowAdminOverride Boolean @default(false) @map("allow_admin_override")
-  hours Int @default(0)
-  days Int @default(0)
+  hours              Int     @default(0)
+  days               Int     @default(0)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -335,11 +343,68 @@ model HolidayRequestRuleSetting {
   @@map("holiday_request_rule_settings")
 }
 
+model notificationSetting {
+  id          String  @id @default(uuid())
+  companyId   String  @unique @map("company_id")
+  digiRota    Boolean @default(false)
+  digiTime    Boolean @default(false)
+  digiOff     Boolean @default(false)
+  celebration Boolean @default(false)
+  events      Boolean @default(false)
+  newsUpdates Boolean @default(false)
+
+  pushNotification  Boolean @default(false)
+  inAppNotification Boolean @default(false)
+  emailNotification Boolean @default(false)
+  smsNotification   Boolean @default(false)
+
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@map("notification_settings")
+}
+
+model ActivityTrackingSetting {
+  id                           String               @id @default(uuid())
+  enableMonitoring             Boolean              @default(false)
+  trackingMethods              TrackingMethod[]
+  reportingDashboard           ReportingDashboard[]
+  members                      Json // store selected member IDs or objects
+  productiveApps               Json? // store array of app names/URLs + category
+  unproductiveApps             Json? // store array of app names/URLs + category
+  controlFrequencyOfScreenshot Mode                 @default(ALL)
+  createdAt                    DateTime             @default(now())
+  updatedAt                    DateTime             @updatedAt
+  screenshotMode               Mode                 @default(INDIVIDUAL) // ALL or INDIVIDUAL
+  screenshotFrequency          ScreenshotFrequency  @default(NONE) // NONE, 1X, 2X, 3X
+  screenshotIntervalMinutes    Int                  @default(30) // Time interval in minutes
+  appTrackingMode              Mode                 @default(INDIVIDUAL) // ALL or INDIVIDUAL
+  appTrackingType              TrackingType         @default(OFF) // OFF, APPS_ONLY, URLS_ONLY, BOTH
+  appScrennshotNotification    Boolean              @default(false)
+  managerDeleteScreenshot      Boolean              @default(false)
+  companyId                    String               @unique @map("company_id")
+  company                      Company              @relation(fields: [companyId], references: [id])
+
+  @@map("activity_tracking_settings")
+}
+
+enum TrackingMethod {
+  ACTIVE_TIME
+  APP_WEBSITE_USAGE
+  SCREENSHOT_CAPTURE
+  MANUAL_SELF_REPORTING
+}
+
+enum ReportingDashboard {
+  EMPLOYEE_DASHBOARD
+  MANAGER_OVERVIEW
+  HR_ONLY
+}
+
 model DigiTimeSetting {
   id        String @id @default(uuid())
   companyId String @unique @map("company_id")
 
-  enableTimeTracking Boolean         @default(false) @map("enable_time_tracking")
+  enableTimeTracking Boolean @default(false) @map("enable_time_tracking")
   trackingMethod     TrackingMethod? @map("tracking_method") // CLOCK_IN_OUT, MANUAL_ENTRY, ACTIVENESS
 
   baseHourlyRate Float   @default(0) @map("base_hourly_rate")
@@ -358,7 +423,7 @@ model DigiTimeSetting {
 
   enableOvertime Boolean @default(false) @map("enable_overtime")
 
-  trackingType RecurrenceType? @map("tracking_type") // daily, weekly, monthly
+  // trackingType RecurrenceType? @map("tracking_type") // daily, weekly, monthly
 
   standardDailyHours  Int? @map("standard_daily_hours")
   standardWeeklyHours Int? @map("standard_weekly_hours")
@@ -396,8 +461,8 @@ model BreakComplianceSetting {
 
   enabled Boolean @default(false) @map("enabled")
 
-  breakTimeGrouping  BreakType @default(ALL)
-  breakTime Int @default(0)
+  breakTimeGrouping Mode @default(ALL)
+  breakTime         Int  @default(0)
 
   // Relation to breaks (Tea break, Lunch break, etc.)
   breaks BreakSetting[]
@@ -1062,7 +1127,8 @@ enum LeaveStatus {
   ONGOING
   COMPLETED
 }
-enum BreakType {
+
+enum Mode {
   ALL
   INDIVIDUAL
 }
@@ -1161,11 +1227,23 @@ enum AppType {
   UNPRODUCTIVE
 }
 
-enum TrackingMethod {
-  CLOCK_IN_OUT
-  MANUAL_ENTRY
-  ACTIVENESS
+// enum ScreenshotMode {
+//   ALL
+//   INDIVIDUAL
+// }
+
+enum ScreenshotFrequency {
+  NONE
+  ONE_X
+  TWO_X
+  THREE_X
 }
+
+// enum TrackingMethod {
+//   CLOCK_IN_OUT
+//   MANUAL_ENTRY
+//   ACTIVENESS
+// }
 
 enum BillingCycle {
   PER_HOUR
@@ -1216,6 +1294,13 @@ enum BillingHistoryStatus {
 enum UserStatus {
   ONLINE
   OFFLINE
+}
+
+enum TrackingType {
+  OFF
+  APPS_ONLY
+  URLS_ONLY
+  BOTH
 }
 
 // Chat-related models

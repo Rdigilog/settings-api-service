@@ -1,6 +1,18 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, IsNumber, IsEnum, IsInt, Min } from 'class-validator';
-import { BillingCycle } from '@prisma/client';
+import {
+  IsOptional,
+  IsString,
+  IsNumber,
+  IsEnum,
+  IsInt,
+  Min,
+  IsBoolean,
+} from 'class-validator';
+import {
+  BillingCycle,
+  ScreenshotFrequency,
+  TrackingType,
+} from '@prisma/client';
 
 export class EmployeeSettingDto {
   @ApiPropertyOptional({ type: String })
@@ -50,4 +62,37 @@ export class EmployeeSettingDto {
   @IsOptional()
   bankHoliday: number;
 
+  @ApiProperty({
+    enum: ScreenshotFrequency,
+    description: 'How frequently screenshots are captured (NONE, 1X, 2X, 3X)',
+    example: ScreenshotFrequency.NONE,
+  })
+  @IsEnum(ScreenshotFrequency)
+  screenshotFrequency: ScreenshotFrequency;
+
+  @ApiProperty({
+    description: 'Time interval for screenshots in minutes',
+    example: 30,
+    default: 30,
+  })
+  @IsInt()
+  @Min(1)
+  screenshotIntervalMinutes: number;
+
+  @ApiProperty({
+    enum: TrackingType,
+    description:
+      'Tracking type for applications and URLs (OFF, APPS_ONLY, URLS_ONLY, BOTH)',
+    example: TrackingType.OFF,
+  })
+  @IsEnum(TrackingType)
+  appTrackingType: TrackingType;
+
+  @ApiProperty({
+    description: 'Whether app screenshot notifications are enabled',
+    example: false,
+    default: false,
+  })
+  @IsBoolean()
+  appScrennshotNotification: boolean;
 }

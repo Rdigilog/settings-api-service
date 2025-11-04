@@ -1,13 +1,16 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   AppType,
-  BreakType,
   ClainEligibility,
   HolidayTypes,
+  Mode,
   ProductivityTrackingMethods,
   ProductivityVisibility,
   RecurrenceType,
+  ReportingDashboard,
+  ScreenshotFrequency,
   TrackingMethod,
+  TrackingType,
   WEEKDAY,
 } from '@prisma/client';
 import { Type } from 'class-transformer';
@@ -17,6 +20,7 @@ import {
   IsEmail,
   IsEnum,
   IsInt,
+  IsJSON,
   IsNumber,
   IsOptional,
   IsString,
@@ -179,6 +183,12 @@ export class CompanyUpdateDto {
   @Type(() => Boolean) // ✅ converts "true"/"false" strings to boolean
   @IsBoolean()
   permissionByRole: boolean = false;
+
+  @ApiPropertyOptional({ type: Boolean, default: false })
+  @IsOptional()
+  @Type(() => Boolean) // ✅ converts "true"/"false" strings to boolean
+  @IsBoolean()
+  receiveAllNotification: boolean = false;
 }
 
 export class RotaRuleSettingDto {
@@ -508,15 +518,15 @@ export class BreakComplianceSettingDto {
   enabled: boolean;
 
   @ApiProperty({
-    enum: BreakType,
+    enum: Mode,
     description: 'Defines how breaks are grouped (ALL, SHIFT, CUSTOM)',
-    example: BreakType.ALL,
+    example: Mode.ALL,
   })
-  @IsEnum(BreakType, {
-    message: `breakTimeGrouping must be one of: ${Object.values(BreakType).join(', ')}`,
+  @IsEnum(Mode, {
+    message: `breakTimeGrouping must be one of: ${Object.values(Mode).join(', ')}`,
   })
   @IsOptional()
-  breakTimeGrouping?: BreakType = BreakType.ALL;
+  breakTimeGrouping?: Mode = Mode.ALL;
 
   @ApiProperty({
     description: 'Break duration in minutes',
@@ -548,4 +558,186 @@ export class PayRateDto {
   @ValidateNested({ each: true })
   @Type(() => EmployeeSettingDto)
   staffs?: EmployeeSettingDto[];
+}
+
+export class ActivityTrackingSettingDto {
+  @ApiProperty({ description: 'Enable or disable monitoring' })
+  @IsBoolean()
+  enableMonitoring: boolean;
+
+  @ApiProperty({
+    description: 'List of tracking methods (e.g., SCREENSHOT, APP_USAGE)',
+    enum: TrackingMethod,
+    isArray: true,
+  })
+  @IsArray()
+  @IsEnum(TrackingMethod, { each: true })
+  trackingMethods: TrackingMethod[];
+
+  @ApiProperty({
+    description: 'List of dashboards where reports are shown',
+    enum: ReportingDashboard,
+    isArray: true,
+  })
+  @IsArray()
+  @IsEnum(ReportingDashboard, { each: true })
+  reportingDashboard: ReportingDashboard[];
+
+  // @ApiProperty({
+  //   description: 'List of selected members (IDs or objects)',
+  //   type: Object,
+  // })
+  // @IsJSON()
+  // members: any;
+
+  @ApiProperty({
+    description: 'List of productive apps (name, URL, category)',
+    type: Object,
+    required: false,
+  })
+  @IsOptional()
+  @IsJSON()
+  productiveApps?: any;
+
+  @ApiProperty({
+    description: 'List of unproductive apps (name, URL, category)',
+    type: Object,
+    required: false,
+  })
+  @IsOptional()
+  @IsJSON()
+  unproductiveApps?: any;
+
+  @ApiProperty({
+    description: 'Control frequency of screenshots (ALL or INDIVIDUAL)',
+    enum: Mode,
+    default: Mode.ALL,
+  })
+  @IsEnum(Mode)
+  controlFrequencyOfScreenshot: Mode;
+
+  @ApiProperty({
+    description: 'Screenshot mode (ALL or INDIVIDUAL)',
+    enum: Mode,
+    default: Mode.INDIVIDUAL,
+  })
+  @IsEnum(Mode)
+  screenshotMode: Mode;
+
+  @ApiProperty({
+    description: 'Screenshot frequency (NONE, 1X, 2X, 3X)',
+    enum: ScreenshotFrequency,
+    default: ScreenshotFrequency.NONE,
+  })
+  @IsEnum(ScreenshotFrequency)
+  screenshotFrequency: ScreenshotFrequency;
+
+  @ApiProperty({
+    description: 'Screenshot interval in minutes',
+    default: 30,
+  })
+  @IsInt()
+  screenshotIntervalMinutes: number;
+
+  @ApiProperty({
+    description: 'App tracking mode (ALL or INDIVIDUAL)',
+    enum: Mode,
+    default: Mode.INDIVIDUAL,
+  })
+  @IsEnum(Mode)
+  appTrackingMode: Mode;
+
+  @ApiProperty({
+    description: 'App tracking type (OFF, APPS_ONLY, URLS_ONLY, BOTH)',
+    enum: TrackingType,
+    default: TrackingType.OFF,
+  })
+  @IsEnum(TrackingType)
+  appTrackingType: TrackingType;
+
+  @ApiProperty({
+    description: 'Enable screenshot notification for app tracking',
+    default: false,
+  })
+  @IsBoolean()
+  appScrennshotNotification: boolean;
+
+  @ApiProperty({
+    description: 'Allow manager to delete screenshots',
+    default: false,
+  })
+  @IsBoolean()
+  managerDeleteScreenshot: boolean;
+}
+
+export class NotificationSettingDto {
+  @ApiProperty({
+    description: 'Enable or disable DigiRota notifications',
+    default: false,
+  })
+  @IsBoolean()
+  digiRota: boolean;
+
+  @ApiProperty({
+    description: 'Enable or disable DigiTime notifications',
+    default: false,
+  })
+  @IsBoolean()
+  digiTime: boolean;
+
+  @ApiProperty({
+    description: 'Enable or disable DigiOff notifications',
+    default: false,
+  })
+  @IsBoolean()
+  digiOff: boolean;
+
+  @ApiProperty({
+    description: 'Enable or disable celebration notifications',
+    default: false,
+  })
+  @IsBoolean()
+  celebration: boolean;
+
+  @ApiProperty({
+    description: 'Enable or disable event notifications',
+    default: false,
+  })
+  @IsBoolean()
+  events: boolean;
+
+  @ApiProperty({
+    description: 'Enable or disable news and updates notifications',
+    default: false,
+  })
+  @IsBoolean()
+  newsUpdates: boolean;
+
+  @ApiProperty({
+    description: 'Enable or disable push notifications',
+    default: false,
+  })
+  @IsBoolean()
+  pushNotification: boolean;
+
+  @ApiProperty({
+    description: 'Enable or disable in-app notifications',
+    default: false,
+  })
+  @IsBoolean()
+  inAppNotification: boolean;
+
+  @ApiProperty({
+    description: 'Enable or disable email notifications',
+    default: false,
+  })
+  @IsBoolean()
+  emailNotification: boolean;
+
+  @ApiProperty({
+    description: 'Enable or disable SMS notifications',
+    default: false,
+  })
+  @IsBoolean()
+  smsNotification: boolean;
 }

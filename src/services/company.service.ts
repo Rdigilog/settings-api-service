@@ -9,6 +9,8 @@ import {
   DigiTimeSettingDto,
   BreakComplianceSettingDto,
   PayRateDto,
+  NotificationSettingDto,
+  ActivityTrackingSettingDto,
 } from 'src/models/company/company.dto';
 import { EmployeeSettingDto } from 'src/models/company/employee.dto';
 import { GeneralService } from 'src/utils/services/general.service';
@@ -129,7 +131,7 @@ export class CompanyService extends PrismaService {
               // jobInformation:payRate ? {
               //   update:{
               //     payRatePerHour:payRate,
-                  
+
               //   }
               // }:undefined
             },
@@ -203,9 +205,7 @@ export class CompanyService extends PrismaService {
     try {
       const result = await this.rotaRuleSetting.findFirst({
         where: { companyId },
-        include:{
-          
-        }
+        include: {},
       });
       return { error: 0, body: result };
     } catch (e) {
@@ -334,6 +334,74 @@ export class CompanyService extends PrismaService {
     }
   }
 
+  async getNotificationSetting(companyId: string) {
+    try {
+      const result = await this.notificationSetting.findFirst({
+        where: { companyId },
+      });
+      return { error: 0, body: result };
+    } catch (e) {
+      return this.responseService.errorHandler(e);
+    }
+  }
+
+  async updatecompanyNotification(
+    companyId: string,
+    payload: NotificationSettingDto,
+  ) {
+    try {
+      const result = await this.notificationSetting.upsert({
+        where: { companyId },
+        update: payload,
+        create: {
+          ...payload,
+          company: {
+            connect: {
+              id: companyId,
+            },
+          },
+        },
+      });
+      return { error: 0, body: result };
+    } catch (e) {
+      return this.responseService.errorHandler(e);
+    }
+  }
+  async getActivityTrackingSetting(companyId: string) {
+    try {
+      const result = await this.activityTrackingSetting.findFirst({
+        where: { companyId },
+      });
+      return { error: 0, body: result };
+    } catch (e) {
+      return this.responseService.errorHandler(e);
+    }
+  }
+
+  async updateActivityTrackingSetting(
+    companyId: string,
+    payload: ActivityTrackingSettingDto,
+  ) {
+    try {
+      const result = await this.activityTrackingSetting.upsert({
+        where: { companyId },
+        update: payload,
+        create: {
+          ...payload,
+          members: '',
+          company: {
+            connect: {
+              id: companyId,
+            },
+          },
+        },
+      });
+      return { error: 0, body: result };
+    } catch (e) {
+      return this.responseService.errorHandler(e);
+    }
+  }
+
   async setBreaks(payload: BreakComplianceSettingDto, companyId: string) {
     try {
       const { breaks, ...rest } = payload;
@@ -367,9 +435,9 @@ export class CompanyService extends PrismaService {
             },
           },
         },
-        include:{
-          breaks:true
-        }
+        include: {
+          breaks: true,
+        },
       });
       return { error: 0, body: result };
     } catch (e) {

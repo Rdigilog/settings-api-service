@@ -33,6 +33,8 @@ import {
   HolidayRequestRuleSettingDto,
   BreakComplianceSettingDto,
   PayRateDto,
+  ActivityTrackingSettingDto,
+  NotificationSettingDto,
 } from 'src/models/company/company.dto';
 import { CreateRotaRuleSettingDto } from 'src/models/company/rota-rule.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -483,6 +485,87 @@ export class CompanyController {
     @AuthUser() user: LoggedInUser) {
     try {
       const result = await this.taskService.listStages(
+        user.userRole[0].companyId as string,
+      );
+
+      if (result.error == 2) return this.responseService.exception(result.body);
+      if (result.error == 1)
+        return this.responseService.badRequest(result.body);
+
+      return this.responseService.success(result.body);
+    } catch (e) {
+      return this.responseService.exception(e.message);
+    }
+  }
+
+  @RouteName('company.task-stage.create')
+  @Patch('notification-setting')
+  @ApiOperation({ summary: 'Create a new task stage' })
+  async updateCompanyNotificationSetting(
+    @AuthUser() user: LoggedInUser,
+    @Body() dto: NotificationSettingDto,
+  ) {
+    try {
+    const companyId = user.userRole[0].companyId as string;
+    const result = await this.service.updatecompanyNotification(companyId, dto);
+
+      if (result.error== 2) return this.responseService.exception(result.body);
+      if (result.error == 1)
+        return this.responseService.badRequest(result.body);
+
+      return this.responseService.success(result.body);
+    } catch (e) {
+      return this.responseService.exception(e.message);
+    }
+  }
+
+  @RouteName('company.task-stage.list')
+  @Get('notification-setting')
+  @ApiOperation({ summary: 'List all task stages for the company' })
+  async getCompanyNotificationSetting(
+    @AuthUser() user: LoggedInUser) {
+    try {
+      const result = await this.service.getActivityTrackingSetting(
+        user.userRole[0].companyId as string,
+      );
+
+      if (result.error == 2) return this.responseService.exception(result.body);
+      if (result.error == 1)
+        return this.responseService.badRequest(result.body);
+
+      return this.responseService.success(result.body);
+    } catch (e) {
+      return this.responseService.exception(e.message);
+    }
+  }
+  @RouteName('company.task-stage.create')
+  @Patch('activity-tracking')
+  @ApiOperation({ summary: 'Create a new task stage' })
+  async updateActivitiyTrackingSetting(
+    @AuthUser() user: LoggedInUser,
+    @Body() dto: ActivityTrackingSettingDto,
+  ) {
+    try {
+    const companyId = user.userRole[0].companyId as string;
+    const result = await this.service.updateActivityTrackingSetting(companyId, dto);
+
+      if (result.error == 2) return this.responseService.exception(result.body);
+      if (result.error == 1)
+        return this.responseService.badRequest(result.body);
+
+      return this.responseService.success(result.body);
+    } catch (e) {
+      return this.responseService.exception(e.message);
+    }
+  }
+
+  @RouteName('company.task-stage.list')
+  @Get('activity-tracking')
+  @ApiOperation({ summary: 'List all task stages for the company' })
+  async getActivityTracking(
+    @AuthUser() user: LoggedInUser) {
+    try {
+      const result = await this.service.getActivityTrackingSetting(
         user.userRole[0].companyId as string,
       );
 
