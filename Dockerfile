@@ -74,7 +74,7 @@ EXPOSE 3000
 
 # Use dumb-init as PID 1 for proper signal handling
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["node", "dist/src/main"]
+CMD ["node", "dist/main"]
 
 # Enhanced healthcheck with proper timeout and endpoint
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
