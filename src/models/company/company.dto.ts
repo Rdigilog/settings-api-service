@@ -450,10 +450,10 @@ export class DigiTimeSettingDto {
   @IsBoolean()
   enableOvertime: boolean;
 
-  @ApiProperty({ enum: RecurrenceType, required: false })
-  @IsOptional()
-  @IsEnum(RecurrenceType)
-  trackingType?: RecurrenceType;
+  // @ApiProperty({ enum: RecurrenceType, required: false })
+  // @IsOptional()
+  // @IsEnum(RecurrenceType)
+  // trackingType?: RecurrenceType;
 
   @ApiProperty({ example: 8, required: false })
   @IsOptional()
