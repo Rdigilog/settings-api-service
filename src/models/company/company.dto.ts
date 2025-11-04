@@ -60,7 +60,7 @@ export class CompanyUpdateDto {
   @IsInt()
   @Min(0)
   @IsOptional()
-  totalHoliday: number;
+  totalHolidays: number;
 
   @ApiPropertyOptional({ type: String })
   @IsOptional()
