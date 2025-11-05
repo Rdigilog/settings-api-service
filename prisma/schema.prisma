@@ -411,7 +411,7 @@ model DigiTimeSetting {
 
   enableOvertime Boolean @default(false) @map("enable_overtime")
 
-  // trackingType RecurrenceType? @map("tracking_type") // daily, weekly, monthly
+  trackingType RecurrenceType? @map("tracking_type") // daily, weekly, monthly
 
   standardDailyHours  Int? @map("standard_daily_hours")
   standardWeeklyHours Int? @map("standard_weekly_hours")
