@@ -95,6 +95,9 @@ export class CompanyController {
         // console.log(fileUploadResult)
         payload.bannerUrl = fileUploadResult.url;
       }
+      if(payload['banner']){
+        delete payload['banner'];
+      }
       const result = await this.service.update(
         payload,
         user.userRole[0].companyId as string,

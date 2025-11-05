@@ -1,8 +1,10 @@
-
 import { Body, Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Employee, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/config/prisma.service';
-import { CreateBranchDto, AssignBranchUserDto } from 'src/models/branch/branch.dto';
+import {
+  CreateBranchDto,
+  AssignBranchUserDto,
+} from 'src/models/branch/branch.dto';
 import { ResponsesService } from 'src/utils/services/responses.service';
 
 @Injectable()
@@ -29,16 +31,16 @@ export class BranchService extends PrismaService {
         where: filter,
         include: {
           company: {
-            select:{
-              id:true,
-              name:true
-            }
+            select: {
+              id: true,
+              name: true,
+            },
           },
           country: {
-            select:{
-              code:true,
-              name:true
-            }
+            select: {
+              code: true,
+              name: true,
+            },
           },
           manager: true,
         },
@@ -50,13 +52,13 @@ export class BranchService extends PrismaService {
       });
 
       // if (result.length) {
-        const totalItems = await this.branch.count({ where: filter });
-        const paginatedProduct = this.responseService.pagingData(
-          { result, totalItems },
-          page,
-          limit,
-        );
-        return { error: 0, body: paginatedProduct };
+      const totalItems = await this.branch.count({ where: filter });
+      const paginatedProduct = this.responseService.pagingData(
+        { result, totalItems },
+        page,
+        limit,
+      );
+      return { error: 0, body: paginatedProduct };
       // }
       // return { error: 1, body: 'No Order found' };
     } catch (e) {
@@ -67,37 +69,28 @@ export class BranchService extends PrismaService {
 
   async create(payload: CreateBranchDto, companyId: string) {
     try {
-
-      const {countryCode, managerId, ...rest} = payload
-
-      // if(countryCode){
-      //   data.country = {connect:{code:countryCode}}
-      // }
-      const result = await this.branch.create({
-        data: {
-          name: payload.name,
-          description: payload.description,
-          country: {
-            connect: {
-              code: payload.countryCode,
-            },
-          },
-          timezone: payload.timezone,
-          company: {
-            connect: {
-              id: companyId,
-            },
-          },
-          manager: payload.managerId ? {
-            connect: {
-              userId: payload.managerId,
-            },
-          }: undefined,
+      const { countryCode, managerId, ...rest } = payload;
+      const data: Prisma.BranchCreateInput = {
+        ...rest,
+        company: {
+          connect: { id: companyId },
         },
+        country: {},
+      };
+
+      if (countryCode) {
+        data.country = { connect: { code: countryCode } };
+      }
+
+      // let employee:Employee
+      if (managerId) {
+        data.manager = { connect: { id: managerId } };
+      }
+      const result = await this.branch.create({
+        data
       });
       return { error: 0, body: result };
     } catch (e) {
-      console.log(e)
       return this.responseService.errorHandler(e);
     }
   }
@@ -122,7 +115,7 @@ export class BranchService extends PrismaService {
     try {
       const result = await this.employeeBranch.createMany({
         data: payload.emaployeeId.map((userId) => {
-          return { employeeId:userId, branchId: branchId };
+          return { employeeId: userId, branchId: branchId };
         }),
       });
       if (result.count) {
@@ -131,7 +124,7 @@ export class BranchService extends PrismaService {
           include: {
             employees: {
               select: {
-                employee:true,
+                employee: true,
               },
             },
           },

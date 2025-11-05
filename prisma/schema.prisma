@@ -26,7 +26,6 @@ model User {
   updatedAt        DateTime           @updatedAt @map("updated_at")
   profile          Profile?           @relation(name: "user_profile")
   userRole         UserRole[]         @relation(name: "user_user_role")
-  task             Task[]
   leave            Leave[]
   attendance       Attendance[]
   note             Note[]
@@ -63,7 +62,7 @@ model Profile {
   // profileBranch ProfileBranch[]
   status   UserStatus @default(OFFLINE)
   employee Employee?
-  branch   Branch[]
+  // branch   Branch[]
 
   @@map("profiles")
 }
@@ -143,6 +142,8 @@ model Employee {
   @@unique([userId, companyId])
   @@index([userId, companyId])
   @@map("employees")
+  Task Task[]
+  Branch Branch[]
 }
 
 model EmergencyContact {
@@ -596,7 +597,7 @@ model Branch {
 
   company     Company          @relation(fields: [companyId], references: [id])
   country     Country          @relation(fields: [countryCode], references: [code])
-  manager     Profile?         @relation(fields: [managerId], references: [userId])
+  manager     Employee?         @relation(fields: [managerId], references: [userId])
   employees   EmployeeBranch[]
   LeavePolicy LeavePolicy[]    @relation("PolicyBranches")
   department  Department[]
@@ -856,7 +857,7 @@ model Task {
 
   stage TaskStage? @relation(fields: [stageId], references: [id])
 
-  manager      User           @relation(fields: [managerId], references: [id])
+  manager      Employee           @relation(fields: [managerId], references: [id])
   company      Company        @relation(fields: [companyId], references: [id])
   taskAssignee TaskAssignee[]
   taskStageLog TaskStageLog[]
