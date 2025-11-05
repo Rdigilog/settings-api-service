@@ -126,6 +126,7 @@ model Employee {
   annualLeave               Int                 @default(15)
   bankHoliday               Int                 @default(0)
   hours                     Int                 @default(0)
+  breakTime String? 
   screenshotFrequency       ScreenshotFrequency @default(NONE) // NONE, 1X, 2X, 3X
   screenshotIntervalMinutes Int                 @default(30) // Time interval in minutes
   appTrackingType           TrackingType        @default(OFF) // OFF, APPS_ONLY, URLS_ONLY, BOTH

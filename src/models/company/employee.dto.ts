@@ -35,6 +35,11 @@ export class EmployeeSettingDto {
   @IsString()
   countryCode?: string;
 
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
+  @IsString()
+  breakTime?: string;
+
   @ApiPropertyOptional({ type: Number, default: 0 })
   @IsOptional()
   @IsNumber()
