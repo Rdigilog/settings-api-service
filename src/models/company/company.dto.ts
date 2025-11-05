@@ -12,6 +12,7 @@ import {
   TrackingMethod,
   TrackingTimeMethod,
   TrackingType,
+  TrackinList,
   WEEKDAY,
 } from '@prisma/client';
 import { Type } from 'class-transformer';
@@ -568,113 +569,144 @@ export class PayRateDto {
 }
 
 export class ActivityTrackingSettingDto {
-  @ApiProperty({ description: 'Enable or disable monitoring' })
+@ApiProperty({ description: 'Enable or disable monitoring', default: false })
   @IsBoolean()
-  enableMonitoring: boolean;
+  @IsOptional()
+  enableMonitoring?: boolean;
 
   @ApiProperty({
-    description: 'List of tracking methods (e.g., SCREENSHOT, APP_USAGE)',
+    description: 'Tracking methods used',
     enum: TrackingMethod,
     isArray: true,
-  })
-  @IsArray()
-  @IsEnum(TrackingMethod, { each: true })
-  trackingMethods: TrackingMethod[];
-
-  @ApiProperty({
-    description: 'List of dashboards where reports are shown',
-    enum: ReportingDashboard,
-    isArray: true,
-  })
-  @IsArray()
-  @IsEnum(ReportingDashboard, { each: true })
-  reportingDashboard: ReportingDashboard[];
-
-  // @ApiProperty({
-  //   description: 'List of selected members (IDs or objects)',
-  //   type: Object,
-  // })
-  // @IsJSON()
-  // members: any;
-
-  @ApiProperty({
-    description: 'List of productive apps (name, URL, category)',
-    type: Object,
     required: false,
   })
+  @IsEnum(TrackingMethod, { each: true })
+  @IsArray()
   @IsOptional()
-  @IsJSON()
+  trackingMethods?: TrackingMethod[];
+
+  @ApiProperty({
+    description: 'List of dashboards available for reporting',
+    enum: ReportingDashboard,
+    isArray: true,
+    required: false,
+  })
+  @IsEnum(ReportingDashboard, { each: true })
+  @IsArray()
+  @IsOptional()
+  reportingDashboard?: ReportingDashboard[];
+
+  @ApiProperty({
+    description: 'List of dashboards available for reporting',
+    isArray: true,
+    required: false,
+  })
+  @IsArray()
+  @IsOptional()
+  memberIds?: string[];
+
+  @ApiProperty({
+    description: 'Application tracking mode',
+    enum: Mode,
+    default: Mode.INDIVIDUAL,
+    required: false,
+  })
+  @IsEnum(Mode)
+  @IsOptional()
+  appTrackingMode?: Mode;
+
+  @ApiProperty({
+    description: 'Tracking level configuration',
+    enum: TrackinList,
+    default: TrackinList.OFF,
+    required: false,
+  })
+  @IsEnum(TrackinList)
+  @IsOptional()
+  track?: TrackinList;
+
+  @ApiProperty({
+    description: 'List of productive applications or URLs with categories (JSON)',
+    required: false,
+  })
+  // @IsJSON()
+  @IsOptional()
   productiveApps?: any;
 
   @ApiProperty({
-    description: 'List of unproductive apps (name, URL, category)',
-    type: Object,
+    description: 'List of unproductive applications or URLs with categories (JSON)',
     required: false,
   })
+  // @IsJSON()
   @IsOptional()
-  @IsJSON()
   unproductiveApps?: any;
 
   @ApiProperty({
-    description: 'Control frequency of screenshots (ALL or INDIVIDUAL)',
-    enum: Mode,
-    default: Mode.ALL,
-  })
-  @IsEnum(Mode)
-  controlFrequencyOfScreenshot: Mode;
-
-  @ApiProperty({
-    description: 'Screenshot mode (ALL or INDIVIDUAL)',
+    description: 'Screenshot capture mode',
     enum: Mode,
     default: Mode.INDIVIDUAL,
+    required: false,
   })
   @IsEnum(Mode)
-  screenshotMode: Mode;
+  @IsOptional()
+  screenshotMode?: Mode;
 
   @ApiProperty({
-    description: 'Screenshot frequency (NONE, 1X, 2X, 3X)',
+    description: 'Screenshot frequency',
     enum: ScreenshotFrequency,
     default: ScreenshotFrequency.NONE,
+    required: false,
   })
   @IsEnum(ScreenshotFrequency)
-  screenshotFrequency: ScreenshotFrequency;
+  @IsOptional()
+  screenshotFrequency?: ScreenshotFrequency;
 
   @ApiProperty({
-    description: 'Screenshot interval in minutes',
+    description: 'Interval (in minutes) between screenshots',
     default: 30,
+    required: false,
   })
   @IsInt()
-  screenshotIntervalMinutes: number;
+  @IsOptional()
+  screenshotIntervalMinutes?: number;
 
   @ApiProperty({
-    description: 'App tracking mode (ALL or INDIVIDUAL)',
+    description: 'Frequency control mode for screenshots',
     enum: Mode,
-    default: Mode.INDIVIDUAL,
+    default: Mode.ALL,
+    required: false,
   })
   @IsEnum(Mode)
-  appTrackingMode: Mode;
+  @IsOptional()
+  controlFrequencyOfScreenshot?: Mode;
 
   @ApiProperty({
-    description: 'App tracking type (OFF, APPS_ONLY, URLS_ONLY, BOTH)',
+    description: 'Type of app tracking',
     enum: TrackingType,
     default: TrackingType.OFF,
+    required: false,
   })
   @IsEnum(TrackingType)
-  appTrackingType: TrackingType;
+  @IsOptional()
+  appTrackingType?: TrackingType;
 
   @ApiProperty({
-    description: 'Enable screenshot notification for app tracking',
+    description: 'Notify users when a screenshot is taken',
     default: false,
+    required: false,
   })
   @IsBoolean()
-  appScrennshotNotification: boolean;
+  @IsOptional()
+  appScreenshotNotification?: boolean;
 
   @ApiProperty({
     description: 'Allow manager to delete screenshots',
     default: false,
+    required: false,
   })
   @IsBoolean()
-  managerDeleteScreenshot: boolean;
+  @IsOptional()
+  managerDeleteScreenshot?: boolean;
 }
 
 export class NotificationSettingDto {
@@ -747,4 +779,13 @@ export class NotificationSettingDto {
   })
   @IsBoolean()
   smsNotification: boolean;
+
+  @ApiProperty({
+    type: [String],
+    description: 'array of job role ids',
+    enum: HolidayTypes,
+    example: [], // example
+  })
+  @IsArray()
+  jobroleIds: string[];
 }

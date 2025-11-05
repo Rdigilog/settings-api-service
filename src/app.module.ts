@@ -24,6 +24,8 @@ import { UserService } from './services/user.service';
 import { PrismaService } from './config/prisma.service';
 import configuration from './config/configuration';
 import { validationSchema } from './config/validation.schema';
+import { BusinessCategoryService } from './services/business_category.service';
+import { BusinessCategoryController } from './controllers/business_category.controller';
 
 @Module({
   imports: [
@@ -51,6 +53,7 @@ import { validationSchema } from './config/validation.schema';
     JobRoleController,
     EmployeeController,
     HealthController,
+    BusinessCategoryController,
   ],
   providers: [
     {
@@ -64,7 +67,8 @@ import { validationSchema } from './config/validation.schema';
     LeaveService,
     TaskService,
     UserService,
-    PrismaService
+    PrismaService,
+    BusinessCategoryService
   ],
 })
 export class AppModule {}

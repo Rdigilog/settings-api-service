@@ -158,7 +158,7 @@ export class CompanyService extends PrismaService {
             plan: { connect: { id: planId } },
           }),
           ...rest, // strips undefined fields
-          workingDays:workingDays
+          workingDays: workingDays,
         },
       });
 
@@ -351,11 +351,19 @@ export class CompanyService extends PrismaService {
     payload: NotificationSettingDto,
   ) {
     try {
+      const { jobroleIds, ...rest } = payload;
       const result = await this.notificationSetting.upsert({
         where: { companyId },
         update: payload,
         create: {
-          ...payload,
+          ...rest,
+          memberNotificationRecipient: jobroleIds.length
+            ? {
+                createMany: {
+                  data: jobroleIds.map((id) => ({ jobRoleId: id })),
+                },
+              }
+            : undefined,
           company: {
             connect: {
               id: companyId,
@@ -384,12 +392,24 @@ export class CompanyService extends PrismaService {
     payload: ActivityTrackingSettingDto,
   ) {
     try {
+      const { memberIds, managerDeleteScreenshot, productiveApps, unproductiveApps, ...rest } = payload;
       const result = await this.activityTrackingSetting.upsert({
         where: { companyId },
-        update: payload,
+        update: {
+          ...rest,
+        },
         create: {
-          ...payload,
-          members: '',
+          ...rest,
+          managerDeleteScreenshot,
+          productiveApps:productiveApps,
+          unproductiveApps:unproductiveApps,
+          activityTrackingEmployee: memberIds?.length
+            ? {
+                createMany: {
+                  data: memberIds.map((id) => ({ employeeId: id, companyId })),
+                },
+              }
+            : undefined,
           company: {
             connect: {
               id: companyId,
