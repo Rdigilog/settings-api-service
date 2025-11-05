@@ -43,6 +43,8 @@ export class EmployeeService extends PrismaService {
             select: {
               firstName: true,
               lastName: true,
+              email:true,
+              phoneNumber:true
             },
           },
           jobInformation: {

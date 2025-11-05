@@ -92,38 +92,57 @@ export class JobRoleService extends PrismaService {
     }
   }
 
+  async delete(id: string) {
+    try {
+      await this.jobInformation.updateMany({
+        where: { jobRoleId: id },
+        data: { jobRoleId: null },
+      });
+      const result = await this.jobRole.delete({
+        where: {
+          id,
+        },
+      });
+      return { error: 0, body: 'Job Role deleted successfully' };
+    } catch (e) {
+      return this.responseService.errorHandler(e);
+    }
+  }
+
   async assignJobRole(jobRoleId: string, userId: string[]) {
     try {
       const result = await Promise.all(
         userId.map(async (id) => {
-          const employee = await this.employee.findFirst({where:{userId:id}})
+          const employee = await this.employee.findFirst({
+            where: { userId: id },
+          });
           return await this.jobInformation.upsert({
-            where:{employeeId:employee?.id},
-            update:{
-              jobRole:{
-                connect:{
-                  id:jobRoleId
-                }
-              }
-            },
-            create:{
-              jobRole:{
-                connect:{
-                  id:jobRoleId
-                }
+            where: { employeeId: employee?.id },
+            update: {
+              jobRole: {
+                connect: {
+                  id: jobRoleId,
+                },
               },
-              employee:{
-                connect:{
-                  id:employee?.id
-                }
-              }
-            }
+            },
+            create: {
+              jobRole: {
+                connect: {
+                  id: jobRoleId,
+                },
+              },
+              employee: {
+                connect: {
+                  id: employee?.id,
+                },
+              },
+            },
           });
         }),
       );
-      return {error:0, body:result}
+      return { error: 0, body: result };
     } catch (e) {
-      return this.responseService.errorHandler(e)
+      return this.responseService.errorHandler(e);
     }
   }
 }

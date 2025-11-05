@@ -8,6 +8,7 @@ import {
   Patch,
   Put,
   Param,
+  Delete,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiQuery, ApiOperation, ApiParam, ApiBody } from '@nestjs/swagger';
 import { AuthUser } from 'src/decorators/logged-in-user-decorator';
@@ -97,6 +98,27 @@ export class JobRoleController {
   ) {
     try {
       const result = await this.service.update(payload, id);
+      if (result.error == 2) {
+        return this.responseService.exception(result.body);
+      }
+      if (result.error == 1) {
+        return this.responseService.badRequest(result.body);
+      }
+      return this.responseService.success(result.body);
+    } catch (e) {
+      return this.responseService.exception(e.message);
+    }
+  }
+
+  @RouteName('job-role.delete')
+  @ApiOperation({ summary: 'delete job role information' })
+  @Delete(':jobRoleId')
+  async deleteJobRole(
+    @AuthUser() user: LoggedInUser,
+    @Param('jobRoleId') id: string,
+  ) {
+    try {
+      const result = await this.service.delete(id);
       if (result.error == 2) {
         return this.responseService.exception(result.body);
       }

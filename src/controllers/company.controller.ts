@@ -21,8 +21,6 @@ import {
   ApiTags,
   getSchemaPath,
 } from '@nestjs/swagger';
-import { Prisma } from '@prisma/client';
-import { Queue } from 'bullmq';
 import { AuthUser } from 'src/decorators/logged-in-user-decorator';
 import { RouteName } from 'src/decorators/route-name.decorator';
 import { AuthGuard } from 'src/guards/auth.guard';
@@ -32,7 +30,6 @@ import {
   DigiTimeSettingDto,
   HolidayRequestRuleSettingDto,
   BreakComplianceSettingDto,
-  PayRateDto,
   ActivityTrackingSettingDto,
   NotificationSettingDto,
 } from 'src/models/company/company.dto';
