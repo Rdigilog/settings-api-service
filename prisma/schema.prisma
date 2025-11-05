@@ -387,25 +387,12 @@ model ActivityTrackingSetting {
   @@map("activity_tracking_settings")
 }
 
-enum TrackingMethod {
-  ACTIVE_TIME
-  APP_WEBSITE_USAGE
-  SCREENSHOT_CAPTURE
-  MANUAL_SELF_REPORTING
-}
-
-enum ReportingDashboard {
-  EMPLOYEE_DASHBOARD
-  MANAGER_OVERVIEW
-  HR_ONLY
-}
-
 model DigiTimeSetting {
   id        String @id @default(uuid())
   companyId String @unique @map("company_id")
 
   enableTimeTracking Boolean @default(false) @map("enable_time_tracking")
-  trackingMethod     TrackingMethod? @map("tracking_method") // CLOCK_IN_OUT, MANUAL_ENTRY, ACTIVENESS
+  trackingMethod     TrackingTimeMethod[] @map("tracking_method") 
 
   baseHourlyRate Float   @default(0) @map("base_hourly_rate")
   currency       String? @default("GBP") @map("currency")
@@ -740,8 +727,13 @@ model Attendance {
   date      String
   status    AttendanceStatus
   companyId String           @map("company_id")
+  activityType String    @default("GENERAL")
   timeIn    String?          @map("time_in")
   timeOut   String?          @map("time_out")
+  timezone String?
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt @default(now())
+  
 
   employee User @relation(fields: [userId], references: [id])
 
@@ -1239,11 +1231,11 @@ enum ScreenshotFrequency {
   THREE_X
 }
 
-// enum TrackingMethod {
-//   CLOCK_IN_OUT
-//   MANUAL_ENTRY
-//   ACTIVENESS
-// }
+enum TrackingTimeMethod {
+  CLOCK_IN_OUT
+  MANUAL_ENTRY
+  ACTIVENESS
+}
 
 enum BillingCycle {
   PER_HOUR
@@ -1301,6 +1293,19 @@ enum TrackingType {
   APPS_ONLY
   URLS_ONLY
   BOTH
+}
+
+enum TrackingMethod {
+  ACTIVE_TIME
+  APP_WEBSITE_USAGE
+  SCREENSHOT_CAPTURE
+  MANUAL_SELF_REPORTING
+}
+
+enum ReportingDashboard {
+  EMPLOYEE_DASHBOARD
+  MANAGER_OVERVIEW
+  HR_ONLY
 }
 
 // Chat-related models

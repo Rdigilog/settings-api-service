@@ -6,10 +6,10 @@ import {
   Mode,
   ProductivityTrackingMethods,
   ProductivityVisibility,
-  RecurrenceType,
   ReportingDashboard,
   ScreenshotFrequency,
   TrackingMethod,
+  TrackingTimeMethod,
   TrackingType,
   WEEKDAY,
 } from '@prisma/client';
@@ -402,10 +402,16 @@ export class DigiTimeSettingDto {
   @IsBoolean()
   enableTimeTracking: boolean;
 
-  @ApiProperty({ enum: TrackingMethod, required: false })
+  @ApiProperty({
+    enum: TrackingTimeMethod,
+    isArray: true,
+    required: false,
+    description: 'List of tracking methods to use',
+  })
   @IsOptional()
-  @IsEnum(TrackingMethod)
-  trackingMethod?: TrackingMethod;
+  @IsArray()
+  @IsEnum(TrackingTimeMethod, { each: true })
+  trackingMethod?: TrackingTimeMethod[];
 
   @ApiProperty({ example: 15.5 })
   @IsNumber()
