@@ -158,6 +158,7 @@ export class CompanyService extends PrismaService {
             plan: { connect: { id: planId } },
           }),
           ...rest, // strips undefined fields
+          workingDays:workingDays
         },
       });
 
