@@ -42,7 +42,18 @@ export class BranchService extends PrismaService {
               name: true,
             },
           },
-          manager: true,
+          manager: {
+            select:{
+              profile:{
+                select:{
+                  id:true,
+                  firstName:true,
+                  lastName:true,
+                  email:true
+                }
+              }
+            }
+          },
         },
         orderBy: {
           [sortBy]: sortDirection,
