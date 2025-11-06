@@ -8,18 +8,30 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiParam, ApiBody } from '@nestjs/swagger';
+import { 
+  ApiBearerAuth,
+  ApiOperation, 
+  ApiQuery,
+  ApiTags, 
+  // ApiParam, 
+  // ApiBody 
+} from '@nestjs/swagger';
 import { AuthUser } from 'src/decorators/logged-in-user-decorator';
 import { RouteName } from 'src/decorators/route-name.decorator';
 import {
   CreateJobRoleDto,
-  AssignJobRoleDto,
+  // AssignJobRoleDto,
 } from 'src/models/company/job-role.dto';
 import type { LoggedInUser } from 'src/models/types/user.types';
 import { BusinessCategoryService } from 'src/services/business_category.service';
 import { ResponsesService } from 'src/utils/services/responses.service';
+import { AuthGuard } from 'src/guards/auth.guard';
 
+@ApiTags('business-category')
+@ApiBearerAuth('access-token') // allow using access token with swagger()
+@UseGuards(AuthGuard)
 @Controller('business-category')
 export class BusinessCategoryController {
   constructor(

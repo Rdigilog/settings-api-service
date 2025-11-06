@@ -339,12 +339,12 @@ export class CompanyService extends PrismaService {
     try {
       const result = await this.notificationSetting.findFirst({
         where: { companyId },
-        include:{
-          memberNotificationRecipient:{
-            select:{
-              jobRole:true,
-            }
-          }
+        include: {
+          memberNotificationRecipient: {
+            select: {
+              jobRole: true,
+            },
+          },
         },
       });
       return { error: 0, body: result };
@@ -361,7 +361,16 @@ export class CompanyService extends PrismaService {
       const { jobroleIds, ...rest } = payload;
       const result = await this.notificationSetting.upsert({
         where: { companyId },
-        update: rest,
+        update: {
+          ...rest,
+          memberNotificationRecipient: jobroleIds.length
+            ? {
+                createMany: {
+                  data: jobroleIds.map((id) => ({ jobRoleId: id })),
+                },
+              }
+            : undefined,
+        },
         create: {
           ...rest,
           memberNotificationRecipient: jobroleIds.length
@@ -377,13 +386,13 @@ export class CompanyService extends PrismaService {
             },
           },
         },
-        include:{
-          memberNotificationRecipient:{
-            select:{
-              jobRole:true,
-            }
-          }
-        }
+        include: {
+          memberNotificationRecipient: {
+            select: {
+              jobRole: true,
+            },
+          },
+        },
       });
       return { error: 0, body: result };
     } catch (e) {
@@ -404,6 +413,25 @@ export class CompanyService extends PrismaService {
     try {
       const result = await this.activityTrackingSetting.findFirst({
         where: { companyId },
+        include: {
+          activityTrackingEmployee: {
+            select: {
+              employee: {
+                select: {
+                  id: true,
+                  profile: {
+                    select: {
+                      firstName: true,
+                      lastName: true,
+                      userId: true,
+                      id: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       });
       return { error: 0, body: result };
     } catch (e) {
@@ -416,17 +444,33 @@ export class CompanyService extends PrismaService {
     payload: ActivityTrackingSettingDto,
   ) {
     try {
-      const { memberIds, managerDeleteScreenshot, productiveApps, unproductiveApps, ...rest } = payload;
+      const {
+        memberIds,
+        managerDeleteScreenshot,
+        productiveApps,
+        unproductiveApps,
+        ...rest
+      } = payload;
       const result = await this.activityTrackingSetting.upsert({
         where: { companyId },
         update: {
           ...rest,
+          managerDeleteScreenshot,
+          productiveApps: productiveApps,
+          unproductiveApps: unproductiveApps,
+          activityTrackingEmployee: memberIds?.length
+            ? {
+                createMany: {
+                  data: memberIds.map((id) => ({ employeeId: id, companyId })),
+                },
+              }
+            : undefined,
         },
         create: {
           ...rest,
           managerDeleteScreenshot,
-          productiveApps:productiveApps,
-          unproductiveApps:unproductiveApps,
+          productiveApps: productiveApps,
+          unproductiveApps: unproductiveApps,
           activityTrackingEmployee: memberIds?.length
             ? {
                 createMany: {
@@ -437,6 +481,25 @@ export class CompanyService extends PrismaService {
           company: {
             connect: {
               id: companyId,
+            },
+          },
+        },
+        include: {
+          activityTrackingEmployee: {
+            select: {
+              employee: {
+                select: {
+                  id: true,
+                  profile: {
+                    select: {
+                      firstName: true,
+                      lastName: true,
+                      userId: true,
+                      id: true,
+                    },
+                  },
+                },
+              },
             },
           },
         },
