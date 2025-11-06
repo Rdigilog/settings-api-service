@@ -366,7 +366,7 @@ model notificationSetting {
   emailNotification           Boolean                       @default(false)
   smsNotification             Boolean                       @default(false)
   createdAt                   DateTime                      @default(now()) @map("created_at")
-  updatedAt                   DateTime                      @updatedAt @map("updated_at")
+  updatedAt                   DateTime?                     @updatedAt @map("updated_at")
   memberNotificationRecipient MemberNotificationRecipient[]
 
   company Company @relation(fields: [companyId], references: [id])
@@ -389,8 +389,8 @@ model ActivityTrackingSetting {
   reportingDashboard ReportingDashboard[]
   appTrackingMode    Mode                 @default(INDIVIDUAL) // ALL or INDIVIDUAL
   track              TrackinList          @default(OFF)
-  productiveApps     Json // store array of app names/URLs + category
-  unproductiveApps   Json // store array of app names/URLs + category
+  productiveApps     Json? // store array of app names/URLs + category
+  unproductiveApps   Json? // store array of app names/URLs + category
 
   screenshotMode            Mode                @default(INDIVIDUAL) // ALL or INDIVIDUAL
   screenshotFrequency       ScreenshotFrequency @default(NONE) // NONE, 1X, 2X, 3X
@@ -813,6 +813,7 @@ model LeavePolicy {
   // Applied scope
   branches Branch[]   @relation("PolicyBranches") // Branches/Departments
   members  Employee[] @relation("PolicyMembers") // Selected Members
+  jobRoles  JobRole[]  @relation("PolicyJobRoles") //jobRoles
 
   autoAddNewMembers Boolean @default(false) @map("auto_add_new_members") // Automatically add new members
 
@@ -844,10 +845,10 @@ model Leave {
   employeeId    String      @map("user_id")
   leavePolicyId String      @map("leave_type_id")
   startDate     DateTime    @map("start_date")
-  endDate       DateTime    @map("end_date")
-  daysRequested Int         @map("days_requested")
+  requestedTimePerDay       DateTime    @map("requested_time_per_day")
+  period Int         @map("period")
   reason        String?
-  status        LeaveStatus @default(PENDING)
+  status        LeaveStatus @default(SUBMITTED)
   leavePolicy   LeavePolicy @relation(fields: [leavePolicyId], references: [id])
   companyId     String?     @map("company_id")
   createdAt     DateTime    @default(now()) @map("created_at")
@@ -863,7 +864,7 @@ model Leave {
 model LeaveApprovalLog {
   id        String   @id @default(uuid())
   leaveId   String   @map("leave_id")
-  status    String
+  status    LeaveStatus
   actorId   String   @map("actor_id")
   note      String?
   createdAt DateTime @default(now()) @map("created_at")
@@ -1067,6 +1068,7 @@ model JobRole {
   jobInformation JobInformation[] @relation(name: "employee_job_role")
   LeavePolicy1   LeavePolicy[]    @relation("PolicyApprovalLevel1")
   LeavePolicy2   LeavePolicy[]    @relation("PolicyApprovalLevel2")
+  members  LeavePolicy[]  @relation("PolicyJobRoles") //jobRoles
 
   MemberNotificationRecipient MemberNotificationRecipient[]
 
@@ -1164,7 +1166,7 @@ enum NewsEventType {
 }
 
 enum LeaveStatus {
-  PENDING
+  SUBMITTED
   APPROVED
   REJECTED
   CANCELLED

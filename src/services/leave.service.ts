@@ -1,8 +1,10 @@
-
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/config/prisma.service';
-import { CreateLeavePolicyDto, UpdateLeavePolicyDto } from 'src/models/leave/leave.dto';
+import {
+  CreateLeavePolicyDto,
+  UpdateLeavePolicyDto,
+} from 'src/models/leave/leave.dto';
 import { ResponsesService } from 'src/utils/services/responses.service';
 
 @Injectable()
@@ -29,6 +31,8 @@ export class LeaveService extends PrismaService {
         include: {
           applicant: true,
           company: true,
+          leavePolicy:true,
+
         },
         orderBy: {
           [sortBy]: sortDirection,
@@ -38,13 +42,13 @@ export class LeaveService extends PrismaService {
       });
 
       // if (result.length) {
-        const totalItems = await this.leave.count({ where: filter });
-        const paginatedProduct = this.responseService.pagingData(
-          { result, totalItems },
-          page,
-          limit,
-        );
-        return { error: 0, body: paginatedProduct };
+      const totalItems = await this.leave.count({ where: filter });
+      const paginatedProduct = this.responseService.pagingData(
+        { result, totalItems },
+        page,
+        limit,
+      );
+      return { error: 0, body: paginatedProduct };
       // }
       // return { error: 1, body: 'No Leave found' };
     } catch (e) {
@@ -80,6 +84,13 @@ export class LeaveService extends PrismaService {
           members: dto.members
             ? { connect: dto.members.map((id) => ({ id })) }
             : undefined,
+          jobRoles: dto.jobRoles?.length
+            ? {
+                connect: dto.jobRoles.map((id) => ({
+                  id,
+                })),
+              }
+            : undefined,
         },
       });
       return { error: 0, body: leavePolicy };
@@ -95,11 +106,12 @@ export class LeaveService extends PrismaService {
         include: {
           branches: true,
           members: true,
+          jobRoles:true
         },
       });
 
       // if (leavePolicies.length) {
-        return { error: 0, body: leavePolicies };
+      return { error: 0, body: leavePolicies };
       // }
       // return { error: 1, body: 'No Leave policy found' };
     } catch (e) {
@@ -114,6 +126,7 @@ export class LeaveService extends PrismaService {
         include: {
           branches: true,
           members: true,
+          jobRoles:true,
         },
       });
 
@@ -181,6 +194,9 @@ export class LeaveService extends PrismaService {
           }),
           ...(dto.members && {
             members: { set: dto.members.map((id) => ({ id })) },
+          }),
+          ...(dto.jobRoles && {
+            jobRoles: { set: dto.jobRoles.map((id) => ({ id })) },
           }),
         },
       });

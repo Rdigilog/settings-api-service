@@ -25,6 +25,12 @@ export class CreateLeavePolicyDto {
   @IsUUID('all', { each: true })
   branches?: string[];
 
+  @ApiProperty({ description: 'Branch IDs', type: [String], required: false })
+  @IsOptional()
+  @IsArray()
+  @IsUUID('all', { each: true })
+  jobRoles?: string[];
+
   @ApiProperty({
     description: 'User IDs (members)',
     type: [String],
