@@ -525,7 +525,7 @@ export class CompanyController {
   async getCompanyNotificationSetting(
     @AuthUser() user: LoggedInUser) {
     try {
-      const result = await this.service.getActivityTrackingSetting(
+      const result = await this.service.getNotificationSetting(
         user.userRole[0].companyId as string,
       );
 

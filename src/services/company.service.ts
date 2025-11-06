@@ -339,6 +339,13 @@ export class CompanyService extends PrismaService {
     try {
       const result = await this.notificationSetting.findFirst({
         where: { companyId },
+        include:{
+          memberNotificationRecipient:{
+            select:{
+              jobRole:true,
+            }
+          }
+        },
       });
       return { error: 0, body: result };
     } catch (e) {
@@ -370,12 +377,29 @@ export class CompanyService extends PrismaService {
             },
           },
         },
+        include:{
+          memberNotificationRecipient:{
+            select:{
+              jobRole:true,
+            }
+          }
+        }
       });
       return { error: 0, body: result };
     } catch (e) {
       return this.responseService.errorHandler(e);
     }
   }
+  // async getNotificationSetting(companyId: string) {
+  //   try {
+  //     const result = await this.notificationSetting.findFirst({
+  //       where: { companyId },
+  //     });
+  //     return { error: 0, body: result };
+  //   } catch (e) {
+  //     return this.responseService.errorHandler(e);
+  //   }
+  // }
   async getActivityTrackingSetting(companyId: string) {
     try {
       const result = await this.activityTrackingSetting.findFirst({
