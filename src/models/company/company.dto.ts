@@ -31,6 +31,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { EmployeeSettingDto } from './employee.dto';
+import { Transform } from 'class-transformer';
 
 export class CompanyUpdateDto {
   @ApiPropertyOptional({ type: String })
@@ -105,11 +106,13 @@ export class CompanyUpdateDto {
   industry?: string;
 
   @ApiPropertyOptional({ type: Boolean, default: false })
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsOptional()
   @IsBoolean()
   memberTimezone?: boolean;
 
   @ApiPropertyOptional({ type: Boolean, default: false })
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsOptional()
   @IsBoolean()
   employeeWorkingDayChoice?: boolean;
@@ -135,58 +138,69 @@ export class CompanyUpdateDto {
   breakTime?: string;
 
   @ApiPropertyOptional({ default: false })
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsOptional()
   @IsBoolean()
   countryTimeZone?: boolean;
 
   @ApiPropertyOptional({ default: false })
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsOptional()
   @IsBoolean()
   aboutMe?: boolean;
 
   @ApiPropertyOptional({ default: false })
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsOptional()
   @IsBoolean()
   primaryInfo?: boolean;
 
   @ApiPropertyOptional({ default: false })
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsOptional()
   @IsBoolean()
   personalInfo?: boolean;
 
   @ApiPropertyOptional({ default: false })
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsOptional()
   @IsBoolean()
   emergencyContact?: boolean;
 
   @ApiPropertyOptional({ default: false })
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsOptional()
   @IsBoolean()
   jobDetails?: boolean;
 
   @ApiPropertyOptional({ default: false })
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsOptional()
   @IsBoolean()
   bankingInfo?: boolean;
 
   @ApiPropertyOptional({ default: false })
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsOptional()
   @IsBoolean()
   identityInfo?: boolean;
 
   @ApiPropertyOptional({ type: Boolean, default: false })
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsOptional()
   @Type(() => Boolean) // ✅ converts "true"/"false" strings to boolean
   @IsBoolean()
   paymentRateDisplay: boolean = false;
 
   @ApiPropertyOptional({ type: Boolean, default: false })
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsOptional()
   @Type(() => Boolean) // ✅ converts "true"/"false" strings to boolean
   @IsBoolean()
   permissionByRole: boolean = false;
 
   @ApiPropertyOptional({ type: Boolean, default: false })
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsOptional()
   @Type(() => Boolean) // ✅ converts "true"/"false" strings to boolean
   @IsBoolean()
@@ -569,7 +583,12 @@ export class PayRateDto {
 }
 
 export class ActivityTrackingSettingDto {
-@ApiProperty({ description: 'Enable or disable monitoring', default: false })
+  @ApiProperty({
+    description: 'Enable or disable monitoring',
+    default: false,
+    example: true,
+  })
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()
   @IsOptional()
   enableMonitoring?: boolean;
@@ -626,7 +645,8 @@ export class ActivityTrackingSettingDto {
   track?: TrackinList;
 
   @ApiProperty({
-    description: 'List of productive applications or URLs with categories (JSON)',
+    description:
+      'List of productive applications or URLs with categories (JSON)',
     required: false,
   })
   // @IsJSON()
@@ -634,7 +654,8 @@ export class ActivityTrackingSettingDto {
   productiveApps?: any;
 
   @ApiProperty({
-    description: 'List of unproductive applications or URLs with categories (JSON)',
+    description:
+      'List of unproductive applications or URLs with categories (JSON)',
     required: false,
   })
   // @IsJSON()
@@ -695,6 +716,7 @@ export class ActivityTrackingSettingDto {
     default: false,
     required: false,
   })
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()
   @IsOptional()
   appScreenshotNotification?: boolean;
@@ -704,6 +726,7 @@ export class ActivityTrackingSettingDto {
     default: false,
     required: false,
   })
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()
   @IsOptional()
   managerDeleteScreenshot?: boolean;

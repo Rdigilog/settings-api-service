@@ -24,8 +24,8 @@ async function bootstrap() {
   app.setGlobalPrefix('settings/api/v1');
   app.useGlobalPipes(
     new ValidationPipe({
-      transform: true,
-      transformOptions: { enableImplicitConversion: true },
+      // transform: true,
+      // transformOptions: { enableImplicitConversion: true },
     }),
   );
   app.enableCors();
