@@ -354,7 +354,7 @@ export class CompanyService extends PrismaService {
       const { jobroleIds, ...rest } = payload;
       const result = await this.notificationSetting.upsert({
         where: { companyId },
-        update: payload,
+        update: rest,
         create: {
           ...rest,
           memberNotificationRecipient: jobroleIds.length
