@@ -106,13 +106,21 @@ export class CompanyUpdateDto {
   industry?: string;
 
   @ApiPropertyOptional({ type: Boolean, default: false })
-  @Transform(({ value }) => value === 'true' || value === true)
+  @Transform(({ value }) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') return value.toLowerCase() === 'true';
+    return false;
+  })
   @IsOptional()
   @IsBoolean()
   memberTimezone?: boolean;
 
   @ApiPropertyOptional({ type: Boolean, default: false })
-  @Transform(({ value }) => value === 'true' || value === true)
+  @Transform(({ value }) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') return value.toLowerCase() === 'true';
+    return false;
+  })
   @IsOptional()
   @IsBoolean()
   employeeWorkingDayChoice?: boolean;
@@ -138,69 +146,113 @@ export class CompanyUpdateDto {
   breakTime?: string;
 
   @ApiPropertyOptional({ default: false })
-  @Transform(({ value }) => value === 'true' || value === true)
+  @Transform(({ value }) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') return value.toLowerCase() === 'true';
+    return false;
+  })
   @IsOptional()
   @IsBoolean()
   countryTimeZone?: boolean;
 
   @ApiPropertyOptional({ default: false })
-  @Transform(({ value }) => value === 'true' || value === true)
+  @Transform(({ value }) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') return value.toLowerCase() === 'true';
+    return false;
+  })
   @IsOptional()
   @IsBoolean()
   aboutMe?: boolean;
 
   @ApiPropertyOptional({ default: false })
-  @Transform(({ value }) => value === 'true' || value === true)
+  @Transform(({ value }) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') return value.toLowerCase() === 'true';
+    return false;
+  })
   @IsOptional()
   @IsBoolean()
   primaryInfo?: boolean;
 
   @ApiPropertyOptional({ default: false })
-  @Transform(({ value }) => value === 'true' || value === true)
+  @Transform(({ value }) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') return value.toLowerCase() === 'true';
+    return false;
+  })
   @IsOptional()
   @IsBoolean()
   personalInfo?: boolean;
 
   @ApiPropertyOptional({ default: false })
-  @Transform(({ value }) => value === 'true' || value === true)
+  @Transform(({ value }) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') return value.toLowerCase() === 'true';
+    return false;
+  })
   @IsOptional()
   @IsBoolean()
   emergencyContact?: boolean;
 
   @ApiPropertyOptional({ default: false })
-  @Transform(({ value }) => value === 'true' || value === true)
+  @Transform(({ value }) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') return value.toLowerCase() === 'true';
+    return false;
+  })
   @IsOptional()
   @IsBoolean()
   jobDetails?: boolean;
 
   @ApiPropertyOptional({ default: false })
-  @Transform(({ value }) => value === 'true' || value === true)
+  @Transform(({ value }) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') return value.toLowerCase() === 'true';
+    return false;
+  })
   @IsOptional()
   @IsBoolean()
   bankingInfo?: boolean;
 
   @ApiPropertyOptional({ default: false })
-  @Transform(({ value }) => value === 'true' || value === true)
+  @Transform(({ value }) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') return value.toLowerCase() === 'true';
+    return false;
+  })
   @IsOptional()
   @IsBoolean()
   identityInfo?: boolean;
 
   @ApiPropertyOptional({ type: Boolean, default: false })
-  @Transform(({ value }) => value === 'true' || value === true)
+  @Transform(({ value }) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') return value.toLowerCase() === 'true';
+    return false;
+  })
   @IsOptional()
   @Type(() => Boolean) // ✅ converts "true"/"false" strings to boolean
   @IsBoolean()
   paymentRateDisplay: boolean = false;
 
   @ApiPropertyOptional({ type: Boolean, default: false })
-  @Transform(({ value }) => value === 'true' || value === true)
+  @Transform(({ value }) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') return value.toLowerCase() === 'true';
+    return false;
+  })
   @IsOptional()
   @Type(() => Boolean) // ✅ converts "true"/"false" strings to boolean
   @IsBoolean()
   permissionByRole: boolean = false;
 
   @ApiPropertyOptional({ type: Boolean, default: false })
-  @Transform(({ value }) => value === 'true' || value === true)
+  @Transform(({ value }) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') return value.toLowerCase() === 'true';
+    return false;
+  })
   @IsOptional()
   @Type(() => Boolean) // ✅ converts "true"/"false" strings to boolean
   @IsBoolean()
@@ -588,7 +640,11 @@ export class ActivityTrackingSettingDto {
     default: false,
     example: true,
   })
-  @Transform(({ value }) => value === 'true' || value === true)
+  @Transform(({ value }) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') return value.toLowerCase() === 'true';
+    return false;
+  })
   @IsBoolean()
   @IsOptional()
   enableMonitoring?: boolean;
@@ -716,7 +772,11 @@ export class ActivityTrackingSettingDto {
     default: false,
     required: false,
   })
-  @Transform(({ value }) => value === 'true' || value === true)
+  @Transform(({ value }) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') return value.toLowerCase() === 'true';
+    return false;
+  })
   @IsBoolean()
   @IsOptional()
   appScreenshotNotification?: boolean;
@@ -726,7 +786,11 @@ export class ActivityTrackingSettingDto {
     default: false,
     required: false,
   })
-  @Transform(({ value }) => value === 'true' || value === true)
+  @Transform(({ value }) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') return value.toLowerCase() === 'true';
+    return false;
+  })
   @IsBoolean()
   @IsOptional()
   managerDeleteScreenshot?: boolean;
