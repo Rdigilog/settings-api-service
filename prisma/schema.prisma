@@ -108,7 +108,7 @@ model Employee {
   maritalStatus             MaritalStatus?             @map("marital_status")
   bio                       String?                    @db.Text
   interest                  String?                    @db.Text
-  Gender                    Gender?
+  gender                    Gender?
   religion                  String?
   altPhoneNumber            String?                    @map("alt_phone_number")
   dateOfBirth               String?                    @map("date_of_birth")
@@ -119,6 +119,9 @@ model Employee {
   currencyCode              String?                    @map("currency_code")
   payRate                   Float                      @default(0) @map("pay_rate")
   period                    BillingCycle               @default(PER_HOUR)
+  passportId String?
+  proofOfAddress String?
+  otherProofOfIdentification String[]
   annualLeave               Int                        @default(15)
   bankHoliday               Int                        @default(0)
   hours                     Int                        @default(0)
@@ -145,6 +148,7 @@ model Employee {
   attendance                Attendance[]
   note                      Note[]
   activityTrackingEmployee  ActivityTrackingEmployee[]
+  employeeDocument employeeDocoment[] @relation(name: "employee_documents")
 
   @@unique([userId, companyId])
   @@index([userId, companyId])
@@ -158,6 +162,7 @@ model EmergencyContact {
   relationship Relationship?
   address      String?
   countryCode  String?       @map("country_code")
+  phoneNumber  String?       @map("phone_number")
   employee     Employee      @relation(fields: [employeeId], references: [id])
 
   @@map("emergency_contacts")
@@ -170,11 +175,13 @@ model JobInformation {
   jobRoleId      String?
   currencyCode   String?
   payRatePerHour Float?    @default(0)
+  workStatus     String?   @map("work_status")
+  workDays       String[]
   breakTime      String?   @map("break_time")
   employmentDate String?   @map("employment_date")
   workType       WorkType? @map("work_type")
   location       String?
-  userId         String?   @unique @map("user_id")
+  // userId         String?   @unique @map("user_id")
 
   employee Employee @relation(fields: [employeeId], references: [id])
   jobRole  JobRole? @relation(fields: [jobRoleId], name: "employee_job_role", references: [id])
@@ -193,6 +200,18 @@ model BankInformation {
   employee Employee @relation(fields: [employeeId], references: [id])
 
   @@map("bank_information")
+}
+
+model employeeDocoment {
+  id            String  @id @default(uuid())
+  name String
+  url String
+  employeeId    String  @unique @map("employee_id")
+
+  employee Employee @relation(fields: [employeeId], references: [id], name: "employee_documents")
+
+   @@map("employee_documents")
+   
 }
 
 model Company {
@@ -813,7 +832,7 @@ model LeavePolicy {
   // Applied scope
   branches Branch[]   @relation("PolicyBranches") // Branches/Departments
   members  Employee[] @relation("PolicyMembers") // Selected Members
-  jobRoles  JobRole[]  @relation("PolicyJobRoles") //jobRoles
+  jobRoles JobRole[]  @relation("PolicyJobRoles") //jobRoles
 
   autoAddNewMembers Boolean @default(false) @map("auto_add_new_members") // Automatically add new members
 
@@ -841,18 +860,18 @@ model LeavePolicy {
 }
 
 model Leave {
-  id            String      @id @default(uuid())
-  employeeId    String      @map("user_id")
-  leavePolicyId String      @map("leave_type_id")
-  startDate     DateTime    @map("start_date")
-  requestedTimePerDay       DateTime    @map("requested_time_per_day")
-  period Int         @map("period")
-  reason        String?
-  status        LeaveStatus @default(SUBMITTED)
-  leavePolicy   LeavePolicy @relation(fields: [leavePolicyId], references: [id])
-  companyId     String?     @map("company_id")
-  createdAt     DateTime    @default(now()) @map("created_at")
-  updatedAt     DateTime    @updatedAt @map("updated_at")
+  id                  String      @id @default(uuid())
+  employeeId          String      @map("user_id")
+  leavePolicyId       String      @map("leave_type_id")
+  startDate           DateTime    @map("start_date")
+  requestedTimePerDay String      @map("requested_time_per_day")
+  period              Int         @map("period")
+  reason              String?
+  status              LeaveStatus @default(SUBMITTED)
+  leavePolicy         LeavePolicy @relation(fields: [leavePolicyId], references: [id])
+  companyId           String?     @map("company_id")
+  createdAt           DateTime    @default(now()) @map("created_at")
+  updatedAt           DateTime    @updatedAt @map("updated_at")
 
   applicant        Employee           @relation(fields: [employeeId], references: [id])
   company          Company?           @relation(fields: [companyId], references: [id])
@@ -862,13 +881,13 @@ model Leave {
 }
 
 model LeaveApprovalLog {
-  id        String   @id @default(uuid())
-  leaveId   String   @map("leave_id")
+  id        String      @id @default(uuid())
+  leaveId   String      @map("leave_id")
   status    LeaveStatus
-  actorId   String   @map("actor_id")
+  actorId   String      @map("actor_id")
   note      String?
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
 
   actor Employee @relation(fields: [actorId], references: [id], name: "leave_actor")
   leave Leave    @relation(fields: [leaveId], references: [id], name: "leave_leave_approval")
@@ -887,20 +906,22 @@ model Task {
   endDate     DateTime?       @map("end_date")
   dueDate     DateTime?       @map("due_date")
   status      TaskStatus      @default(DRAFT)
+  taskStatus  TaskStages      @default(PLANNED)
   managerId   String          @map("manager_id")
   companyId   String          @map("company_id")
   tags        String[]
   checklist   String[]
   category    String[]
-
-  timeType   String   @map("time_type")
-  metrics    Int      @default(0)
-  startTime  String?
-  finishTime String?
-  priority   Priority @default(LOW)
-  stageId    String?  @map("stage_id")
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+  onceEvery   String?
+  endAfter    String?
+  timeType    String          @map("time_type")
+  metrics     String?
+  startTime   String?
+  finishTime  String?
+  priority    Priority        @default(LOW)
+  stageId     String?         @map("stage_id")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
 
   stage TaskStage? @relation(fields: [stageId], references: [id])
 
@@ -1068,7 +1089,7 @@ model JobRole {
   jobInformation JobInformation[] @relation(name: "employee_job_role")
   LeavePolicy1   LeavePolicy[]    @relation("PolicyApprovalLevel1")
   LeavePolicy2   LeavePolicy[]    @relation("PolicyApprovalLevel2")
-  members  LeavePolicy[]  @relation("PolicyJobRoles") //jobRoles
+  members        LeavePolicy[]    @relation("PolicyJobRoles") //jobRoles
 
   MemberNotificationRecipient MemberNotificationRecipient[]
 
@@ -1143,7 +1164,7 @@ enum RecurrenceType {
 
 enum TaskStatus {
   DRAFT
-  PUBLISHED
+  SUBMITTED
 }
 
 enum Status {
@@ -1367,6 +1388,13 @@ enum TrackinList {
   APPS_ONLY
   URLS_ONLY
   BOTH
+}
+
+enum TaskStages {
+  PLANNED
+  IN_PROGRESS
+  IN_REVIEW
+  COMPLETED
 }
 
 // Chat-related models
