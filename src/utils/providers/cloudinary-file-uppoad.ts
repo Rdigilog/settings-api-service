@@ -6,7 +6,6 @@ import {
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import FormData from 'form-data';
-import { CONFIG_KEYS } from '../../config/config.keys';
 export class CooudinaryFileUploadProvider implements FileUploadProvider {
   private readonly logger = new Logger(CooudinaryFileUploadProvider.name);
   constructor(private configService: ConfigService) {
@@ -23,7 +22,7 @@ export class CooudinaryFileUploadProvider implements FileUploadProvider {
       file = this.restoreBuffer(file);
       const fileName = CooudinaryFileUploadProvider.uniqueFilename();
       const newFileName = `${this.configService.get(
-        CONFIG_KEYS.AWS_S3_UPLOAD_FOLDER,
+        'AWS_S3_UPLOAD_FOLDER',
       )}/${fileName}`;
       const uploadResult = await this.cloudinaryUpload(file);
 
@@ -55,12 +54,17 @@ export class CooudinaryFileUploadProvider implements FileUploadProvider {
       formData.append('file', file.buffer, file.originalname);
       formData.append(
         'upload_preset',
-        this.configService.get(CONFIG_KEYS.CLOUD_UPLOAD_PRESET),
+        this.configService.get('CLOUD_UPLOAD_PRESET') || 'unsigned',
       );
-      formData.append('cloud_name', this.configService.get(CONFIG_KEYS.CLOUD_NAME));
-
+      formData.append(
+        'cloud_name',
+        this.configService.get('CLOUD_NAME') || 'dwhvilwc3',
+      );
+      const uploadName = this.configService.get('CLOUD_NAME') || 'dwhvilwc3';
+      const baseUrl =
+        this.configService.get('CLOUDINARY_BASEURL') || 'https://api.cloudinary.com/v1_1/';
       const response = await axios.post(
-        `${this.configService.get(CONFIG_KEYS.CLOUDINARY_BASEURL)}${this.configService.get(CONFIG_KEYS.CLOUD_NAME)}/image/upload`,
+        `${baseUrl}${uploadName}/image/upload`,
         formData,
         {
           headers: {
@@ -81,11 +85,12 @@ export class CooudinaryFileUploadProvider implements FileUploadProvider {
   async remove(url: string) {
     const publicId = this.extractPublicId(url);
 
-    const cloudName = this.configService.get(CONFIG_KEYS.CLOUD_NAME);
-    const apiKey = this.configService.get(CONFIG_KEYS.CLOUDINARY_API_KEY);
-    const apiSecret = this.configService.get(CONFIG_KEYS.CLOUDINARY_API_SECRET);
-
-    const endpoint = `${this.configService.get(CONFIG_KEYS.CLOUDINARY_BASEURL)}${cloudName}/resources/image/upload`;
+    const cloudName = this.configService.get('CLOUD_NAME') || 'dwhvilwc3';
+    const apiKey = this.configService.get('CLOUDINARY_API_KEY') || '';
+    const apiSecret = this.configService.get('CLOUDINARY_API_SECRET');
+    // const baseUrl =
+      // this.configService.get() || 'https://api.cloudinary.com/v1_1/';
+    const endpoint = `${this.configService.get('CLOUDINARY_BASEURL')}${cloudName}/resources/image/upload`;
 
     const response = await axios.delete(endpoint, {
       auth: {

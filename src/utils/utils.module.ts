@@ -8,7 +8,6 @@ import { ResponsesService } from './services/responses.service';
 import Redis from 'ioredis';
 import { FileUploadService } from './services/file-upload.service';
 import { fileUploadProviderFactory } from './services/factory.provider';
-import { CONFIG_KEYS } from '../config/config.keys';
 
 @Global()
 @Module({
@@ -24,13 +23,13 @@ import { CONFIG_KEYS } from '../config/config.keys';
       provide: 'FileUploadProvider',
       useFactory: (configService: ConfigService) => {
         return fileUploadProviderFactory(
-          configService.get(CONFIG_KEYS.FILE_UPLOAD_PROVIDER) || '',
+          configService.get('FILE_UPLOAD_PROVIDER') || 'cloudinary',
           configService,
         );
       },
       inject: [ConfigService],
     },
-     {
+    {
       provide: 'REDIS_CLIENT',
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
