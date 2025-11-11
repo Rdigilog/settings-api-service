@@ -129,14 +129,18 @@ export class ResponsesService {
         .trim();
 
       // Common known Prisma error fragments → friendly phrases
-      const patterns: { regex: RegExp; message: (m: RegExpMatchArray) => string }[] = [
+      const patterns: {
+        regex: RegExp;
+        message: (m: RegExpMatchArray) => string;
+      }[] = [
         {
           regex: /Unknown argument `([^`]+)`/i,
           message: (m) => `Unknown field "${m[1]}" in your Prisma query.`,
         },
         {
           regex: /Invalid value for argument `([^`]+)`.*?Expected ([\w]+)/i,
-          message: (m) => `Invalid value for field "${m[1]}". Expected ${m[2]}.`,
+          message: (m) =>
+            `Invalid value for field "${m[1]}". Expected ${m[2]}.`,
         },
         {
           regex: /Invalid value for argument `([^`]+)`/i,
@@ -160,11 +164,14 @@ export class ResponsesService {
         },
         {
           regex: /Record to (update|delete) not found/i,
-          message: () => `Record not found. Check if it exists before updating or deleting.`,
+          message: () =>
+            `Record not found. Check if it exists before updating or deleting.`,
         },
         {
-          regex: /depends on one or more records that were required but not found/i,
-          message: () => `Operation failed because a related record was not found.`,
+          regex:
+            /depends on one or more records that were required but not found/i,
+          message: () =>
+            `Operation failed because a related record was not found.`,
         },
         {
           regex: /Unique constraint failed on the fields?: (.+?)(?=\s|$)/i,
@@ -173,6 +180,18 @@ export class ResponsesService {
         {
           regex: /Foreign key constraint failed on the field: (.+?)(?=\s|$)/i,
           message: (m) => `Foreign key constraint failed on field: ${m[1]}.`,
+        },
+        {
+          regex:
+            /Foreign key constraint (?:failed on the field|violated on the constraint):\s*([^\s]+)/i,
+          message: (m) =>
+            `Foreign key constraint violated: ${m[1]}. Check related record existence or delete restrictions.`,
+        },
+        {
+          regex:
+            /Argument `([^`]+)`: Invalid value provided\. Expected ([^,]+), provided ([^\.]+)/i,
+          message: (m) =>
+            `Invalid value for "${m[1]}". Expected ${m[2]} but got ${m[3]}.`,
         },
       ];
 
@@ -205,7 +224,8 @@ export class ResponsesService {
     }
 
     // NestJS / JS generic errors
-    if (e instanceof Error) return { error: 2, body: extractMessage(e.message) };
+    if (e instanceof Error)
+      return { error: 2, body: extractMessage(e.message) };
 
     // Fallback (string, object, etc.)
     return { error: 2, body: extractMessage(String(e)) };
