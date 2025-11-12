@@ -231,7 +231,7 @@ model Company {
   address                  String?
   taxId                    String?   @map("tax_id")
   timezone                 String?
-  workingDays              WEEKDAY[] @map("working_days")
+  weeklyOff                WEEKDAY[] @map("working_days")
   industry                 String?
   memberTimezone           Boolean   @default(false) @map("member_timezone")
   employeeWorkingDayChoice Boolean   @default(false) @map("employee_workingday_choice")
@@ -248,6 +248,7 @@ model Company {
   emergencyContact         Boolean   @default(false) @map("emergency_contact")
   jobDetails               Boolean   @default(false) @map("job_details")
   bankingInfo              Boolean   @default(false) @map("banking_info")
+  dateFormat String? 
   identityInfo             Boolean   @default(false) @map("identity_info")
   permissionByRole         Boolean   @default(false) @map("permission_by_role")
   receiveAllNotification   Boolean   @default(false)

@@ -47,6 +47,11 @@ export class CompanyUpdateDto {
   @ApiPropertyOptional({ type: String })
   @IsOptional()
   @IsString()
+  dateFormat?: string;
+
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
+  @IsString()
   phoneNumber?: string;
 
   @ApiProperty({ type: String })

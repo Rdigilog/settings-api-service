@@ -64,23 +64,23 @@ export class CompanyController {
     private readonly fileUploadService: FileUploadService,
   ) {}
 
-  @ApiExtraModels(CompanyUpdateDto)
+  // @UseInterceptors(FileInterceptor('banner'))
+  // @ApiConsumes('multipart/form-data')
   @RouteName('settings.company.update')
-  @UseInterceptors(FileInterceptor('banner'))
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      allOf: [
-        { $ref: getSchemaPath(CompanyUpdateDto) }, // pull in DTO schema
-        {
-          type: 'object',
-          properties: {
-            banner: { type: 'string', format: 'binary' },
-          },
-        },
-      ],
-    },
-  })
+  @ApiExtraModels(CompanyUpdateDto)
+  // @ApiBody({
+  //   schema: {
+  //     allOf: [
+  //       { $ref: getSchemaPath(CompanyUpdateDto) }, // pull in DTO schema
+  //       {
+  //         type: 'object',
+  //         properties: {
+  //           banner: { type: 'string', format: 'binary' },
+  //         },
+  //       },
+  //     ],
+  //   },
+  // })
   @Patch('')
   async updateCompany(
     @Body() payload: CompanyUpdateDto,
