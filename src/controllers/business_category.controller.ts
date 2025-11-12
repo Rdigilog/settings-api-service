@@ -4,9 +4,9 @@ import {
   Delete,
   Get,
   Param,
-  Patch,
+  // Patch,
   Post,
-  Put,
+  // Put,
   Query,
   UseGuards,
 } from '@nestjs/common';

@@ -84,17 +84,17 @@ export class CompanyController {
   @Patch('')
   async updateCompany(
     @Body() payload: CompanyUpdateDto,
-    @UploadedFile() banner: Express.Multer.File,
+    // @UploadedFile() banner: Express.Multer.File,
     @AuthUser() user: LoggedInUser,
   ) {
     try {
-      if (banner) {
-        // this.fileRemovalQueue.add('REMOVE_PROFILE_PIC', profile?.imageUrl);
-        const fileUploadResult =
-          await this.fileUploadService.uploadPicture(banner);
-        // console.log(fileUploadResult)
-        payload.bannerUrl = fileUploadResult.url;
-      }
+      // if (banner) {
+      //   // this.fileRemovalQueue.add('REMOVE_PROFILE_PIC', profile?.imageUrl);
+      //   const fileUploadResult =
+      //     await this.fileUploadService.uploadPicture(banner);
+      //   // console.log(fileUploadResult)
+      //   payload.bannerUrl = fileUploadResult.url;
+      // }
       if(payload['banner']){
         delete payload['banner'];
       }

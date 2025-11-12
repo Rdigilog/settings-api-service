@@ -39,9 +39,9 @@ export class CompanyUpdateDto {
   @IsString()
   name?: string;
 
-  // @ApiPropertyOptional({ type: String })
-  // @IsOptional()
-  // @IsString()
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
+  @IsString()
   bannerUrl?: string;
 
   @ApiPropertyOptional({ type: String })
