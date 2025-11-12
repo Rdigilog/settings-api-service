@@ -149,7 +149,7 @@ export class CompanyService extends PrismaService {
     try {
       // const planId = payload?.planId;
       payload = { ...payload, planId: payload?.planId || '' };
-      const { planId, workingDays, ...rest } = payload;
+      const { planId, weeklyOff, ...rest } = payload;
       delete payload.planId;
       const result = await this.company.update({
         where: { id },
@@ -158,7 +158,7 @@ export class CompanyService extends PrismaService {
             plan: { connect: { id: planId } },
           }),
           ...rest, // strips undefined fields
-          workingDays: workingDays,
+          weeklyOff: weeklyOff,
         },
       });
 

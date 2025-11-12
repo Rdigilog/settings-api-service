@@ -103,7 +103,7 @@ export class CompanyUpdateDto {
   @ApiPropertyOptional({ type: [String], enum: WEEKDAY })
   @IsOptional()
   @IsEnum(WEEKDAY, { each: true })
-  workingDays?: WEEKDAY[];
+  weeklyOff?: WEEKDAY[];
 
   @ApiPropertyOptional({ type: String })
   @IsOptional()
