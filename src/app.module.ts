@@ -26,6 +26,7 @@ import configuration from './config/configuration';
 import { validationSchema } from './config/validation.schema';
 import { BusinessCategoryService } from './services/business_category.service';
 import { BusinessCategoryController } from './controllers/business_category.controller';
+import { FileController } from './controllers/file.controller';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { BusinessCategoryController } from './controllers/business_category.cont
     EmployeeController,
     HealthController,
     BusinessCategoryController,
+    FileController,
   ],
   providers: [
     {

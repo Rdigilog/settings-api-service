@@ -36,9 +36,12 @@ model User {
   // TaskStageLog     TaskStageLog[]
 
   // leaveApprovalLog LeaveApprovalLog[] @relation(name: "leave_actor")
-  Message         Message[]
-  ChatParticipant ChatParticipant[]
-  MessageStatus   MessageStatus[]
+  Message          Message[]
+  ChatParticipant  ChatParticipant[]
+  MessageStatus    MessageStatus[]
+  MentionsReceived MessageMention[]  @relation("MessageMentionMentionedUser")
+  MentionsAuthored MessageMention[]  @relation("MessageMentionAuthoredBy")
+  messageReactions MessageReaction[]
 
   @@map("users")
 }
@@ -150,7 +153,7 @@ model Employee {
   note                       Note[]
   activityTrackingEmployee   ActivityTrackingEmployee[]
   employeeDocument           employeeDocoment[]         @relation(name: "employee_documents")
-  rota Rota[]
+  rota                       Rota[]
 
   @@unique([userId, companyId])
   @@index([userId, companyId])
@@ -664,7 +667,7 @@ model Branch {
 
   company     Company          @relation(fields: [companyId], references: [id])
   country     Country          @relation(fields: [countryCode], references: [code])
-  manager     Employee?        @relation(fields: [managerId], references: [userId])
+  manager     Employee?        @relation(fields: [managerId], references: [id])
   employees   EmployeeBranch[]
   LeavePolicy LeavePolicy[]    @relation("PolicyBranches")
   department  Department[]
@@ -1028,7 +1031,7 @@ model Rota {
   createdAt       DateTime          @default(now()) @map("created_at")
   updatedAt       DateTime          @updatedAt @map("updated_at")
   rotaApprovalLog RotaApprovalLog[]
-  admin Employee? @relation(fields: [createdBy], references: [id])
+  admin           Employee?         @relation(fields: [createdBy], references: [id])
   rotaSchedules   RotaSchedule[]    @relation(name: "rota_schedules")
 
   @@map("rotas")
@@ -1441,11 +1444,13 @@ model Message {
   updatedAt       DateTime @updatedAt @map("updated_at")
 
   // Relations
-  chat            Chat            @relation(fields: [chatId], references: [id], onDelete: Cascade)
-  sender          User            @relation(fields: [senderId], references: [id], onDelete: Cascade)
-  parentMessage   Message?        @relation("MessageThreads", fields: [parentMessageId], references: [id], onDelete: Cascade)
-  threadMessages  Message[]       @relation("MessageThreads")
+  chat            Chat              @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  sender          User              @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  parentMessage   Message?          @relation("MessageThreads", fields: [parentMessageId], references: [id], onDelete: Cascade)
+  threadMessages  Message[]         @relation("MessageThreads")
   messageStatuses MessageStatus[]
+  mentions        MessageMention[]
+  reactions       MessageReaction[]
 
   @@index([chatId])
   @@index([senderId])
@@ -1486,4 +1491,36 @@ model MessageStatus {
   @@index([messageId])
   @@index([userId])
   @@map("message_statuses")
+}
+
+model MessageMention {
+  id              String   @id @default(uuid())
+  messageId       String   @map("message_id")
+  mentionedUserId String   @map("mentioned_user_id")
+  mentionedById   String   @map("mentioned_by_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  // Relations
+  message       Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  mentionedUser User    @relation("MessageMentionMentionedUser", fields: [mentionedUserId], references: [id], onDelete: Cascade)
+  mentionedBy   User    @relation("MessageMentionAuthoredBy", fields: [mentionedById], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, mentionedUserId])
+  @@map("message_mentions")
+}
+
+model MessageReaction {
+  id        String   @id @default(uuid())
+  messageId String   @map("message_id")
+  userId    String   @map("user_id")
+  reaction  String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId, reaction])
+  @@map("message_reactions")
 }
