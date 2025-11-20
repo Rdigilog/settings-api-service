@@ -8,7 +8,7 @@ export class EmployeeService extends PrismaService {
   constructor(private readonly responseService: ResponsesService) {
     super();
   }
-  
+
   async list(
     companyId: string,
     page: number,
@@ -70,7 +70,7 @@ export class EmployeeService extends PrismaService {
         take: limit,
       });
 
-      if (result.length) {
+      // if (result.length) {
         const totalItems = await this.employee.count({ where: filter });
         const paginatedProduct = this.responseService.pagingData(
           { result, totalItems },
@@ -78,8 +78,8 @@ export class EmployeeService extends PrismaService {
           limit,
         );
         return { error: 0, body: paginatedProduct };
-      }
-      return { error: 1, body: 'No Record found' };
+      // }
+      // return { error: 1, body: 'No Record found' };
     } catch (e) {
       console.error(e);
       return this.responseService.errorHandler(e);
