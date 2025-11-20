@@ -23,7 +23,8 @@ export class EmployeeService extends PrismaService {
       if (search) {
         filter.OR = [];
       }
-      const result = await this.employee.findMany({
+      
+   const result = await this.employee.findMany({
         where: filter,
         select: {
           id: true,
@@ -42,6 +43,7 @@ export class EmployeeService extends PrismaService {
           inviteAccepted: true,
           branch:true,
           department:true,
+          inviteLink:true,
           profile: {
             select: {
               firstName: true,
