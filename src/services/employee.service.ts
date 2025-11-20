@@ -30,6 +30,7 @@ export class EmployeeService extends PrismaService {
           id: true,
           payRate: true,
           countryCode: true,
+          employeeCode:true,
           timezone: true,
           period: true,
           phoneNumber: true,
