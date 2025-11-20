@@ -8,6 +8,7 @@ export class EmployeeService extends PrismaService {
   constructor(private readonly responseService: ResponsesService) {
     super();
   }
+  
   async list(
     companyId: string,
     page: number,
