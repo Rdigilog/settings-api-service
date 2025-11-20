@@ -23,8 +23,8 @@ export class EmployeeService extends PrismaService {
       if (search) {
         filter.OR = [];
       }
-      
-   const result = await this.employee.findMany({
+
+      const result = await this.employee.findMany({
         where: filter,
         select: {
           id: true,
@@ -41,9 +41,17 @@ export class EmployeeService extends PrismaService {
           appTrackingType: true,
           appScrennshotNotification: true,
           inviteAccepted: true,
-          branch:true,
-          department:true,
-          inviteLink:true,
+          branch: {
+            select: {
+              branch: true,
+            },
+          },
+          department: {
+            select: {
+              department: true,
+            },
+          },
+          inviteLink: true,
           profile: {
             select: {
               firstName: true,
@@ -75,13 +83,13 @@ export class EmployeeService extends PrismaService {
       });
 
       // if (result.length) {
-        const totalItems = await this.employee.count({ where: filter });
-        const paginatedProduct = this.responseService.pagingData(
-          { result, totalItems },
-          page,
-          limit,
-        );
-        return { error: 0, body: paginatedProduct };
+      const totalItems = await this.employee.count({ where: filter });
+      const paginatedProduct = this.responseService.pagingData(
+        { result, totalItems },
+        page,
+        limit,
+      );
+      return { error: 0, body: paginatedProduct };
       // }
       // return { error: 1, body: 'No Record found' };
     } catch (e) {
