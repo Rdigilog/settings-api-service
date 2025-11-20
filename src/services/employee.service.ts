@@ -23,7 +23,6 @@ export class EmployeeService extends PrismaService {
       if (search) {
         filter.OR = [];
       }
-
       const result = await this.employee.findMany({
         where: filter,
         select: {
@@ -40,20 +39,23 @@ export class EmployeeService extends PrismaService {
           screenshotIntervalMinutes: true,
           appTrackingType: true,
           appScrennshotNotification: true,
-          inviteAccepted:true,
+          inviteAccepted: true,
+          branch:true,
+          department:true,
           profile: {
             select: {
               firstName: true,
               lastName: true,
-              email:true,
-              phoneNumber:true,
-              imageUrl:true,
+              email: true,
+              phoneNumber: true,
+              imageUrl: true,
             },
           },
           jobInformation: {
             select: {
               jobRole: {
                 select: {
+                  id: true,
                   name: true,
                   color: true,
                 },
