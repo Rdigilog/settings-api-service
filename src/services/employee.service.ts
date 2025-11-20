@@ -39,12 +39,14 @@ export class EmployeeService extends PrismaService {
           screenshotIntervalMinutes: true,
           appTrackingType: true,
           appScrennshotNotification: true,
+          inviteAccepted:true,
           profile: {
             select: {
               firstName: true,
               lastName: true,
               email:true,
-              phoneNumber:true
+              phoneNumber:true,
+              imageUrl:true,
             },
           },
           jobInformation: {
