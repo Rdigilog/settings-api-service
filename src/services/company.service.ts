@@ -15,6 +15,7 @@ import {
 import { EmployeeSettingDto } from 'src/models/company/employee.dto';
 import { GeneralService } from 'src/utils/services/general.service';
 import { ResponsesService } from 'src/utils/services/responses.service';
+import { UtilsService } from 'src/utils/services/utils.service';
 
 type RangeType = 'day' | 'week' | 'month' | 'year';
 @Injectable()
@@ -25,6 +26,7 @@ export class CompanyService extends PrismaService {
   constructor(
     private readonly responseService: ResponsesService,
     private readonly generalService: GeneralService,
+    private readonly utilService: UtilsService,
   ) {
     super();
   }
@@ -151,6 +153,14 @@ export class CompanyService extends PrismaService {
       payload = { ...payload, planId: payload?.planId || '' };
       const { planId, weeklyOff, ...rest } = payload;
       delete payload.planId;
+      const company = await this.company.findUnique({
+        where: {
+          id,
+        },
+      });
+      if (!company) {
+        return { error: 1, body: 'No Record found' };
+      }
       const result = await this.company.update({
         where: { id },
         data: {
@@ -161,6 +171,54 @@ export class CompanyService extends PrismaService {
           weeklyOff: weeklyOff,
         },
       });
+
+      if (payload.planId && company.planId != payload.planId) {
+        const plan = await this.plan.findUniqueOrThrow({
+          where: { id: payload.planId },
+        });
+        const subscription = await this.subscription.upsert({
+          where: {
+            companyId: id,
+          },
+          update: {},
+          create: {
+            plan: {
+              connect: {
+                id: payload.planId,
+              },
+            },
+            status: 'PENDING',
+            users: plan.minimumUsers,
+            nextBilling: this.utilService.nextBilling(),
+            totalAmount: plan.minimumUsers * plan.price,
+            company: {
+              connect: {
+                id: id,
+              },
+            },
+          },
+        });
+
+        // if (payload.planId != company.planId) {
+        await this.billingHistory.create({
+          data: {
+            company: {
+              connect: {
+                id,
+              },
+            },
+            invoiceNo: this.utilService.lisaUnique(),
+            plan: {
+              connect: {
+                id: payload.planId,
+              },
+            },
+            amount: subscription.totalAmount,
+            status: 'PENDING',
+            date: new Date(),
+          },
+        });
+      }
 
       return { error: 0, body: result };
     } catch (e) {
