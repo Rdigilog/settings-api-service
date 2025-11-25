@@ -42,6 +42,8 @@ export class EmployeeService extends PrismaService {
           appTrackingType: true,
           appScrennshotNotification: true,
           inviteAccepted: true,
+          activityTrackingEmployee:true,
+          
           branch: {
             select: {
               branch: true,
@@ -51,6 +53,10 @@ export class EmployeeService extends PrismaService {
             select: {
               department: true,
             },
+          },
+          attendance:{
+            take:1,
+            orderBy:{'updatedAt':'desc'}
           },
           inviteLink: true,
           profile: {
@@ -73,6 +79,11 @@ export class EmployeeService extends PrismaService {
               },
               currencyCode: true,
               payRatePerHour: true,
+              location:true,
+              employmentDate:true,
+              workType:true,
+              workDays:true,
+              workStatus:true,
             },
           },
         },
