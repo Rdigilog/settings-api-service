@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import {
   Body,
   Controller,
@@ -10,21 +12,21 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { 
+import {
   ApiBearerAuth,
-  ApiOperation, 
+  ApiOperation,
   ApiQuery,
-  ApiTags, 
-  // ApiParam, 
-  // ApiBody 
+  ApiTags,
+  // ApiParam,
+  // ApiBody
 } from '@nestjs/swagger';
-import { AuthUser } from 'src/decorators/logged-in-user-decorator';
+import { AuthComapny, AuthUser } from 'src/decorators/logged-in-user-decorator';
 import { RouteName } from 'src/decorators/route-name.decorator';
 import {
   CreateJobRoleDto,
   // AssignJobRoleDto,
 } from 'src/models/company/job-role.dto';
-import type { LoggedInUser } from 'src/models/types/user.types';
+import type { activeCompaany, LoggedInUser } from 'src/models/types/user.types';
 import { BusinessCategoryService } from 'src/services/business_category.service';
 import { ResponsesService } from 'src/utils/services/responses.service';
 import { AuthGuard } from 'src/guards/auth.guard';
@@ -49,6 +51,7 @@ export class BusinessCategoryController {
   @Get()
   async list(
     @AuthUser() user: LoggedInUser,
+    @AuthComapny() company: activeCompaany,
     @Query('page') page: number = 1,
     @Query('size') size: number = 50,
     @Query('search') search?: string,
@@ -57,7 +60,7 @@ export class BusinessCategoryController {
   ) {
     try {
       const result = await this.service.list(
-        user.userRole[0].companyId as string,
+        company.id,
         page,
         size,
         search,

@@ -1,5 +1,5 @@
 import { Body, Injectable } from '@nestjs/common';
-import { Employee, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/config/prisma.service';
 import {
   CreateBranchDto,
@@ -8,9 +8,12 @@ import {
 import { ResponsesService } from 'src/utils/services/responses.service';
 
 @Injectable()
-export class BranchService extends PrismaService {
-  constructor(private readonly responseService: ResponsesService) {
-    super();
+export class BranchService {
+  constructor(
+    private readonly responseService: ResponsesService,
+    private readonly prisma: PrismaService,
+  ) {
+    // super();
   }
   async list(
     companyId: string,
@@ -27,7 +30,7 @@ export class BranchService extends PrismaService {
         filter.OR = [];
       }
 
-      const result = await this.branch.findMany({
+      const result = await this.prisma.branch.findMany({
         where: filter,
         include: {
           company: {
@@ -43,16 +46,16 @@ export class BranchService extends PrismaService {
             },
           },
           manager: {
-            select:{
-              profile:{
-                select:{
-                  id:true,
-                  firstName:true,
-                  lastName:true,
-                  email:true
-                }
-              }
-            }
+            select: {
+              profile: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                  email: true,
+                },
+              },
+            },
           },
         },
         orderBy: {
@@ -63,7 +66,7 @@ export class BranchService extends PrismaService {
       });
 
       // if (result.length) {
-      const totalItems = await this.branch.count({ where: filter });
+      const totalItems = await this.prisma.branch.count({ where: filter });
       const paginatedProduct = this.responseService.pagingData(
         { result, totalItems },
         page,
@@ -97,8 +100,8 @@ export class BranchService extends PrismaService {
       if (managerId) {
         data.manager = { connect: { id: managerId } };
       }
-      const result = await this.branch.create({
-        data
+      const result = await this.prisma.branch.create({
+        data,
       });
       return { error: 0, body: result };
     } catch (e) {
@@ -108,7 +111,7 @@ export class BranchService extends PrismaService {
 
   async update(payload: Partial<CreateBranchDto>, branchId: string) {
     try {
-      const result = await this.branch.update({
+      const result = await this.prisma.branch.update({
         where: {
           id: branchId,
         },
@@ -124,13 +127,13 @@ export class BranchService extends PrismaService {
 
   async assingToBranch(payload: AssignBranchUserDto, branchId: string) {
     try {
-      const result = await this.employeeBranch.createMany({
+      const result = await this.prisma.employeeBranch.createMany({
         data: payload.emaployeeId.map((userId) => {
           return { employeeId: userId, branchId: branchId };
         }),
       });
       if (result.count) {
-        const branch = await this.branch.findUnique({
+        const branch = await this.prisma.branch.findUnique({
           where: { id: branchId },
           include: {
             employees: {
@@ -140,7 +143,7 @@ export class BranchService extends PrismaService {
             },
           },
         });
-        return { error: 0, body: result };
+        return { error: 0, body: branch };
       }
       return { error: 1, body: "failed to assign user('s) to branch" };
     } catch (e) {
@@ -150,11 +153,11 @@ export class BranchService extends PrismaService {
 
   async removeFromBranch(payload: AssignBranchUserDto, branchId: string) {
     try {
-      const result = await this.employeeBranch.deleteMany({
+      const result = await this.prisma.employeeBranch.deleteMany({
         where: { employeeId: { in: payload.emaployeeId }, branchId: branchId },
       });
       if (result.count) {
-        const branch = await this.branch.findUnique({
+        const branch = await this.prisma.branch.findUnique({
           where: { id: branchId },
           include: {
             employees: {

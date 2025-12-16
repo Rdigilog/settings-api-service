@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/config/prisma.service';
 import {
@@ -8,9 +8,12 @@ import {
 import { ResponsesService } from 'src/utils/services/responses.service';
 
 @Injectable()
-export class LeaveService extends PrismaService {
-  constructor(private readonly responseService: ResponsesService) {
-    super();
+export class LeaveService {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly responseService: ResponsesService,
+  ) {
+    // super();
   }
   async list(
     page: number,
@@ -26,13 +29,12 @@ export class LeaveService extends PrismaService {
         filter.OR = [];
       }
 
-      const result = await this.leave.findMany({
+      const result = await this.prisma.leave.findMany({
         where: filter,
         include: {
           applicant: true,
           company: true,
-          leavePolicy:true,
-
+          leavePolicy: true,
         },
         orderBy: {
           [sortBy]: sortDirection,
@@ -42,7 +44,7 @@ export class LeaveService extends PrismaService {
       });
 
       // if (result.length) {
-      const totalItems = await this.leave.count({ where: filter });
+      const totalItems = await this.prisma.leave.count({ where: filter });
       const paginatedProduct = this.responseService.pagingData(
         { result, totalItems },
         page,
@@ -59,7 +61,7 @@ export class LeaveService extends PrismaService {
 
   async createLeavePolicy(companyId: string, dto: CreateLeavePolicyDto) {
     try {
-      const leavePolicy = await this.leavePolicy.create({
+      const leavePolicy = await this.prisma.leavePolicy.create({
         data: {
           name: dto.name,
           description: dto.description,
@@ -95,18 +97,18 @@ export class LeaveService extends PrismaService {
       });
       return { error: 0, body: leavePolicy };
     } catch (e) {
-      return { error: 2, body: e.message };
+      return this.responseService.errorHandler(e);
     }
   }
 
   async findAllLeavePolicy(companyId: string) {
     try {
-      const leavePolicies = await this.leavePolicy.findMany({
+      const leavePolicies = await this.prisma.leavePolicy.findMany({
         where: { companyId },
         include: {
           branches: true,
           members: true,
-          jobRoles:true
+          jobRoles: true,
         },
       });
 
@@ -115,18 +117,18 @@ export class LeaveService extends PrismaService {
       // }
       // return { error: 1, body: 'No Leave policy found' };
     } catch (e) {
-      return { error: 2, body: e.message };
+      return this.responseService.errorHandler(e);
     }
   }
 
   async findOneLeavePolicy(companyId: string, id: string) {
     try {
-      const leavePolicy = await this.leavePolicy.findFirst({
+      const leavePolicy = await this.prisma.leavePolicy.findFirst({
         where: { id, companyId },
         include: {
           branches: true,
           members: true,
-          jobRoles:true,
+          jobRoles: true,
         },
       });
 
@@ -135,7 +137,7 @@ export class LeaveService extends PrismaService {
       }
       return { error: 0, body: leavePolicy };
     } catch (e) {
-      return { error: 2, body: e.message };
+      return this.responseService.errorHandler(e);
     }
   }
 
@@ -145,14 +147,14 @@ export class LeaveService extends PrismaService {
     dto: UpdateLeavePolicyDto,
   ) {
     try {
-      const exists = await this.leavePolicy.findFirst({
+      const exists = await this.prisma.leavePolicy.findFirst({
         where: { id, companyId },
       });
       if (!exists) {
         return { error: 1, body: 'Leave policy not found' };
       }
 
-      const leavePolicy = await this.leavePolicy.update({
+      const leavePolicy = await this.prisma.leavePolicy.update({
         where: { id },
         data: {
           ...(dto.name !== undefined && { name: dto.name }),
@@ -203,26 +205,26 @@ export class LeaveService extends PrismaService {
 
       return { error: 0, body: leavePolicy };
     } catch (e) {
-      return { error: 2, body: e.message };
+      return this.responseService.errorHandler(e);
     }
   }
 
   async removeLeavePolicy(companyId: string, id: string) {
     try {
-      const exists = await this.leavePolicy.findFirst({
+      const exists = await this.prisma.leavePolicy.findFirst({
         where: { id, companyId },
       });
       if (!exists) {
         return { error: 1, body: 'Leave policy not found' };
       }
 
-      const deleted = await this.leavePolicy.delete({
+      const deleted = await this.prisma.leavePolicy.delete({
         where: { id },
       });
 
       return { error: 0, body: deleted };
     } catch (e) {
-      return { error: 2, body: e.message };
+      return this.responseService.errorHandler(e);
     }
   }
 }

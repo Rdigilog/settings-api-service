@@ -24,4 +24,3 @@ export class AssignJobRoleDto {
   @IsString({ each: true })
   userIds: string[];
 }
-

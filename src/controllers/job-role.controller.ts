@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import {
   Controller,
   UseGuards,
@@ -10,12 +12,22 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiQuery, ApiOperation, ApiParam, ApiBody } from '@nestjs/swagger';
-import { AuthUser } from 'src/decorators/logged-in-user-decorator';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiQuery,
+  ApiOperation,
+  ApiParam,
+  ApiBody,
+} from '@nestjs/swagger';
+import { AuthComapny } from 'src/decorators/logged-in-user-decorator';
 import { RouteName } from 'src/decorators/route-name.decorator';
 import { AuthGuard } from 'src/guards/auth.guard';
-import { AssignJobRoleDto, CreateJobRoleDto } from 'src/models/company/job-role.dto';
-import type { LoggedInUser } from 'src/models/types/user.types';
+import {
+  AssignJobRoleDto,
+  CreateJobRoleDto,
+} from 'src/models/company/job-role.dto';
+import type { activeCompaany } from 'src/models/types/user.types';
 import { JobRoleService } from 'src/services/job-role.service';
 import { ResponsesService } from 'src/utils/services/responses.service';
 
@@ -38,7 +50,7 @@ export class JobRoleController {
   @ApiQuery({ name: 'sortBy', required: false, type: String })
   @Get()
   async list(
-    @AuthUser() user: LoggedInUser,
+    @AuthComapny() company: activeCompaany,
     @Query('page') page: number = 1,
     @Query('size') size: number = 50,
     @Query('search') search?: string,
@@ -47,7 +59,7 @@ export class JobRoleController {
   ) {
     try {
       const result = await this.service.list(
-        user.userRole[0].companyId as string,
+        company.id,
         page,
         size,
         search,
@@ -67,14 +79,11 @@ export class JobRoleController {
   @ApiOperation({ summary: 'Create a new job role' })
   @Post()
   async create(
-    @AuthUser() user: LoggedInUser,
+    @AuthComapny() company: activeCompaany,
     @Body() payload: CreateJobRoleDto,
   ) {
     try {
-      const result = await this.service.create(
-        payload,
-        user.userRole[0].companyId as string,
-      );
+      const result = await this.service.create(payload, company.id);
       if (result.error == 2) {
         return this.responseService.exception(result.body);
       }
@@ -92,7 +101,7 @@ export class JobRoleController {
   @Patch(':jobRoleId')
   @Put(':jobRoleId')
   async update(
-    @AuthUser() user: LoggedInUser,
+    // @AuthUser() user: LoggedInUser,
     @Body() payload: Partial<CreateJobRoleDto>,
     @Param('jobRoleId') id: string,
   ) {
@@ -114,7 +123,7 @@ export class JobRoleController {
   @ApiOperation({ summary: 'delete job role information' })
   @Delete(':jobRoleId')
   async deleteJobRole(
-    @AuthUser() user: LoggedInUser,
+    // @AuthUser() user: LoggedInUser,
     @Param('jobRoleId') id: string,
   ) {
     try {
@@ -147,17 +156,17 @@ export class JobRoleController {
     @Param('jobRoleId') jobRoleId: string,
     @Body() dto: AssignJobRoleDto,
   ) {
-    try{
+    try {
       const result = await this.service.assignJobRole(jobRoleId, dto.userIds);
-       if (result.error == 2) {
-          return this.responseService.exception(result.body);
-        }
-        if (result.error == 1) {
-          return this.responseService.badRequest(result.body);
-        }
-        return this.responseService.success(result.body);
-    }catch(e){
-        return this.responseService.exception(e.message);
+      if (result.error == 2) {
+        return this.responseService.exception(result.body);
+      }
+      if (result.error == 1) {
+        return this.responseService.badRequest(result.body);
+      }
+      return this.responseService.success(result.body);
+    } catch (e) {
+      return this.responseService.exception(e.message);
     }
   }
 }

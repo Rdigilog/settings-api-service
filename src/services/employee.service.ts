@@ -4,10 +4,11 @@ import { PrismaService } from 'src/config/prisma.service';
 import { ResponsesService } from 'src/utils/services/responses.service';
 
 @Injectable()
-export class EmployeeService extends PrismaService {
-  constructor(private readonly responseService: ResponsesService) {
-    super();
-  }
+export class EmployeeService {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly responseService: ResponsesService,
+  ) {}
 
   async list(
     companyId: string,
@@ -19,18 +20,43 @@ export class EmployeeService extends PrismaService {
   ) {
     try {
       const { offset, limit } = this.responseService.pagination(page, size);
+
       const filter: Prisma.EmployeeWhereInput = { companyId };
+
       if (search) {
-        filter.OR = [];
+        filter.OR = [
+          {
+            profile: {
+              firstName: {
+                contains: search,
+                mode: 'insensitive',
+              },
+            },
+          },
+          {
+            profile: {
+              lastName: {
+                contains: search,
+                mode: 'insensitive',
+              },
+            },
+          },
+          {
+            employeeCode: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+        ];
       }
 
-      const result = await this.employee.findMany({
+      const result = await this.prisma.employee.findMany({
         where: filter,
         select: {
           id: true,
           payRate: true,
           countryCode: true,
-          employeeCode:true,
+          employeeCode: true,
           timezone: true,
           period: true,
           phoneNumber: true,
@@ -42,8 +68,8 @@ export class EmployeeService extends PrismaService {
           appTrackingType: true,
           appScrennshotNotification: true,
           inviteAccepted: true,
-          activityTrackingEmployee:true,
-          
+          activityTrackingEmployee: true,
+
           branch: {
             select: {
               branch: true,
@@ -54,9 +80,9 @@ export class EmployeeService extends PrismaService {
               department: true,
             },
           },
-          attendance:{
-            take:1,
-            orderBy:{'updatedAt':'desc'}
+          attendance: {
+            take: 1,
+            orderBy: { updatedAt: 'desc' },
           },
           inviteLink: true,
           profile: {
@@ -79,11 +105,11 @@ export class EmployeeService extends PrismaService {
               },
               currencyCode: true,
               payRatePerHour: true,
-              location:true,
-              employmentDate:true,
-              workType:true,
-              workDays:true,
-              workStatus:true,
+              location: true,
+              employmentDate: true,
+              workType: true,
+              workDays: true,
+              workStatus: true,
             },
           },
         },
@@ -94,16 +120,17 @@ export class EmployeeService extends PrismaService {
         take: limit,
       });
 
-      // if (result.length) {
-      const totalItems = await this.employee.count({ where: filter });
+      const totalItems = await this.prisma.employee.count({
+        where: filter,
+      });
+
       const paginatedProduct = this.responseService.pagingData(
         { result, totalItems },
         page,
         limit,
       );
+
       return { error: 0, body: paginatedProduct };
-      // }
-      // return { error: 1, body: 'No Record found' };
     } catch (e) {
       console.error(e);
       return this.responseService.errorHandler(e);

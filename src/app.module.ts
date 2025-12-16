@@ -70,7 +70,7 @@ import { FileController } from './controllers/file.controller';
     TaskService,
     UserService,
     PrismaService,
-    BusinessCategoryService
+    BusinessCategoryService,
   ],
 })
 export class AppModule {}

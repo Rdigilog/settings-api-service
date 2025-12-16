@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable } from '@nestjs/common';
-import { format } from 'date-fns';
+// import { format } from 'date-fns';
 import { PrismaService } from 'src/config/prisma.service';
 import {
   CompanyUpdateDto,
@@ -8,7 +9,6 @@ import {
   HolidayRequestRuleSettingDto,
   DigiTimeSettingDto,
   BreakComplianceSettingDto,
-  PayRateDto,
   NotificationSettingDto,
   ActivityTrackingSettingDto,
 } from 'src/models/company/company.dto';
@@ -17,130 +17,121 @@ import { GeneralService } from 'src/utils/services/general.service';
 import { ResponsesService } from 'src/utils/services/responses.service';
 import { UtilsService } from 'src/utils/services/utils.service';
 
-type RangeType = 'day' | 'week' | 'month' | 'year';
+// type RangeType = 'day' | 'week' | 'month' | 'year';
 @Injectable()
-export class CompanyService extends PrismaService {
-  listStages(companyId: string) {
-    throw new Error('Method not implemented.');
-  }
+export class CompanyService {
   constructor(
+    private readonly prisma: PrismaService,
     private readonly responseService: ResponsesService,
     private readonly generalService: GeneralService,
     private readonly utilService: UtilsService,
   ) {
-    super();
+    // super();
   }
-  async dashboardSummary(companyId: string, range: RangeType) {
-    try {
-      // const result = await this.$transaction(
-      //   async (tx) => {
-      //     const dateRange = this.generalService.getDateRange(range); // 'day', 'week', etc.
-      //     const currentStart = format(dateRange.currentStartDate, 'yyyy-MM-dd');
-      //     const currentEnd = format(dateRange.currentEndDate, 'yyyy-MM-dd');
-      //     const previousStart = format(
-      //       dateRange.previousStartDate,
-      //       'yyyy-MM-dd',
-      //     );
-      //     const previousEnd = format(dateRange.previousEndDate, 'yyyy-MM-dd');
-      //     const current = await tx.attendance.groupBy({
-      //       by: ['status'],
-      //       where: {
-      //         date: {
-      //           gte: currentStart,
-      //           lte: currentEnd,
-      //         },
-      //         companyId,
-      //       },
-      //     });
-      //     const previous = await tx.attendance.groupBy({
-      //       by: ['status'],
-      //       where: {
-      //         date: {
-      //           gte: currentStart,
-      //           lte: currentEnd,
-      //         },
-      //         companyId,
-      //       },
-      //     });
+  // async dashboardSummary(companyId: string, range: RangeType) {
+  //   try {
+  //     // const result = await this.$transaction(
+  //     //   async (tx) => {
+  //     //     const dateRange = this.generalService.getDateRange(range); // 'day', 'week', etc.
+  //     //     const currentStart = format(dateRange.currentStartDate, 'yyyy-MM-dd');
+  //     //     const currentEnd = format(dateRange.currentEndDate, 'yyyy-MM-dd');
+  //     //     const previousStart = format(
+  //     //       dateRange.previousStartDate,
+  //     //       'yyyy-MM-dd',
+  //     //     );
+  //     //     const previousEnd = format(dateRange.previousEndDate, 'yyyy-MM-dd');
+  //     //     const current = await tx.attendance.groupBy({
+  //     //       by: ['status'],
+  //     //       where: {
+  //     //         date: {
+  //     //           gte: currentStart,
+  //     //           lte: currentEnd,
+  //     //         },
+  //     //         companyId,
+  //     //       },
+  //     //     });
+  //     //     const previous = await tx.attendance.groupBy({
+  //     //       by: ['status'],
+  //     //       where: {
+  //     //         date: {
+  //     //           gte: currentStart,
+  //     //           lte: currentEnd,
+  //     //         },
+  //     //         companyId,
+  //     //       },
+  //     //     });
 
-      //     const currentAbsent = await tx.employee.findMany({
-      //       where: {
-      //         companyId,
-      //       },
-      //       select: {
-      //         user: {
-      //           select: {
-      //             attendance: {
-      //               where: {
-      //                 date: {
-      //                   gte: currentStart,
-      //                   lte: currentEnd,
-      //                 },
-      //               },
-      //             },
-      //           },
-      //         },
-      //       },
-      //     });
-      //     const previousAbsent = await tx.employee.findMany({
-      //       where: {
-      //         companyId,
-      //       },
-      //       select: {
-      //         user: {
-      //           select: {
-      //             attendance: {
-      //               where: {
-      //                 date: {
-      //                   gte: previousStart,
-      //                   lte: previousEnd,
-      //                 },
-      //               },
-      //             },
-      //           },
-      //         },
-      //       },
-      //     });
+  //     //     const currentAbsent = await tx.employee.findMany({
+  //     //       where: {
+  //     //         companyId,
+  //     //       },
+  //     //       select: {
+  //     //         user: {
+  //     //           select: {
+  //     //             attendance: {
+  //     //               where: {
+  //     //                 date: {
+  //     //                   gte: currentStart,
+  //     //                   lte: currentEnd,
+  //     //                 },
+  //     //               },
+  //     //             },
+  //     //           },
+  //     //         },
+  //     //       },
+  //     //     });
+  //     //     const previousAbsent = await tx.employee.findMany({
+  //     //       where: {
+  //     //         companyId,
+  //     //       },
+  //     //       select: {
+  //     //         user: {
+  //     //           select: {
+  //     //             attendance: {
+  //     //               where: {
+  //     //                 date: {
+  //     //                   gte: previousStart,
+  //     //                   lte: previousEnd,
+  //     //                 },
+  //     //               },
+  //     //             },
+  //     //           },
+  //     //         },
+  //     //       },
+  //     //     });
 
-      //     return {
-      //       current,
-      //       previous,
-      //       previousAbsent,
-      //       currentAbsent,
-      //     };
-      //   },
-      //   {
-      //     timeout: 10000, // corrected spelling from "timeOut" to "timeout"
-      //   },
-      // );
+  //     //     return {
+  //     //       current,
+  //     //       previous,
+  //     //       previousAbsent,
+  //     //       currentAbsent,
+  //     //     };
+  //     //   },
+  //     //   {
+  //     //     timeout: 10000, // corrected spelling from "timeOut" to "timeout"
+  //     //   },
+  //     // );
 
-      return { error: 0, body: [] };
-    } catch (e) {
-      return this.responseService.errorHandler(e);
-    }
-  }
+  //     return { error: 0, body: [] };
+  //   } catch (e) {
+  //     return this.responseService.errorHandler(e);
+  //   }
+  // }
 
   async updatePayRate(payload: EmployeeSettingDto[], companyId: string) {
     try {
-      // if(payload?.length){
       await Promise.all(
         payload.map(async (staff) => {
           const { employeeId, ...rest } = staff;
-          await this.employee.update({
-            where: { id: employeeId },
+          await this.prisma.employee.update({
+            where: { id: employeeId, companyId },
             data: {
               ...rest,
-              // jobInformation:payRate ? {
-              //   update:{
-              //     payRatePerHour:payRate,
-
-              //   }
-              // }:undefined
             },
           });
         }),
       );
-      // }
+
       return { error: 0, body: 'Employee settings updated' };
     } catch (e) {
       return this.responseService.errorHandler(e);
@@ -149,69 +140,59 @@ export class CompanyService extends PrismaService {
 
   async update(payload: CompanyUpdateDto, id: string) {
     try {
-      // const planId = payload?.planId;
       payload = { ...payload, planId: payload?.planId || '' };
       const { planId, weeklyOff, ...rest } = payload;
       delete payload.planId;
-      const company = await this.company.findUnique({
-        where: {
-          id,
-        },
+
+      const company = await this.prisma.company.findUnique({
+        where: { id },
       });
+
       if (!company) {
         return { error: 1, body: 'No Record found' };
       }
-      const result = await this.company.update({
+
+      const result = await this.prisma.company.update({
         where: { id },
         data: {
           ...(planId && {
             plan: { connect: { id: planId } },
           }),
-          ...rest, // strips undefined fields
-          weeklyOff: weeklyOff,
+          ...rest,
+          weeklyOff,
         },
       });
 
-      if (payload.planId && company.planId != payload.planId) {
-        const plan = await this.plan.findUniqueOrThrow({
+      if (payload.planId && company.planId !== payload.planId) {
+        const plan = await this.prisma.plan.findUniqueOrThrow({
           where: { id: payload.planId },
         });
-        const subscription = await this.subscription.upsert({
-          where: {
-            companyId: id,
-          },
+
+        const subscription = await this.prisma.subscription.upsert({
+          where: { companyId: id },
           update: {},
           create: {
             plan: {
-              connect: {
-                id: payload.planId,
-              },
+              connect: { id: payload.planId },
             },
             status: 'PENDING',
             users: plan.minimumUsers,
             nextBilling: this.utilService.nextBilling(),
             totalAmount: plan.minimumUsers * plan.price,
             company: {
-              connect: {
-                id: id,
-              },
+              connect: { id },
             },
           },
         });
 
-        // if (payload.planId != company.planId) {
-        await this.billingHistory.create({
+        await this.prisma.billingHistory.create({
           data: {
             company: {
-              connect: {
-                id,
-              },
+              connect: { id },
             },
             invoiceNo: this.utilService.lisaUnique(),
             plan: {
-              connect: {
-                id: payload.planId,
-              },
+              connect: { id: payload.planId },
             },
             amount: subscription.totalAmount,
             status: 'PENDING',
@@ -229,7 +210,7 @@ export class CompanyService extends PrismaService {
 
   async getcompany(companyId: string) {
     try {
-      const result = await this.company.findFirst({
+      const result = await this.prisma.company.findFirst({
         where: { id: companyId },
       });
       return { error: 0, body: result };
@@ -240,17 +221,13 @@ export class CompanyService extends PrismaService {
 
   async setRotaRule(payload: RotaRuleSettingDto, companyId: string) {
     try {
-      const result = await this.rotaRuleSetting.upsert({
+      const result = await this.prisma.rotaRuleSetting.upsert({
         where: { companyId },
-        update: {
-          ...payload,
-        },
+        update: { ...payload },
         create: {
           ...payload,
           company: {
-            connect: {
-              id: companyId,
-            },
+            connect: { id: companyId },
           },
         },
       });
@@ -262,9 +239,8 @@ export class CompanyService extends PrismaService {
 
   async getRotaRule(companyId: string) {
     try {
-      const result = await this.rotaRuleSetting.findFirst({
+      const result = await this.prisma.rotaRuleSetting.findFirst({
         where: { companyId },
-        include: {},
       });
       return { error: 0, body: result };
     } catch (e) {
@@ -274,17 +250,13 @@ export class CompanyService extends PrismaService {
 
   async setShiftSetting(payload: ShiftSettingDto, companyId: string) {
     try {
-      const result = await this.shiftSetting.upsert({
+      const result = await this.prisma.shiftSetting.upsert({
         where: { companyId },
-        update: {
-          ...payload,
-        },
+        update: { ...payload },
         create: {
           ...payload,
           company: {
-            connect: {
-              id: companyId,
-            },
+            connect: { id: companyId },
           },
         },
       });
@@ -296,7 +268,7 @@ export class CompanyService extends PrismaService {
 
   async getShiftSetting(companyId: string) {
     try {
-      const result = await this.shiftSetting.findFirst({
+      const result = await this.prisma.shiftSetting.findFirst({
         where: { companyId },
       });
       return { error: 0, body: result };
@@ -310,17 +282,13 @@ export class CompanyService extends PrismaService {
     companyId: string,
   ) {
     try {
-      const result = await this.holidayRequestRuleSetting.upsert({
+      const result = await this.prisma.holidayRequestRuleSetting.upsert({
         where: { companyId },
-        update: {
-          ...payload,
-        },
+        update: { ...payload },
         create: {
           ...payload,
           company: {
-            connect: {
-              id: companyId,
-            },
+            connect: { id: companyId },
           },
         },
       });
@@ -332,7 +300,7 @@ export class CompanyService extends PrismaService {
 
   async getHolidayRequestSetting(companyId: string) {
     try {
-      const result = await this.holidayRequestRuleSetting.findFirst({
+      const result = await this.prisma.holidayRequestRuleSetting.findFirst({
         where: { companyId },
       });
       return { error: 0, body: result };
@@ -344,7 +312,8 @@ export class CompanyService extends PrismaService {
   async setDigiTimetSetting(payload: DigiTimeSettingDto, companyId: string) {
     try {
       const { apps, ...rest } = payload;
-      const result = await this.digiTimeSetting.upsert({
+
+      const result = await this.prisma.digiTimeSetting.upsert({
         where: { companyId },
         update: {
           ...rest,
@@ -352,29 +321,30 @@ export class CompanyService extends PrismaService {
             deleteMany: {},
             createMany: {
               data:
-                apps?.map((app) => {
-                  return { ...app, companyId };
-                }) || [],
+                apps?.map((app) => ({
+                  ...app,
+                  companyId,
+                })) || [],
             },
           },
         },
         create: {
           ...rest,
           company: {
-            connect: {
-              id: companyId,
-            },
+            connect: { id: companyId },
           },
           apps: {
             createMany: {
               data:
-                apps?.map((app) => {
-                  return { ...app, companyId };
-                }) || [],
+                apps?.map((app) => ({
+                  ...app,
+                  companyId,
+                })) || [],
             },
           },
         },
       });
+
       return { error: 0, body: result };
     } catch (e) {
       return this.responseService.errorHandler(e);
@@ -383,7 +353,7 @@ export class CompanyService extends PrismaService {
 
   async getDigiTimetSetting(companyId: string) {
     try {
-      const result = await this.digiTimeSetting.findFirst({
+      const result = await this.prisma.digiTimeSetting.findFirst({
         where: { companyId },
         include: { apps: true },
       });
@@ -395,7 +365,7 @@ export class CompanyService extends PrismaService {
 
   async getNotificationSetting(companyId: string) {
     try {
-      const result = await this.notificationSetting.findFirst({
+      const result = await this.prisma.notificationSetting.findFirst({
         where: { companyId },
         include: {
           memberNotificationRecipient: {
@@ -417,14 +387,17 @@ export class CompanyService extends PrismaService {
   ) {
     try {
       const { jobroleIds, ...rest } = payload;
-      const result = await this.notificationSetting.upsert({
+
+      const result = await this.prisma.notificationSetting.upsert({
         where: { companyId },
         update: {
           ...rest,
           memberNotificationRecipient: jobroleIds.length
             ? {
                 createMany: {
-                  data: jobroleIds.map((id) => ({ jobRoleId: id })),
+                  data: jobroleIds.map((id) => ({
+                    jobRoleId: id,
+                  })),
                 },
               }
             : undefined,
@@ -434,14 +407,14 @@ export class CompanyService extends PrismaService {
           memberNotificationRecipient: jobroleIds.length
             ? {
                 createMany: {
-                  data: jobroleIds.map((id) => ({ jobRoleId: id })),
+                  data: jobroleIds.map((id) => ({
+                    jobRoleId: id,
+                  })),
                 },
               }
             : undefined,
           company: {
-            connect: {
-              id: companyId,
-            },
+            connect: { id: companyId },
           },
         },
         include: {
@@ -452,24 +425,16 @@ export class CompanyService extends PrismaService {
           },
         },
       });
+
       return { error: 0, body: result };
     } catch (e) {
       return this.responseService.errorHandler(e);
     }
   }
-  // async getNotificationSetting(companyId: string) {
-  //   try {
-  //     const result = await this.notificationSetting.findFirst({
-  //       where: { companyId },
-  //     });
-  //     return { error: 0, body: result };
-  //   } catch (e) {
-  //     return this.responseService.errorHandler(e);
-  //   }
-  // }
+
   async getActivityTrackingSetting(companyId: string) {
     try {
-      const result = await this.activityTrackingSetting.findFirst({
+      const result = await this.prisma.activityTrackingSetting.findFirst({
         where: { companyId },
         include: {
           activityTrackingEmployee: {
@@ -509,17 +474,21 @@ export class CompanyService extends PrismaService {
         unproductiveApps,
         ...rest
       } = payload;
-      const result = await this.activityTrackingSetting.upsert({
+
+      const result = await this.prisma.activityTrackingSetting.upsert({
         where: { companyId },
         update: {
           ...rest,
           managerDeleteScreenshot,
-          productiveApps: productiveApps,
-          unproductiveApps: unproductiveApps,
+          productiveApps,
+          unproductiveApps,
           activityTrackingEmployee: memberIds?.length
             ? {
                 createMany: {
-                  data: memberIds.map((id) => ({ employeeId: id, companyId })),
+                  data: memberIds.map((id) => ({
+                    employeeId: id,
+                    companyId,
+                  })),
                 },
               }
             : undefined,
@@ -527,19 +496,20 @@ export class CompanyService extends PrismaService {
         create: {
           ...rest,
           managerDeleteScreenshot,
-          productiveApps: productiveApps,
-          unproductiveApps: unproductiveApps,
+          productiveApps,
+          unproductiveApps,
           activityTrackingEmployee: memberIds?.length
             ? {
                 createMany: {
-                  data: memberIds.map((id) => ({ employeeId: id, companyId })),
+                  data: memberIds.map((id) => ({
+                    employeeId: id,
+                    companyId,
+                  })),
                 },
               }
             : undefined,
           company: {
-            connect: {
-              id: companyId,
-            },
+            connect: { id: companyId },
           },
         },
         include: {
@@ -562,6 +532,7 @@ export class CompanyService extends PrismaService {
           },
         },
       });
+
       return { error: 0, body: result };
     } catch (e) {
       return this.responseService.errorHandler(e);
@@ -571,7 +542,8 @@ export class CompanyService extends PrismaService {
   async setBreaks(payload: BreakComplianceSettingDto, companyId: string) {
     try {
       const { breaks, ...rest } = payload;
-      const result = await this.breakComplianceSetting.upsert({
+
+      const result = await this.prisma.breakComplianceSetting.upsert({
         where: { companyId },
         update: {
           ...rest,
@@ -579,25 +551,23 @@ export class CompanyService extends PrismaService {
             deleteMany: {},
             createMany: {
               data:
-                breaks?.map((app) => {
-                  return { ...app };
-                }) || [],
+                breaks?.map((brk) => ({
+                  ...brk,
+                })) || [],
             },
           },
         },
         create: {
           ...rest,
           company: {
-            connect: {
-              id: companyId,
-            },
+            connect: { id: companyId },
           },
           breaks: {
             createMany: {
               data:
-                breaks?.map((app) => {
-                  return { ...app };
-                }) || [],
+                breaks?.map((brk) => ({
+                  ...brk,
+                })) || [],
             },
           },
         },
@@ -605,6 +575,7 @@ export class CompanyService extends PrismaService {
           breaks: true,
         },
       });
+
       return { error: 0, body: result };
     } catch (e) {
       return this.responseService.errorHandler(e);
@@ -613,7 +584,7 @@ export class CompanyService extends PrismaService {
 
   async getBreaks(companyId: string) {
     try {
-      const result = await this.breakComplianceSetting.findFirst({
+      const result = await this.prisma.breakComplianceSetting.findFirst({
         where: { companyId },
         include: { breaks: true },
       });

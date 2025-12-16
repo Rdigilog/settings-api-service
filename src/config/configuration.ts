@@ -98,7 +98,10 @@ export async function getConfigValues(): Promise<Partial<Configuration>> {
       },
     };
   } catch (error) {
-    console.error('Failed to load configuration from AWS Secrets Manager:', error);
+    console.error(
+      'Failed to load configuration from AWS Secrets Manager:',
+      error,
+    );
     throw new Error(`Configuration loading failed: ${error.message}`);
   }
 }

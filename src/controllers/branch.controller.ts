@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import {
   Controller,
   // Request,
@@ -11,15 +13,20 @@ import {
   Delete,
   Put,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiQuery, ApiOperation } from '@nestjs/swagger';
-import { AuthUser } from 'src/decorators/logged-in-user-decorator';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiQuery,
+  ApiOperation,
+} from '@nestjs/swagger';
+import { AuthComapny } from 'src/decorators/logged-in-user-decorator';
 import { RouteName } from 'src/decorators/route-name.decorator';
 import { AuthGuard } from 'src/guards/auth.guard';
 import {
   CreateBranchDto,
   AssignBranchUserDto,
 } from 'src/models/branch/branch.dto';
-import type { LoggedInUser } from 'src/models/types/user.types';
+import type { activeCompaany } from 'src/models/types/user.types';
 import { BranchService } from 'src/services/branch.service';
 import { ResponsesService } from 'src/utils/services/responses.service';
 
@@ -42,7 +49,8 @@ export class BranchController {
   @ApiQuery({ name: 'sortBy', required: false, type: String })
   @Get()
   async list(
-    @AuthUser() user: LoggedInUser,
+    // @AuthUser() user: LoggedInUser,
+    @AuthComapny() company: activeCompaany,
     @Query('page') page: number = 1,
     @Query('size') size: number = 50,
     @Query('search') search?: string,
@@ -51,7 +59,7 @@ export class BranchController {
   ) {
     try {
       const result = await this.service.list(
-        user.userRole[0].companyId as string,
+        company.id,
         page,
         size,
         search,
@@ -70,9 +78,13 @@ export class BranchController {
   @RouteName('branch.create')
   @ApiOperation({ summary: 'Create a new branch' })
   @Post()
-  async create(@AuthUser() user:LoggedInUser, @Body() payload: CreateBranchDto) {
+  async create(
+    // @AuthUser() user: LoggedInUser,
+    @AuthComapny() company: activeCompaany,
+    @Body() payload: CreateBranchDto,
+  ) {
     try {
-      const result = await this.service.create(payload, user.userRole[0].companyId as string);
+      const result = await this.service.create(payload, company.id);
       if (result.error == 2) {
         return this.responseService.exception(result.body);
       }

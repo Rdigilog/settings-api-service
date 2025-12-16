@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Controller, Get, ServiceUnavailableException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { PrismaService } from '../config/prisma.service';
@@ -47,10 +49,10 @@ export class HealthController {
     try {
       // Check if we can query the database
       const dbHealth = await this.prismaService.healthCheck();
-      
+
       // Get available models to verify schema is loaded
       const models = await this.prismaService.models();
-      
+
       return {
         status: 'success',
         message: 'Migration system is working',

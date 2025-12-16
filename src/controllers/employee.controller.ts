@@ -1,9 +1,16 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiQuery, ApiOperation } from '@nestjs/swagger';
-import { AuthUser } from 'src/decorators/logged-in-user-decorator';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiQuery,
+  ApiOperation,
+} from '@nestjs/swagger';
+import { AuthComapny } from 'src/decorators/logged-in-user-decorator';
 import { RouteName } from 'src/decorators/route-name.decorator';
 import { AuthGuard } from 'src/guards/auth.guard';
-import type { LoggedInUser } from 'src/models/types/user.types';
+import type { activeCompaany } from 'src/models/types/user.types';
 import { EmployeeService } from 'src/services/employee.service';
 import { ResponsesService } from 'src/utils/services/responses.service';
 
@@ -26,7 +33,7 @@ export class EmployeeController {
   @ApiQuery({ name: 'sortBy', required: false, type: String })
   @Get()
   async list(
-    @AuthUser() user: LoggedInUser,
+    @AuthComapny() company: activeCompaany,
     @Query('page') page: number = 1,
     @Query('size') size: number = 50,
     @Query('search') search?: string,
@@ -35,7 +42,7 @@ export class EmployeeController {
   ) {
     try {
       const result = await this.service.list(
-        user.userRole[0].companyId as string,
+        company.id,
         page,
         size,
         search,
@@ -50,6 +57,4 @@ export class EmployeeController {
       return this.responseService.exception(e.message);
     }
   }
-
-  
 }

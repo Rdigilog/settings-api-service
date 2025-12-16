@@ -1,27 +1,29 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import {
   Body,
   Controller,
   Delete,
   Get,
-  Logger,
+  // Logger,
   Param,
   ParseUUIDPipe,
   Patch,
   Post,
-  UploadedFile,
+  // UploadedFile,
   UseGuards,
-  UseInterceptors,
+  // UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
-  ApiConsumes,
+  // ApiConsumes,
   ApiExtraModels,
   ApiOperation,
   ApiTags,
-  getSchemaPath,
+  // getSchemaPath,
 } from '@nestjs/swagger';
-import { AuthUser } from 'src/decorators/logged-in-user-decorator';
+import { AuthComapny } from 'src/decorators/logged-in-user-decorator';
 import { RouteName } from 'src/decorators/route-name.decorator';
 import { AuthGuard } from 'src/guards/auth.guard';
 import {
@@ -34,7 +36,7 @@ import {
   NotificationSettingDto,
 } from 'src/models/company/company.dto';
 import { CreateRotaRuleSettingDto } from 'src/models/company/rota-rule.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
+// import { FileInterceptor } from '@nestjs/platform-express';
 import {
   CreateLeavePolicyDto,
   UpdateLeavePolicyDto,
@@ -43,7 +45,7 @@ import {
   CreateTaskStageDto,
   UpdateTaskStageDto,
 } from 'src/models/task/create.dto';
-import type { LoggedInUser } from 'src/models/types/user.types';
+import type { activeCompaany } from 'src/models/types/user.types';
 import { CompanyService } from 'src/services/company.service';
 import { LeaveService } from 'src/services/leave.service';
 import { TaskService } from 'src/services/task.service';
@@ -84,8 +86,9 @@ export class CompanyController {
   @Patch('')
   async updateCompany(
     @Body() payload: CompanyUpdateDto,
+    @AuthComapny() company: activeCompaany,
     // @UploadedFile() banner: Express.Multer.File,
-    @AuthUser() user: LoggedInUser,
+    // @AuthUser() user: LoggedInUser,
   ) {
     try {
       // if (banner) {
@@ -95,13 +98,10 @@ export class CompanyController {
       //   // console.log(fileUploadResult)
       //   payload.bannerUrl = fileUploadResult.url;
       // }
-      if(payload['banner']){
+      if (payload['banner']) {
         delete payload['banner'];
       }
-      const result = await this.service.update(
-        payload,
-        user.userRole[0].companyId as string,
-      );
+      const result = await this.service.update(payload, company.id);
       if (result.error == 2) return this.responseService.exception(result.body);
 
       if (result.error == 1)
@@ -116,11 +116,9 @@ export class CompanyController {
   @RouteName('company.get')
   @ApiOperation({ summary: 'Get company information' })
   @Get()
-  async company(@AuthUser() user: LoggedInUser) {
+  async company(@AuthComapny() company: activeCompaany) {
     try {
-      const result = await this.service.getcompany(
-        user.userRole[0].companyId as string,
-      );
+      const result = await this.service.getcompany(company.id);
       if (result.error == 2) return this.responseService.exception(result.body);
 
       if (result.error == 1)
@@ -137,13 +135,10 @@ export class CompanyController {
   @Patch('shift')
   async updateCompanyShiftSetting(
     @Body() payload: ShiftSettingDto,
-    @AuthUser() user: LoggedInUser,
+    @AuthComapny() company: activeCompaany,
   ) {
     try {
-      const result = await this.service.setShiftSetting(
-        payload,
-        user.userRole[0].companyId as string,
-      );
+      const result = await this.service.setShiftSetting(payload, company.id);
       if (result.error == 2) return this.responseService.exception(result.body);
 
       if (result.error == 1)
@@ -158,11 +153,9 @@ export class CompanyController {
   @RouteName('company.shift.get')
   @ApiOperation({ summary: 'Get company shift settings' })
   @Get('shift')
-  async companyShiftSetting(@AuthUser() user: LoggedInUser) {
+  async companyShiftSetting(@AuthComapny() company: activeCompaany) {
     try {
-      const result = await this.service.getShiftSetting(
-        user.userRole[0].companyId as string,
-      );
+      const result = await this.service.getShiftSetting(company.id);
       if (result.error == 2) return this.responseService.exception(result.body);
 
       if (result.error == 1)
@@ -179,13 +172,10 @@ export class CompanyController {
   @Patch('rota-rule')
   async updateCompanyRotaRule(
     @Body() payload: CreateRotaRuleSettingDto,
-    @AuthUser() user: LoggedInUser,
+    @AuthComapny() company: activeCompaany,
   ) {
     try {
-      const result = await this.service.setRotaRule(
-        payload,
-        user.userRole[0].companyId as string,
-      );
+      const result = await this.service.setRotaRule(payload, company.id);
       if (result.error == 2) return this.responseService.exception(result.body);
 
       if (result.error == 1)
@@ -200,11 +190,9 @@ export class CompanyController {
   @RouteName('company.rota-rule.get')
   @ApiOperation({ summary: 'Get company rota rule settings' })
   @Get('rota-rule')
-  async companyRotaRule(@AuthUser() user: LoggedInUser) {
+  async companyRotaRule(@AuthComapny() company: activeCompaany) {
     try {
-      const result = await this.service.getRotaRule(
-        user.userRole[0].companyId as string,
-      );
+      const result = await this.service.getRotaRule(company.id);
       if (result.error == 2) return this.responseService.exception(result.body);
 
       if (result.error == 1)
@@ -221,12 +209,12 @@ export class CompanyController {
   @Patch('digi-time')
   async updateDigiTimeSetting(
     @Body() payload: DigiTimeSettingDto,
-    @AuthUser() user: LoggedInUser,
+    @AuthComapny() company: activeCompaany,
   ) {
     try {
       const result = await this.service.setDigiTimetSetting(
         payload,
-        user.userRole[0].companyId as string,
+        company.id,
       );
       if (result.error == 2) return this.responseService.exception(result.body);
 
@@ -242,11 +230,9 @@ export class CompanyController {
   @RouteName('company.digi-time.get')
   @ApiOperation({ summary: 'Get company digital time settings' })
   @Get('digi-time')
-  async companyDigiTimeSetting(@AuthUser() user: LoggedInUser) {
+  async companyDigiTimeSetting(@AuthComapny() company: activeCompaany) {
     try {
-      const result = await this.service.getDigiTimetSetting(
-        user.userRole[0].companyId as string,
-      );
+      const result = await this.service.getDigiTimetSetting(company.id);
       if (result.error == 2) return this.responseService.exception(result.body);
 
       if (result.error == 1)
@@ -263,12 +249,12 @@ export class CompanyController {
   @Patch('holiday-request')
   async updateHolidayRequest(
     @Body() payload: HolidayRequestRuleSettingDto,
-    @AuthUser() user: LoggedInUser,
+    @AuthComapny() company: activeCompaany,
   ) {
     try {
       const result = await this.service.setHolidayRequestSetting(
         payload,
-        user.userRole[0].companyId as string,
+        company.id,
       );
       if (result.error == 2) return this.responseService.exception(result.body);
 
@@ -284,11 +270,9 @@ export class CompanyController {
   @RouteName('company.holiday-request.get')
   @ApiOperation({ summary: 'Get company holiday request settings' })
   @Get('holiday-request')
-  async companyHolidayRequest(@AuthUser() user: LoggedInUser) {
+  async companyHolidayRequest(@AuthComapny() company: activeCompaany) {
     try {
-      const result = await this.service.getHolidayRequestSetting(
-        user.userRole[0].companyId as string,
-      );
+      const result = await this.service.getHolidayRequestSetting(company.id);
       if (result.error == 2) return this.responseService.exception(result.body);
 
       if (result.error == 1)
@@ -305,13 +289,10 @@ export class CompanyController {
   @Patch('breaks')
   async updateBreaks(
     @Body() payload: BreakComplianceSettingDto,
-    @AuthUser() user: LoggedInUser,
+    @AuthComapny() company: activeCompaany,
   ) {
     try {
-      const result = await this.service.setBreaks(
-        payload,
-        user.userRole[0].companyId as string,
-      );
+      const result = await this.service.setBreaks(payload, company.id);
       if (result.error == 2) return this.responseService.exception(result.body);
 
       if (result.error == 1)
@@ -326,11 +307,12 @@ export class CompanyController {
   @RouteName('company.breaks.get')
   @ApiOperation({ summary: 'Get company break compliance settings' })
   @Get('breaks')
-  async companyBreaks(@AuthUser() user: LoggedInUser) {
+  async companyBreaks(
+    // @AuthUser() user: LoggedInUser,
+    @AuthComapny() company: activeCompaany,
+  ) {
     try {
-      const result = await this.service.getBreaks(
-        user.userRole[0].companyId as string,
-      );
+      const result = await this.service.getBreaks(company.id);
       if (result.error == 2) return this.responseService.exception(result.body);
 
       if (result.error == 1)
@@ -345,14 +327,11 @@ export class CompanyController {
   @Post('leave-policy')
   @ApiOperation({ summary: 'Create a new leave policy' })
   async createLeavePolicy(
-    @AuthUser() user: LoggedInUser,
+    @AuthComapny() company: activeCompaany,
     @Body() dto: CreateLeavePolicyDto,
   ) {
     try {
-      const result = await this.leaveService.createLeavePolicy(
-        user.userRole[0].companyId as string,
-        dto,
-      );
+      const result = await this.leaveService.createLeavePolicy(company.id, dto);
 
       if (result.error === 2)
         return this.responseService.exception(result.body);
@@ -367,11 +346,12 @@ export class CompanyController {
 
   @Get('leave-policy')
   @ApiOperation({ summary: 'Get all leave policies for the company' })
-  async findAllLeavePolicy(@AuthUser() user: LoggedInUser) {
+  async findAllLeavePolicy(
+    // @AuthUser() user: LoggedInUser
+    @AuthComapny() company: activeCompaany,
+  ) {
     try {
-      const result = await this.leaveService.findAllLeavePolicy(
-        user.userRole[0].companyId as string,
-      );
+      const result = await this.leaveService.findAllLeavePolicy(company.id);
 
       if (result.error === 2)
         return this.responseService.exception(result.body);
@@ -387,14 +367,11 @@ export class CompanyController {
   @Get('leave-policy/:id')
   @ApiOperation({ summary: 'Get a single leave policy by ID' })
   async findOneLeavePolicy(
-    @AuthUser() user: LoggedInUser,
+    @AuthComapny() company: activeCompaany,
     @Param('id', ParseUUIDPipe) id: string,
   ) {
     try {
-      const result = await this.leaveService.findOneLeavePolicy(
-        user.userRole[0].companyId as string,
-        id,
-      );
+      const result = await this.leaveService.findOneLeavePolicy(company.id, id);
 
       if (result.error === 2)
         return this.responseService.exception(result.body);
@@ -410,13 +387,13 @@ export class CompanyController {
   @Patch('leave-policy/:id')
   @ApiOperation({ summary: 'Update a leave policy' })
   async updateLeavePolicy(
-    @AuthUser() user: LoggedInUser,
+    @AuthComapny() company: activeCompaany,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateLeavePolicyDto,
   ) {
     try {
       const result = await this.leaveService.updateLeavePolicy(
-        user.userRole[0].companyId as string,
+        company.id,
         id,
         dto,
       );
@@ -435,14 +412,11 @@ export class CompanyController {
   @Delete('leave-policy/:id')
   @ApiOperation({ summary: 'Delete a leave policy' })
   async removeLeavePolicy(
-    @AuthUser() user: LoggedInUser,
+    @AuthComapny() company: activeCompaany,
     @Param('id', ParseUUIDPipe) id: string,
   ) {
     try {
-      const result = await this.leaveService.removeLeavePolicy(
-        user.userRole[0].companyId as string,
-        id,
-      );
+      const result = await this.leaveService.removeLeavePolicy(company.id, id);
 
       if (result.error === 2)
         return this.responseService.exception(result.body);
@@ -459,14 +433,11 @@ export class CompanyController {
   @Post('task-stage')
   @ApiOperation({ summary: 'Create a new task stage' })
   async createStage(
-    @AuthUser() user: LoggedInUser,
+    @AuthComapny() company: activeCompaany,
     @Body() dto: CreateTaskStageDto,
   ) {
     try {
-      const result = await this.taskService.createStage(
-        user.userRole[0].companyId as string,
-        dto,
-      );
+      const result = await this.taskService.createStage(company.id, dto);
 
       if (result.error == 2) return this.responseService.exception(result.body);
       if (result.error == 1)
@@ -481,12 +452,9 @@ export class CompanyController {
   @RouteName('company.task-stage.list')
   @Get('task-stage')
   @ApiOperation({ summary: 'List all task stages for the company' })
-  async listStages(
-    @AuthUser() user: LoggedInUser) {
+  async listStages(@AuthComapny() company: activeCompaany) {
     try {
-      const result = await this.taskService.listStages(
-        user.userRole[0].companyId as string,
-      );
+      const result = await this.taskService.listStages(company.id);
 
       if (result.error == 2) return this.responseService.exception(result.body);
       if (result.error == 1)
@@ -502,14 +470,17 @@ export class CompanyController {
   @Patch('notification-setting')
   @ApiOperation({ summary: 'Create a new task stage' })
   async updateCompanyNotificationSetting(
-    @AuthUser() user: LoggedInUser,
+    @AuthComapny() company: activeCompaany,
     @Body() dto: NotificationSettingDto,
   ) {
     try {
-    const companyId = user.userRole[0].companyId as string;
-    const result = await this.service.updatecompanyNotification(companyId, dto);
+      const companyId = company.id;
+      const result = await this.service.updatecompanyNotification(
+        companyId,
+        dto,
+      );
 
-      if (result.error== 2) return this.responseService.exception(result.body);
+      if (result.error == 2) return this.responseService.exception(result.body);
       if (result.error == 1)
         return this.responseService.badRequest(result.body);
 
@@ -522,12 +493,9 @@ export class CompanyController {
   @RouteName('company.task-stage.list')
   @Get('notification-setting')
   @ApiOperation({ summary: 'List all task stages for the company' })
-  async getCompanyNotificationSetting(
-    @AuthUser() user: LoggedInUser) {
+  async getCompanyNotificationSetting(@AuthComapny() company: activeCompaany) {
     try {
-      const result = await this.service.getNotificationSetting(
-        user.userRole[0].companyId as string,
-      );
+      const result = await this.service.getNotificationSetting(company.id);
 
       if (result.error == 2) return this.responseService.exception(result.body);
       if (result.error == 1)
@@ -542,12 +510,15 @@ export class CompanyController {
   @Patch('activity-tracking')
   @ApiOperation({ summary: 'Create a new task stage' })
   async updateActivitiyTrackingSetting(
-    @AuthUser() user: LoggedInUser,
+    @AuthComapny() company: activeCompaany,
     @Body() dto: ActivityTrackingSettingDto,
   ) {
     try {
-    const companyId = user.userRole[0].companyId as string;
-    const result = await this.service.updateActivityTrackingSetting(companyId, dto);
+      const companyId = company.id;
+      const result = await this.service.updateActivityTrackingSetting(
+        companyId,
+        dto,
+      );
 
       if (result.error == 2) return this.responseService.exception(result.body);
       if (result.error == 1)
@@ -563,11 +534,11 @@ export class CompanyController {
   @Get('activity-tracking')
   @ApiOperation({ summary: 'List all task stages for the company' })
   async getActivityTracking(
-    @AuthUser() user: LoggedInUser) {
+    // @AuthUser() user: LoggedInUser,
+    @AuthComapny() company: activeCompaany,
+  ) {
     try {
-      const result = await this.service.getActivityTrackingSetting(
-        user.userRole[0].companyId as string,
-      );
+      const result = await this.service.getActivityTrackingSetting(company.id);
 
       if (result.error == 2) return this.responseService.exception(result.body);
       if (result.error == 1)
@@ -584,13 +555,11 @@ export class CompanyController {
   @ApiOperation({ summary: 'Update a Pay rate' })
   @ApiBody({ type: [EmployeeSettingDto] })
   async updatePayRate(
-    @AuthUser() user: LoggedInUser, 
-    @Body() dto: EmployeeSettingDto[]) {
+    @AuthComapny() company: activeCompaany,
+    @Body() dto: EmployeeSettingDto[],
+  ) {
     try {
-      const result = await this.service.updatePayRate(
-        dto,
-        user.userRole[0].companyId as string,
-      );
+      const result = await this.service.updatePayRate(dto, company.id);
 
       if (result.error == 2) return this.responseService.exception(result.body);
       if (result.error == 1)
@@ -606,16 +575,12 @@ export class CompanyController {
   @Patch('task-stage/:id')
   @ApiOperation({ summary: 'Update a task stage' })
   async updateStage(
-    @AuthUser() user: LoggedInUser,
+    @AuthComapny() company: activeCompaany,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateTaskStageDto,
   ) {
     try {
-      const result = await this.taskService.updateStage(
-        user.userRole[0].companyId as string,
-        id,
-        dto,
-      );
+      const result = await this.taskService.updateStage(company.id, id, dto);
 
       if (result.error == 2) return this.responseService.exception(result.body);
       if (result.error == 1)

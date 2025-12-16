@@ -1,13 +1,10 @@
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "src/config/prisma.service";
-
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/config/prisma.service';
 
 @Injectable()
 export class UserService {
-  constructor(
-    private readonly prismaService: PrismaService,
-  ) {
-  }
+  constructor(private readonly prismaService: PrismaService) {}
 
   async findByUsername(username: any) {
     const result = await this.prismaService.user.findFirstOrThrow({
@@ -32,10 +29,15 @@ export class UserService {
         profile: true,
         password: includePassword,
         userRole: {
-          select: { companyId:true, role: true, company: true },
+          select: { companyId: true, role: true, company: true },
         },
       },
     });
   }
 
+  async findComapnyById(companyId: string) {
+    return await this.prismaService.company.findUnique({
+      where: { id: companyId },
+    });
+  }
 }

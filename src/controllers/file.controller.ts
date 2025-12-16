@@ -1,5 +1,15 @@
-import { Controller, Post, UploadedFile, UploadedFiles, UseInterceptors } from '@nestjs/common';
-import { FileInterceptor, FileFieldsInterceptor } from '@nestjs/platform-express';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import {
+  Controller,
+  Post,
+  UploadedFile,
+  UploadedFiles,
+  UseInterceptors,
+} from '@nestjs/common';
+import {
+  FileInterceptor,
+  FileFieldsInterceptor,
+} from '@nestjs/platform-express';
 import { ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { FileUploadService } from 'src/utils/services/file-upload.service';
 import { ResponsesService } from 'src/utils/services/responses.service';
@@ -61,18 +71,20 @@ export class FileController {
   @UseInterceptors(FileFieldsInterceptor([{ name: 'files', maxCount: 10 }]))
   async uploadFiles(@UploadedFiles() files?: { files?: any[] }) {
     try {
-        if(files?.files){
-            const filesData = await Promise.all(
-              files?.files.map(async (file) => {
-                console.log(file);
-                const result = await this.fileUploadService.uploadPicture(file);
-                return result;
-              }),
-            );
-            return this.responseService.success(filesData);
-        }else {
-            return this.responseService.badRequest('You need upload at least one file')
-        }
+      if (files?.files) {
+        const filesData = await Promise.all(
+          files?.files.map(async (file) => {
+            console.log(file);
+            const result = await this.fileUploadService.uploadPicture(file);
+            return result;
+          }),
+        );
+        return this.responseService.success(filesData);
+      } else {
+        return this.responseService.badRequest(
+          'You need upload at least one file',
+        );
+      }
     } catch (e) {
       console.log(e.message);
       return this.responseService.exception(e.message);

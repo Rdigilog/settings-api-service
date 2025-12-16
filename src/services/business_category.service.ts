@@ -5,10 +5,12 @@ import { CreateJobRoleDto } from 'src/models/company/job-role.dto';
 import { ResponsesService } from 'src/utils/services/responses.service';
 
 @Injectable()
-export class BusinessCategoryService extends PrismaService {
-  constructor(private readonly responseService: ResponsesService) {
-    super();
-  }
+export class BusinessCategoryService {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly responseService: ResponsesService,
+  ) {}
+
   async list(
     companyId: string,
     page: number,
@@ -19,12 +21,21 @@ export class BusinessCategoryService extends PrismaService {
   ) {
     try {
       const { offset, limit } = this.responseService.pagination(page, size);
+
       const filter: Prisma.BusinessCategoryWhereInput = { companyId };
+
       if (search) {
-        filter.OR = [];
+        filter.OR = [
+          {
+            name: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+        ];
       }
 
-      const result = await this.businessCategory.findMany({
+      const result = await this.prisma.businessCategory.findMany({
         where: filter,
         orderBy: {
           [sortBy]: sortDirection,
@@ -33,16 +44,17 @@ export class BusinessCategoryService extends PrismaService {
         take: limit,
       });
 
-      // if (result.length) {
-      const totalItems = await this.businessCategory.count({ where: filter });
+      const totalItems = await this.prisma.businessCategory.count({
+        where: filter,
+      });
+
       const paginatedProduct = this.responseService.pagingData(
         { result, totalItems },
         page,
         limit,
       );
+
       return { error: 0, body: paginatedProduct };
-      // }
-      // return { error: 1, body: 'No Record found' };
     } catch (e) {
       console.error(e);
       return this.responseService.errorHandler(e);
@@ -52,29 +64,35 @@ export class BusinessCategoryService extends PrismaService {
   async create(payload: CreateJobRoleDto, companyId: string) {
     try {
       const { name } = payload;
-      const result = await this.businessCategory.create({
+
+      const result = await this.prisma.businessCategory.create({
         data: {
           name,
           companyId,
         },
       });
+
       return { error: 0, body: result };
     } catch (e) {
       return this.responseService.errorHandler(e);
     }
   }
 
-  async delete(name: string, companyId:string) {
+  async delete(name: string, companyId: string) {
     try {
-      const result = await this.businessCategory.delete({
+      await this.prisma.businessCategory.delete({
         where: {
-          name_companyId:{
+          name_companyId: {
             name,
-            companyId
-          }
+            companyId,
+          },
         },
       });
-      return { error: 0, body: 'Job Role deleted successfully' };
+
+      return {
+        error: 0,
+        body: 'Job Role deleted successfully',
+      };
     } catch (e) {
       return this.responseService.errorHandler(e);
     }

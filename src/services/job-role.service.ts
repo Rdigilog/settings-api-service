@@ -5,9 +5,12 @@ import { CreateJobRoleDto } from 'src/models/company/job-role.dto';
 import { ResponsesService } from 'src/utils/services/responses.service';
 
 @Injectable()
-export class JobRoleService extends PrismaService {
-  constructor(private readonly responseService: ResponsesService) {
-    super();
+export class JobRoleService {
+  constructor(
+    private readonly responseService: ResponsesService,
+    private readonly prisma: PrismaService,
+  ) {
+    // super();
   }
 
   async list(
@@ -25,7 +28,7 @@ export class JobRoleService extends PrismaService {
         filter.OR = [];
       }
 
-      const result = await this.jobRole.findMany({
+      const result = await this.prisma.jobRole.findMany({
         where: filter,
         include: {
           company: {
@@ -43,7 +46,7 @@ export class JobRoleService extends PrismaService {
       });
 
       // if (result.length) {
-      const totalItems = await this.jobRole.count({ where: filter });
+      const totalItems = await this.prisma.jobRole.count({ where: filter });
       const paginatedProduct = this.responseService.pagingData(
         { result, totalItems },
         page,
@@ -60,7 +63,7 @@ export class JobRoleService extends PrismaService {
 
   async create(payload: CreateJobRoleDto, companyId: string) {
     try {
-      const result = await this.jobRole.create({
+      const result = await this.prisma.jobRole.create({
         data: {
           ...payload,
           company: {
@@ -78,7 +81,7 @@ export class JobRoleService extends PrismaService {
 
   async update(payload: Partial<CreateJobRoleDto>, id: string) {
     try {
-      const result = await this.jobRole.update({
+      const result = await this.prisma.jobRole.update({
         where: {
           id,
         },
@@ -94,11 +97,11 @@ export class JobRoleService extends PrismaService {
 
   async delete(id: string) {
     try {
-      await this.jobInformation.updateMany({
+      await this.prisma.jobInformation.updateMany({
         where: { jobRoleId: id },
         data: { jobRoleId: null },
       });
-      const result = await this.jobRole.delete({
+      await this.prisma.jobRole.delete({
         where: {
           id,
         },
@@ -113,10 +116,10 @@ export class JobRoleService extends PrismaService {
     try {
       const result = await Promise.all(
         userId.map(async (id) => {
-          const employee = await this.employee.findFirst({
+          const employee = await this.prisma.employee.findFirst({
             where: { userId: id },
           });
-          return await this.jobInformation.upsert({
+          return await this.prisma.jobInformation.upsert({
             where: { employeeId: employee?.id },
             update: {
               jobRole: {

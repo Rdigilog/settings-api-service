@@ -1,16 +1,17 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   CanActivate,
   ExecutionContext,
   Injectable,
-  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { UserService } from 'src/services/user.service';
 import { ConfigService } from '@nestjs/config';
-import { CONFIG_KEYS } from '../config/config.keys';
-import { logger } from 'handlebars';
+// import { CONFIG_KEYS } from '../config/config.keys';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -28,18 +29,26 @@ export class AuthGuard implements CanActivate {
     }
     try {
       const payload = await this.jwtService.verifyAsync(token, {
-        secret: this.configService.get<string>(CONFIG_KEYS.JWT_SECRET),
+        secret: this.configService.get<string>('JWT_SECRET'),
       });
       const result = await this.userService.findById(payload.sub);
       if (!result) {
         throw new UnauthorizedException();
       }
+
+      const companyId = this.extractCompanyIdFromHeader(request);
+      if (companyId) {
+        const company = await this.userService.findComapnyById(companyId);
+        if (!company) {
+          throw new UnauthorizedException();
+        }
+        request['company'] = company;
+      }
       // 💡 We're assigning the payload to the request object here
       // so that we can access it in our route handlers
       request['user'] = result;
       // console.log(request.user);
-    } catch(e){
-      Logger.debug(e)
+    } catch {
       throw new UnauthorizedException();
     }
     return true;
@@ -48,5 +57,10 @@ export class AuthGuard implements CanActivate {
   private extractTokenFromHeader(request: Request): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
+  }
+
+  private extractCompanyIdFromHeader(request: Request): string | undefined {
+    return (request.headers['x-company-id'] ||
+      request.headers['X-Company-Id']) as string | undefined;
   }
 }

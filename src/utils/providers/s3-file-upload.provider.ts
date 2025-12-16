@@ -40,7 +40,8 @@ export class S3FileUploadProvider implements FileUploadProvider {
       )}/${fileName}`;
       const uploadResult = await this.s3
         .upload({
-          Bucket: this.configService.get(CONFIG_KEYS.AWS_S3_BUCKET) || 'DigiLog',
+          Bucket:
+            this.configService.get(CONFIG_KEYS.AWS_S3_BUCKET) || 'DigiLog',
           Body: file.buffer,
           Key: `${newFileName}${file.fieldname}${file.fieldname}`,
           ContentType: file.mimetype,
