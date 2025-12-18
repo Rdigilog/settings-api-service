@@ -8,12 +8,15 @@ import {
   MaxLength,
 } from 'class-validator';
 import { TicketPriority } from '@prisma/client';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class SendTicketMessageDto {
+  @ApiProperty({ description: 'Full name of the employee' })
   @IsString()
   @IsNotEmpty()
   message: string;
 
+  @ApiProperty({ description: 'Full name of the employee' })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
@@ -21,11 +24,13 @@ export class SendTicketMessageDto {
 }
 
 export class CreateTicketDto extends SendTicketMessageDto {
+  @ApiProperty({ description: 'Full name of the employee' })
   @IsString()
   @IsNotEmpty()
   @MaxLength(255)
   subject: string;
 
+  @ApiProperty({ description: 'Full name of the employee' })
   @IsEnum(TicketPriority)
   @IsOptional()
   priority?: TicketPriority;
