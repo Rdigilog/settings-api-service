@@ -27,6 +27,8 @@ import { validationSchema } from './config/validation.schema';
 import { BusinessCategoryService } from './services/business_category.service';
 import { BusinessCategoryController } from './controllers/business_category.controller';
 import { FileController } from './controllers/file.controller';
+import { SupportService } from './services/support.service';
+import { SupportController } from './controllers/support.controller';
 
 @Module({
   imports: [
@@ -56,6 +58,7 @@ import { FileController } from './controllers/file.controller';
     HealthController,
     BusinessCategoryController,
     FileController,
+    SupportController,
   ],
   providers: [
     {
@@ -71,6 +74,7 @@ import { FileController } from './controllers/file.controller';
     UserService,
     PrismaService,
     BusinessCategoryService,
+    SupportService,
   ],
 })
 export class AppModule {}
