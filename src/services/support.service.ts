@@ -44,6 +44,7 @@ export class SupportService {
             senderId: userId,
             senderType: MessageSenderType.USER,
             message: payload.message,
+            attachments: payload.attachments,
           },
         });
 
@@ -125,6 +126,9 @@ export class SupportService {
           createdById: userId,
         },
         include: {
+          assignedTo: {
+            select: { id: true, email: true, lastName: true, firstName: true },
+          },
           messages: {
             // where: { isInternal: false },
             orderBy: { createdAt: 'asc' },
@@ -209,6 +213,7 @@ export class SupportService {
             ? MessageSenderType.AGENT
             : MessageSenderType.USER,
           message: payload.message,
+          attachments: payload.attachments,
           //   isInternal: isAgent ? payload.isInternal ?? false : false,
         },
       });

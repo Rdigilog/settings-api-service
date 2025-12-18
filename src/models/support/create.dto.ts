@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 import {
+  IsArray,
   IsEnum,
   IsNotEmpty,
   IsOptional,
@@ -8,27 +9,25 @@ import {
 } from 'class-validator';
 import { TicketPriority } from '@prisma/client';
 
-export class CreateTicketDto {
+export class SendTicketMessageDto {
+  @IsString()
+  @IsNotEmpty()
+  message: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  attachments?: string[];
+}
+
+export class CreateTicketDto extends SendTicketMessageDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(255)
   subject: string;
 
-  @IsString()
-  @IsNotEmpty()
-  message: string;
-
   @IsEnum(TicketPriority)
   @IsOptional()
   priority?: TicketPriority;
 
-  @IsString()
-  @IsOptional()
-  categoryId?: string;
-}
-
-export class SendTicketMessageDto {
-  @IsString()
-  @IsNotEmpty()
-  message: string;
 }
