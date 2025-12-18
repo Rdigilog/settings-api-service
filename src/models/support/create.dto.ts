@@ -29,5 +29,4 @@ export class CreateTicketDto extends SendTicketMessageDto {
   @IsEnum(TicketPriority)
   @IsOptional()
   priority?: TicketPriority;
-
 }
