@@ -1,4 +1,5 @@
-import { registerAs } from '@nestjs/config';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+// import { registerAs } from '@nestjs/config';
 import { AwsSecretsService } from './aws-secrets.service';
 
 export interface Configuration {
@@ -32,36 +33,36 @@ export interface Configuration {
  */
 export async function getConfigValues(): Promise<Partial<Configuration>> {
   // When working locally, use local environment in .env file
-  const nodeEnv = process.env.NODE_ENV || 'development';
+  // const nodeEnv = process.env.NODE_ENV || 'development';
 
   // For local development, use environment variables
-  if (nodeEnv === 'local') {
-    return {
-      port: parseInt(process.env.PORT || '3001', 10),
-      nodeEnv: process.env.NODE_ENV || 'local',
-      jwt: {
-        secret: process.env.JWT_SECRET || '',
-        expirationTime: process.env.JWT_EXPIRATION_TIME || '1h',
-      },
-      database: {
-        url: process.env.DATABASE_URL || '',
-        replicaUrl: process.env.DATABASE_URL_REPLICA || '',
-        autoMigrate: process.env.AUTO_MIGRATE || 'false',
-      },
-      redis: {
-        url: process.env.REDIS_URL || '',
-      },
-      mail: {
-        host: process.env.MAIL_HOST || '',
-        port: parseInt(process.env.MAIL_PORT || '465', 10),
-        user: process.env.MAIL_USER || '',
-        pass: process.env.MAIL_PASS || '',
-      },
-      fileUpload: {
-        provider: process.env.FILE_UPLOAD_PROVIDER || '',
-      },
-    };
-  }
+  // if (nodeEnv === 'local') {
+  return {
+    port: parseInt(process.env.PORT || '3001', 10),
+    nodeEnv: process.env.NODE_ENV || 'local',
+    jwt: {
+      secret: process.env.JWT_SECRET || '',
+      expirationTime: process.env.JWT_EXPIRATION_TIME || '1h',
+    },
+    database: {
+      url: process.env.DATABASE_URL || '',
+      replicaUrl: process.env.DATABASE_URL_REPLICA || '',
+      autoMigrate: process.env.AUTO_MIGRATE || 'false',
+    },
+    redis: {
+      url: process.env.REDIS_URL || '',
+    },
+    mail: {
+      host: process.env.MAIL_HOST || '',
+      port: parseInt(process.env.MAIL_PORT || '465', 10),
+      user: process.env.MAIL_USER || '',
+      pass: process.env.MAIL_PASS || '',
+    },
+    fileUpload: {
+      provider: process.env.FILE_UPLOAD_PROVIDER || '',
+    },
+  };
+  // }
 
   // For development and production, use AWS Secrets Manager
   try {
