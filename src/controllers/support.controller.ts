@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import {
@@ -65,6 +64,9 @@ export class SupportController {
     @Query('sortBy') sortBy?: string,
   ) {
     try {
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       const result = await this.service.list(
         company.id,
         page,
@@ -97,6 +99,9 @@ export class SupportController {
     @AuthComapny() company: activeCompaany,
   ) {
     try {
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       const result = await this.service.create(payload, user.id, company.id);
 
       if (result.error == 2) {

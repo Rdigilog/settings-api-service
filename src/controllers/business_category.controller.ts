@@ -50,7 +50,7 @@ export class BusinessCategoryController {
   @ApiQuery({ name: 'sortBy', required: false, type: String })
   @Get()
   async list(
-    @AuthUser() user: LoggedInUser,
+    // @AuthUser() user: LoggedInUser,
     @AuthComapny() company: activeCompaany,
     @Query('page') page: number = 1,
     @Query('size') size: number = 50,
@@ -59,6 +59,9 @@ export class BusinessCategoryController {
     @Query('sortBy') sortBy?: string,
   ) {
     try {
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       const result = await this.service.list(
         company.id,
         page,
@@ -80,14 +83,14 @@ export class BusinessCategoryController {
   @ApiOperation({ summary: 'Create a new job role' })
   @Post()
   async create(
-    @AuthUser() user: LoggedInUser,
+    @AuthComapny() company: activeCompaany,
     @Body() payload: CreateJobRoleDto,
   ) {
     try {
-      const result = await this.service.create(
-        payload,
-        user.userRole[0].companyId as string,
-      );
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
+      const result = await this.service.create(payload, company.id);
       if (result.error == 2) {
         return this.responseService.exception(result.body);
       }

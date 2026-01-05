@@ -49,7 +49,7 @@ import type { activeCompaany } from 'src/models/types/user.types';
 import { CompanyService } from 'src/services/company.service';
 import { LeaveService } from 'src/services/leave.service';
 import { TaskService } from 'src/services/task.service';
-import { FileUploadService } from 'src/utils/services/file-upload.service';
+// import { FileUploadService } from 'src/utils/services/file-upload.service';
 import { ResponsesService } from 'src/utils/services/responses.service';
 import { EmployeeSettingDto } from 'src/models/company/employee.dto';
 
@@ -63,7 +63,7 @@ export class CompanyController {
     private readonly responseService: ResponsesService,
     private readonly leaveService: LeaveService,
     private readonly taskService: TaskService,
-    private readonly fileUploadService: FileUploadService,
+    // private readonly fileUploadService: FileUploadService,
   ) {}
 
   // @UseInterceptors(FileInterceptor('banner'))
@@ -91,13 +91,9 @@ export class CompanyController {
     // @AuthUser() user: LoggedInUser,
   ) {
     try {
-      // if (banner) {
-      //   // this.fileRemovalQueue.add('REMOVE_PROFILE_PIC', profile?.imageUrl);
-      //   const fileUploadResult =
-      //     await this.fileUploadService.uploadPicture(banner);
-      //   // console.log(fileUploadResult)
-      //   payload.bannerUrl = fileUploadResult.url;
-      // }
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       if (payload['banner']) {
         delete payload['banner'];
       }
@@ -118,6 +114,9 @@ export class CompanyController {
   @Get()
   async company(@AuthComapny() company: activeCompaany) {
     try {
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       const result = await this.service.getcompany(company.id);
       if (result.error == 2) return this.responseService.exception(result.body);
 
@@ -138,6 +137,9 @@ export class CompanyController {
     @AuthComapny() company: activeCompaany,
   ) {
     try {
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       const result = await this.service.setShiftSetting(payload, company.id);
       if (result.error == 2) return this.responseService.exception(result.body);
 
@@ -155,6 +157,9 @@ export class CompanyController {
   @Get('shift')
   async companyShiftSetting(@AuthComapny() company: activeCompaany) {
     try {
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       const result = await this.service.getShiftSetting(company.id);
       if (result.error == 2) return this.responseService.exception(result.body);
 
@@ -175,6 +180,9 @@ export class CompanyController {
     @AuthComapny() company: activeCompaany,
   ) {
     try {
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       const result = await this.service.setRotaRule(payload, company.id);
       if (result.error == 2) return this.responseService.exception(result.body);
 
@@ -192,6 +200,9 @@ export class CompanyController {
   @Get('rota-rule')
   async companyRotaRule(@AuthComapny() company: activeCompaany) {
     try {
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       const result = await this.service.getRotaRule(company.id);
       if (result.error == 2) return this.responseService.exception(result.body);
 
@@ -212,6 +223,9 @@ export class CompanyController {
     @AuthComapny() company: activeCompaany,
   ) {
     try {
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       const result = await this.service.setDigiTimetSetting(
         payload,
         company.id,
@@ -232,6 +246,9 @@ export class CompanyController {
   @Get('digi-time')
   async companyDigiTimeSetting(@AuthComapny() company: activeCompaany) {
     try {
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       const result = await this.service.getDigiTimetSetting(company.id);
       if (result.error == 2) return this.responseService.exception(result.body);
 
@@ -252,6 +269,9 @@ export class CompanyController {
     @AuthComapny() company: activeCompaany,
   ) {
     try {
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       const result = await this.service.setHolidayRequestSetting(
         payload,
         company.id,
@@ -272,6 +292,9 @@ export class CompanyController {
   @Get('holiday-request')
   async companyHolidayRequest(@AuthComapny() company: activeCompaany) {
     try {
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       const result = await this.service.getHolidayRequestSetting(company.id);
       if (result.error == 2) return this.responseService.exception(result.body);
 
@@ -292,6 +315,9 @@ export class CompanyController {
     @AuthComapny() company: activeCompaany,
   ) {
     try {
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       const result = await this.service.setBreaks(payload, company.id);
       if (result.error == 2) return this.responseService.exception(result.body);
 
@@ -312,6 +338,9 @@ export class CompanyController {
     @AuthComapny() company: activeCompaany,
   ) {
     try {
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       const result = await this.service.getBreaks(company.id);
       if (result.error == 2) return this.responseService.exception(result.body);
 
@@ -331,6 +360,9 @@ export class CompanyController {
     @Body() dto: CreateLeavePolicyDto,
   ) {
     try {
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       const result = await this.leaveService.createLeavePolicy(company.id, dto);
 
       if (result.error === 2)
@@ -351,6 +383,9 @@ export class CompanyController {
     @AuthComapny() company: activeCompaany,
   ) {
     try {
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       const result = await this.leaveService.findAllLeavePolicy(company.id);
 
       if (result.error === 2)
@@ -371,6 +406,9 @@ export class CompanyController {
     @Param('id', ParseUUIDPipe) id: string,
   ) {
     try {
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       const result = await this.leaveService.findOneLeavePolicy(company.id, id);
 
       if (result.error === 2)
@@ -392,6 +430,9 @@ export class CompanyController {
     @Body() dto: UpdateLeavePolicyDto,
   ) {
     try {
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       const result = await this.leaveService.updateLeavePolicy(
         company.id,
         id,
@@ -416,6 +457,9 @@ export class CompanyController {
     @Param('id', ParseUUIDPipe) id: string,
   ) {
     try {
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       const result = await this.leaveService.removeLeavePolicy(company.id, id);
 
       if (result.error === 2)
@@ -437,6 +481,9 @@ export class CompanyController {
     @Body() dto: CreateTaskStageDto,
   ) {
     try {
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       const result = await this.taskService.createStage(company.id, dto);
 
       if (result.error == 2) return this.responseService.exception(result.body);
@@ -454,6 +501,9 @@ export class CompanyController {
   @ApiOperation({ summary: 'List all task stages for the company' })
   async listStages(@AuthComapny() company: activeCompaany) {
     try {
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       const result = await this.taskService.listStages(company.id);
 
       if (result.error == 2) return this.responseService.exception(result.body);
@@ -474,6 +524,9 @@ export class CompanyController {
     @Body() dto: NotificationSettingDto,
   ) {
     try {
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       const companyId = company.id;
       const result = await this.service.updatecompanyNotification(
         companyId,
@@ -495,6 +548,9 @@ export class CompanyController {
   @ApiOperation({ summary: 'List all task stages for the company' })
   async getCompanyNotificationSetting(@AuthComapny() company: activeCompaany) {
     try {
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       const result = await this.service.getNotificationSetting(company.id);
 
       if (result.error == 2) return this.responseService.exception(result.body);
@@ -514,6 +570,9 @@ export class CompanyController {
     @Body() dto: ActivityTrackingSettingDto,
   ) {
     try {
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       const companyId = company.id;
       const result = await this.service.updateActivityTrackingSetting(
         companyId,
@@ -538,6 +597,9 @@ export class CompanyController {
     @AuthComapny() company: activeCompaany,
   ) {
     try {
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       const result = await this.service.getActivityTrackingSetting(company.id);
 
       if (result.error == 2) return this.responseService.exception(result.body);
@@ -559,6 +621,9 @@ export class CompanyController {
     @Body() dto: EmployeeSettingDto[],
   ) {
     try {
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       const result = await this.service.updatePayRate(dto, company.id);
 
       if (result.error == 2) return this.responseService.exception(result.body);
@@ -580,6 +645,9 @@ export class CompanyController {
     @Body() dto: UpdateTaskStageDto,
   ) {
     try {
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       const result = await this.taskService.updateStage(company.id, id, dto);
 
       if (result.error == 2) return this.responseService.exception(result.body);

@@ -58,6 +58,9 @@ export class BranchController {
     @Query('sortBy') sortBy?: string,
   ) {
     try {
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       const result = await this.service.list(
         company.id,
         page,
@@ -84,6 +87,9 @@ export class BranchController {
     @Body() payload: CreateBranchDto,
   ) {
     try {
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       const result = await this.service.create(payload, company.id);
       if (result.error == 2) {
         return this.responseService.exception(result.body);

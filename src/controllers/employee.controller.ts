@@ -41,6 +41,9 @@ export class EmployeeController {
     @Query('sortBy') sortBy?: string,
   ) {
     try {
+      if (!company) {
+        return this.responseService.badRequest('No company specified');
+      }
       const result = await this.service.list(
         company.id,
         page,
