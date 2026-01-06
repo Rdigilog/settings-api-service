@@ -125,6 +125,25 @@ export class BranchService {
     }
   }
 
+  async delete(branchId: string) {
+    try {
+      await this.prisma.employeeBranch.deleteMany({
+        where: {
+          branchId,
+        },
+      });
+
+      const result = await this.prisma.branch.delete({
+        where: {
+          id: branchId,
+        },
+      });
+      return { error: 0, body: result };
+    } catch (e) {
+      return this.responseService.errorHandler(e);
+    }
+  }
+
   async assingToBranch(payload: AssignBranchUserDto, branchId: string) {
     try {
       const result = await this.prisma.employeeBranch.createMany({

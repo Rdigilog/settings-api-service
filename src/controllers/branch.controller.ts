@@ -145,6 +145,24 @@ export class BranchController {
     }
   }
 
+  @RouteName('branch.delete')
+  @ApiOperation({ summary: 'delete a branch' })
+  @Delete(':branchId')
+  async deleteBranch(@Param('branchId') branchId: string) {
+    try {
+      const result = await this.service.delete(branchId);
+      if (result.error == 2) {
+        return this.responseService.exception(result.body);
+      }
+      if (result.error == 1) {
+        return this.responseService.badRequest(result.body);
+      }
+      return this.responseService.success(result.body);
+    } catch (e) {
+      return this.responseService.exception(e.message);
+    }
+  }
+
   @RouteName('branch.update')
   @ApiOperation({ summary: 'Update branch information' })
   @Patch(':branchId')
