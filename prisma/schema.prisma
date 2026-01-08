@@ -15,6 +15,8 @@ model User {
   providerId      String?       @map("provider_id")
   provider        String?
   type            String?
+  mfaEnabled      Boolean       @default(false) @map("mfa_enabled")
+  mfaSecret       String?       @map("mfa_secret")
   password        String?
   active          Boolean       @default(false)
   locked          Boolean       @default(false)
@@ -102,8 +104,8 @@ model EmployeeBranch {
   branchId   String @map("branch_id")
   employeeId String @map("employeeId")
 
-  branch   Branch?  @relation(fields: [branchId], references: [id])
-  employee Employee @relation(fields: [employeeId], references: [id])
+  branch   Branch?  @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
   @@id([branchId, employeeId])
   @@map("employee_branches")
@@ -148,7 +150,7 @@ model Employee {
   emergencyContact              EmergencyContact?
   jobInformation                JobInformation?
   bankInformation               BankInformation?
-  profile                       Profile                    @relation(fields: [userId], references: [userId])
+  profile                       Profile                    @relation(fields: [userId], references: [userId], onDelete: Cascade)
   company                       Company                    @relation(fields: [companyId], references: [id])
   department                    DepartmentEmployee[]
   branch                        EmployeeBranch[]
@@ -193,7 +195,7 @@ model EmergencyContact {
   address      String?
   countryCode  String?       @map("country_code")
   phoneNumber  String?       @map("phone_number")
-  employee     Employee      @relation(fields: [employeeId], references: [id])
+  employee     Employee      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
   @@map("emergency_contacts")
 }
@@ -213,7 +215,7 @@ model JobInformation {
   location       String?
   // userId         String?   @unique @map("user_id")
 
-  employee Employee @relation(fields: [employeeId], references: [id])
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   jobRole  JobRole? @relation(fields: [jobRoleId], name: "employee_job_role", references: [id])
 
   @@map("job_information")
@@ -227,7 +229,7 @@ model BankInformation {
   bankName      String? @map("bank_name")
   branchName    String? @map("branch_name")
 
-  employee Employee @relation(fields: [employeeId], references: [id])
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
   @@map("bank_information")
 }
@@ -309,6 +311,7 @@ model Company {
   ActivityTrackingEmployee  ActivityTrackingEmployee[]
   chats                     Chat[]
   dailyActivityLogs         DailyActivityLog[]
+  cardAuthorization         CardInformation[]
 
   @@map("companies")
 }
@@ -727,7 +730,7 @@ model DepartmentEmployee {
   updatedAt    DateTime @updatedAt @map("updated_at")
   archived     Boolean  @default(false)
 
-  employee   Employee   @relation(fields: [employeeId], references: [id])
+  employee   Employee   @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   department Department @relation(fields: [departmentId], references: [id])
 
   @@map("department_employees")
@@ -1127,10 +1130,13 @@ model RotaSchedule {
   weeklyPeriod   WEEKDAY[]
   effectiveDate  DateTime
   notes          String?
+  startTime      String?    @map("start_time")
+  endTime        String?    @map("end_time")
   shiftType      ShiftType  @map("shift_type")
   jobRoles       JobRole[]
   branches       Branch[]
   rotaId         String?
+  isFlexible     Boolean    @default(false)
   userClaimShift Boolean    @default(false) @map("user_clain_shift")
   employees      Employee[]
   rota           Rota?      @relation(name: "rota_schedules", fields: [rotaId], references: [id])
@@ -1208,6 +1214,9 @@ model EmployeeScheduleRequest {
   endDate DateTime @map("end_date") @db.Date
 
   reason String?
+
+  startTime String? @map("start_time")
+  endTime   String? @map("end_time")
 
   status Status @default(PENDING)
 
@@ -1570,7 +1579,7 @@ model checklist {
 
 model Export {
   id          String       @id @default(uuid())
-  employeeId  String       @map("employee_id")
+  userId      String       @map("user_id")
   type        String // 'users' | 'subscriptions' | 'companies'
   format      String // 'csv' | 'excel'
   status      ExportStatus @default(PENDING)
@@ -1590,6 +1599,7 @@ model Ticket {
   subject   String
   status    TicketStatus   @default(OPEN)
   priority  TicketPriority @default(MEDIUM)
+  category  TicketCategory @default(GENERAL)
   companyId String
 
   createdById  String
@@ -1625,6 +1635,33 @@ model TicketMessage {
 
   @@index([ticketId, createdAt])
   @@map("ticket_messages")
+}
+
+model CardInformation {
+  id String @id @default(uuid())
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  authorizationCode String @unique
+
+  last4    String
+  expMonth String
+  expYear  String
+
+  cardType String
+  brand    String
+  bank     String
+  channel  String
+  currency String
+
+  reusable Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyId])
+  @@map("card_information")
 }
 
 /// Enum for field types
@@ -1921,4 +1958,14 @@ enum MessageSenderType {
   USER
   AGENT
   SYSTEM
+}
+
+enum TicketCategory {
+  TECHNICAL
+  ACCOUNT
+  BILLING
+  ORDER
+  FEATURE
+  SECURITY
+  GENERAL
 }
