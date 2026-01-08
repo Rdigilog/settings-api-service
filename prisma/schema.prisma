@@ -182,6 +182,9 @@ model Employee {
   notifications                 Notification[]
   TaskComment                   TaskComment[]
 
+  primaryReport   JobRole[] @relation(name: "primary_report")
+  secondaryReport JobRole[] @relation(name: "secondary_report")
+
   @@unique([userId, companyId])
   @@index([userId, companyId])
   @@map("employees")
@@ -616,6 +619,8 @@ model Permission {
   updatedAt                DateTime         @updatedAt @map("updated_at")
   archived                 Boolean          @default(false)
   permissionRolePermission RolePermission[] @relation(name: "user_permission_permission")
+  JobRole                  JobRole?         @relation(fields: [jobRoleId], references: [id])
+  jobRoleId                String?
 
   @@map("permissions")
 }
@@ -1302,6 +1307,15 @@ model JobRole {
   name      String
   color     String
   companyId String @map("company_id")
+
+  primaryReportId String?
+
+  secondaryReportId String?
+
+  permissions Permission[]
+
+  primaryReport   Employee? @relation(fields: [primaryReportId], references: [id], onDelete: Cascade, name: "primary_report")
+  secondaryReport Employee? @relation(fields: [secondaryReportId], references: [id], onDelete: Cascade, name: "secondary_report")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

@@ -63,9 +63,30 @@ export class JobRoleService {
 
   async create(payload: CreateJobRoleDto, companyId: string) {
     try {
+      const { permissions, primaryReportId, secondaryReportId, ...rest } =
+        payload;
       const result = await this.prisma.jobRole.create({
         data: {
-          ...payload,
+          ...rest,
+          primaryReport: primaryReportId
+            ? {
+                connect: {
+                  id: primaryReportId,
+                },
+              }
+            : undefined,
+          secondaryReport: secondaryReportId
+            ? {
+                connect: {
+                  id: secondaryReportId,
+                },
+              }
+            : undefined,
+          permissions: permissions?.length
+            ? {
+                connect: permissions.map((id) => ({ id })),
+              }
+            : undefined,
           company: {
             connect: {
               id: companyId,
@@ -81,12 +102,34 @@ export class JobRoleService {
 
   async update(payload: Partial<CreateJobRoleDto>, id: string) {
     try {
+      const { permissions, primaryReportId, secondaryReportId, ...rest } =
+        payload;
       const result = await this.prisma.jobRole.update({
         where: {
           id,
         },
         data: {
-          ...payload,
+          ...rest,
+          primaryReport: primaryReportId
+            ? {
+                connect: {
+                  id: primaryReportId,
+                },
+              }
+            : undefined,
+          secondaryReport: secondaryReportId
+            ? {
+                connect: {
+                  id: secondaryReportId,
+                },
+              }
+            : undefined,
+          permissions: permissions?.length
+            ? {
+                deleteMany: {},
+                connect: permissions.map((id) => ({ id })),
+              }
+            : undefined,
         },
       });
       return { error: 0, body: result };

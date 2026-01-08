@@ -1,5 +1,11 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  // ArrayNotEmpty,
+  IsArray,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
 export class CreateJobRoleDto {
   @ApiProperty({ type: String, example: 'Urgent' })
@@ -9,6 +15,41 @@ export class CreateJobRoleDto {
   @ApiProperty({ type: String, example: '#FF0000' })
   @IsString()
   color: string;
+
+  @ApiPropertyOptional({
+    type: String,
+    format: 'uuid',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+    description: 'Employee ID of the primary report',
+  })
+  @IsOptional()
+  @IsUUID()
+  primaryReportId?: string;
+
+  @ApiPropertyOptional({
+    type: String,
+    format: 'uuid',
+    example: '550e8400-e29b-41d4-a716-446655440001',
+    description: 'Employee ID of the secondary report',
+  })
+  @IsOptional()
+  @IsUUID()
+  secondaryReportId?: string;
+
+  @ApiProperty({
+    type: String,
+    format: 'uuid',
+    isArray: true,
+    example: [
+      '550e8400-e29b-41d4-a716-446655440010',
+      '550e8400-e29b-41d4-a716-446655440011',
+    ],
+    description: 'Array of permission IDs (UUIDs)',
+  })
+  @IsArray()
+  // @ArrayNotEmpty()
+  @IsUUID('4', { each: true })
+  permissions: string[];
 }
 
 export class AssignJobRoleDto {
