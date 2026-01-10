@@ -1801,12 +1801,12 @@ model Onboarding {
   name        String
   description String?
 
-  companyId String
 
   steps OnboardingStep[]
 
   isActive Boolean @default(true)
 
+  companyId String
   company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
