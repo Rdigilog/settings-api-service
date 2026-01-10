@@ -23,7 +23,7 @@ import { TaskService } from './services/task.service';
 import { UserService } from './services/user.service';
 import { PrismaService } from './config/prisma.service';
 import configuration from './config/configuration';
-import { validationSchema } from './config/validation.schema';
+// import { validationSchema } from './config/validation.schema';
 import { BusinessCategoryService } from './services/business_category.service';
 import { BusinessCategoryController } from './controllers/business_category.controller';
 import { FileController } from './controllers/file.controller';
@@ -39,8 +39,8 @@ import { CourseService } from './services/course.service';
 import { CourseController } from './controllers/course.controller';
 import { OnboardingService } from './services/onboarding.service';
 import { OnboardingController } from './controllers/onboarding.controller';
-import { OnboardingStepService } from './services/onboarding-step.service';
-import { OnboardingStepController } from './controllers/onboarding-step.controller';
+// import { OnboardingStepService } from './services/onboarding-step.service';
+// import { OnboardingStepController } from './controllers/onboarding-step.controller';
 
 @Module({
   imports: [
@@ -76,7 +76,7 @@ import { OnboardingStepController } from './controllers/onboarding-step.controll
     ComplianceDocumentController,
     CourseController,
     OnboardingController,
-    OnboardingStepController,
+    // OnboardingStepController,
   ],
   providers: [
     {
@@ -98,7 +98,7 @@ import { OnboardingStepController } from './controllers/onboarding-step.controll
     ComplianceDocumentService,
     CourseService,
     OnboardingService,
-    OnboardingStepService,
+    // OnboardingStepService,
   ],
 })
 export class AppModule {}
