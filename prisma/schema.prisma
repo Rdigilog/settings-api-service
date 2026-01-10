@@ -67,11 +67,14 @@ model Profile {
   lastActive  DateTime @default(now())
   user        User     @relation(fields: [userId], references: [id], name: "user_profile")
 
+  UploadedComplianceDocs ComplianceDocument[] @relation("UploadedComplianceDocs")
+
   // profileBranch ProfileBranch[]
   status   UserStatus @default(OFFLINE)
   employee Employee?
   // branch   Branch[]
   Ticket   Ticket[]
+  Document Document[]
 
   @@map("profiles")
 }
@@ -182,8 +185,13 @@ model Employee {
   notifications                 Notification[]
   TaskComment                   TaskComment[]
 
-  primaryReport   JobRole[] @relation(name: "primary_report")
-  secondaryReport JobRole[] @relation(name: "secondary_report")
+  primaryReport      JobRole[]            @relation(name: "primary_report")
+  secondaryReport    JobRole[]            @relation(name: "secondary_report")
+  Document           Document[]
+  ComplianceDocument ComplianceDocument[]
+  Course             Course[]
+  OnboardingStep     OnboardingStep?      @relation(fields: [onboardingStepId], references: [id])
+  onboardingStepId   String?
 
   @@unique([userId, companyId])
   @@index([userId, companyId])
@@ -315,6 +323,11 @@ model Company {
   chats                     Chat[]
   dailyActivityLogs         DailyActivityLog[]
   cardAuthorization         CardInformation[]
+  Document                  Document[]
+  DocumentCategory          DocumentCategory[]
+  ComplianceDocument        ComplianceDocument[]
+  Course                    Course[]
+  Onboarding                Onboarding[]
 
   @@map("companies")
 }
@@ -1676,6 +1689,204 @@ model CardInformation {
 
   @@index([companyId])
   @@map("card_information")
+}
+
+model DocumentCategory {
+  id        String @id @default(uuid())
+  name      String
+  companyId String
+
+  company   Company    @relation(fields: [companyId], references: [id])
+  documents Document[]
+
+  createdAt DateTime @default(now())
+
+  @@map("document_categories")
+}
+
+model Document {
+  id String @id @default(uuid())
+
+  title      String
+  categoryId String
+  type       DocumentType
+
+  content String? // Rich text (HTML)
+  fileUrl String? // If file upload is used
+
+  // 🔗 Company relationship
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  // 🔗 Created by (Employee)
+  createdById String
+  createdBy   Profile @relation(fields: [createdById], references: [userId])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  category   DocumentCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  Employee   Employee?        @relation(fields: [employeeId], references: [id])
+  employeeId String?
+
+  @@index([companyId])
+  @@index([createdById])
+  @@map("documents")
+}
+
+model ComplianceDocument {
+  id String @id @default(uuid())
+
+  // 🔗 Employee this document belongs to
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  // 🔗 Company scope
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  // Document info
+  documentType ComplianceDocumentType
+  fileUrl      String
+  fileName     String
+  fileSize     Int // in bytes
+  mimeType     String
+
+  expiryDate DateTime?
+  notes      String?
+
+  // Audit
+  uploadedById String
+  uploadedBy   Profile @relation("UploadedComplianceDocs", fields: [uploadedById], references: [userId])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([employeeId])
+  @@index([companyId])
+  @@index([expiryDate])
+  @@map("compliance_documents")
+}
+
+model Course {
+  id String @id @default(uuid())
+
+  // Core fields
+  name        String
+  description String?
+  duration    String // e.g. "2 hours", "1 day"
+  category    String // e.g. "Compliance", "Leadership"
+  isRequired  Boolean @default(false)
+
+  // 🔗 Company scope
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  // 🔗 Created by (employee/admin)
+  createdById String
+  createdBy   Employee @relation(fields: [createdById], references: [id])
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyId])
+  @@index([category])
+  @@index([isRequired])
+  @@map("courses")
+}
+
+model Onboarding {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+
+  companyId String
+
+  steps OnboardingStep[]
+
+  isActive Boolean @default(true)
+
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("onboardings")
+}
+
+model OnboardingStep {
+  id String @id @default(cuid())
+
+  // Step meta
+  type        OnboardingStepType
+  title       String
+  description String?
+
+  // Interview-specific fields
+  interviewDate DateTime?
+  interviewMode InterviewMode?
+  meetingLink   String?
+
+  fomrId String?
+
+  docuemtnTypes String[]
+
+  maxFileSize String?
+
+  courseId String?
+
+  taskDescription String?
+
+  taskDueDate DateTime?
+
+  // this is applicable for both approval and interviewers
+  employees Employee[]
+
+  // Scoring
+  maxScore Int?
+
+  // Ordering / flow
+  order      Int
+  isRequired Boolean @default(true)
+
+  // Relations (example: linked to onboarding flow)
+  onboardingId String
+  onboarding   Onboarding @relation(fields: [onboardingId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([onboardingId])
+  @@map("onboarding_steps")
+}
+
+enum OnboardingStepType {
+  FORM
+  INTERVIEW
+  DOCUMENT_UPLOAD
+  TRAINING
+  TASK
+  APPROVAL
+}
+
+enum InterviewMode {
+  ONLINE
+  OFFLINE
+}
+
+enum ComplianceDocumentType {
+  PASSPORT
+  ID_CARD
+  CERTIFICATE
+  LICENSE
+  NDA
+  OTHER
+}
+
+enum DocumentType {
+  RICH_TEXT
+  FILE
+  BOTH
 }
 
 /// Enum for field types

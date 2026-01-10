@@ -29,6 +29,18 @@ import { BusinessCategoryController } from './controllers/business_category.cont
 import { FileController } from './controllers/file.controller';
 import { SupportService } from './services/support.service';
 import { SupportController } from './controllers/support.controller';
+import { DocumentCategoryService } from './services/document-category.service';
+import { DocumentCategoryController } from './controllers/document-category.controller';
+import { DocumentService } from './services/document.service';
+import { DocumentController } from './controllers/document.controller';
+import { ComplianceDocumentService } from './services/compliance-document.service';
+import { ComplianceDocumentController } from './controllers/compliance-document.controller';
+import { CourseService } from './services/course.service';
+import { CourseController } from './controllers/course.controller';
+import { OnboardingService } from './services/onboarding.service';
+import { OnboardingController } from './controllers/onboarding.controller';
+import { OnboardingStepService } from './services/onboarding-step.service';
+import { OnboardingStepController } from './controllers/onboarding-step.controller';
 
 @Module({
   imports: [
@@ -59,6 +71,12 @@ import { SupportController } from './controllers/support.controller';
     BusinessCategoryController,
     FileController,
     SupportController,
+    DocumentCategoryController,
+    DocumentController,
+    ComplianceDocumentController,
+    CourseController,
+    OnboardingController,
+    OnboardingStepController,
   ],
   providers: [
     {
@@ -75,6 +93,12 @@ import { SupportController } from './controllers/support.controller';
     PrismaService,
     BusinessCategoryService,
     SupportService,
+    DocumentCategoryService,
+    DocumentService,
+    ComplianceDocumentService,
+    CourseService,
+    OnboardingService,
+    OnboardingStepService,
   ],
 })
 export class AppModule {}
